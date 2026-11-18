@@ -6,6 +6,7 @@ import { update, useAppState } from "./lib/store";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ListeningPage } from "./pages/ListeningPage";
 import { MiniTestPage } from "./pages/MiniTestPage";
+import { MockTestPage } from "./pages/MockTestPage";
 import { PlanPage } from "./pages/PlanPage";
 import { ReadingPage } from "./pages/ReadingPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
@@ -35,6 +36,7 @@ export function App() {
         <Route path="/listening" element={<ListeningPage />} />
         <Route path="/reading" element={<ReadingPage />} />
         <Route path="/mini-test" element={<MiniTestPage />} />
+        <Route path="/exam" element={<MockTestPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

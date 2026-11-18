@@ -91,3 +91,30 @@ export function playScript(
     synth.cancel();
   };
 }
+
+/**
+ * Play a recorded file when one is given (e.g. "audio/p3-01.mp3" under web/public), falling back
+ * to speech synthesis of the script if there is no file or it fails to load. Returns a stop function.
+ */
+export function playAudioOrScript(
+  src: string | undefined,
+  lines: ScriptLine[],
+  opts: { rate?: number; onLine?: (i: number) => void; onEnd?: () => void } = {},
+): () => void {
+  if (!src || typeof Audio === "undefined") return playScript(lines, opts);
+  let stopFallback: (() => void) | null = null;
+  let stopped = false;
+  const audio = new Audio(`${import.meta.env.BASE_URL}${src}`);
+  audio.playbackRate = opts.rate ?? 1;
+  audio.onended = () => opts.onEnd?.();
+  const fallback = () => {
+    if (!stopped && !stopFallback) stopFallback = playScript(lines, opts);
+  };
+  audio.onerror = fallback;
+  audio.play().catch(fallback);
+  return () => {
+    stopped = true;
+    audio.pause();
+    stopFallback?.();
+  };
+}

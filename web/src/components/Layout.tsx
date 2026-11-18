@@ -7,6 +7,7 @@ const LINKS = [
   { to: "/vocab", label: "Từ vựng", icon: "📚", end: false },
   { to: "/listening", label: "Nghe", icon: "🎧", end: false },
   { to: "/reading", label: "Đọc", icon: "📖", end: false },
+  { to: "/exam", label: "Thi thử", icon: "📝", end: false },
   { to: "/settings", label: "Dữ liệu", icon: "💾", end: false },
 ];
 
