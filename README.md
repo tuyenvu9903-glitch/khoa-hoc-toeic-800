@@ -13,7 +13,7 @@ Phase 1: kiến trúc. Phase 2: lộ trình 56 ngày + Dashboard "Hôm nay tôi 
 
 ## Luyện từ vựng (kiểu Quizlet)
 
-127 từ TOEIC theo 10 chủ đề (nơi làm việc, họp hành, du lịch, khách sạn, nhà hàng, mua sắm, chăm sóc khách hàng, giao hàng, lịch trình…), kèm nghĩa tiếng Việt, ví dụ và paraphrase hay gặp.
+Gần 200 từ TOEIC theo 16 chủ đề, chia vào 11 nhóm của mục tiêu 2.000 từ, kèm nghĩa tiếng Việt, ví dụ và paraphrase hay gặp.
 
 - **Học từ mới:** trắc nghiệm Anh→Việt, Việt→Anh, rồi gõ lại từ (cho phép thử lại một lần nếu sai một chữ). Từ sai sẽ quay lại sớm.
 - **Thẻ ghi nhớ:** thẻ lật 3D, chấm 4 mức (Chưa nhớ / Khó / Nhớ / Dễ). Phím tắt: Space lật thẻ, 1–4 chấm. Có nút nghe phát âm.
