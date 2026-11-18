@@ -17,12 +17,12 @@ const PART_LABEL: Record<string, string> = {
 function PracticeLinks({ plan }: { plan: DayPlan }) {
   const grammar = PART5_SKILLS.find((s) => s.code === plan.grammar)?.label ?? "Ngữ pháp";
   const links = [
-    { to: missionLink("vocab", plan)!, label: `📚 Từ vựng · ${TOPIC_LABEL[plan.vocabTopic]}`, tone: "bg-violet-100 text-violet-900" },
-    { to: missionLink("grammar", plan)!, label: `✏️ Ngữ pháp · ${grammar}`, tone: "bg-sky-100 text-sky-900" },
-    { to: missionLink("listening", plan)!, label: `🎧 ${PART_LABEL[plan.listeningPart]}`, tone: "bg-emerald-100 text-emerald-900" },
-    { to: missionLink("reading", plan)!, label: `📖 ${PART_LABEL[plan.readingPart]}`, tone: "bg-amber-100 text-amber-900" },
+    { to: missionLink("vocab", plan)!, label: `📚 Từ vựng · ${TOPIC_LABEL[plan.vocabTopic]}`, tone: "bg-p-purple text-violet-900" },
+    { to: missionLink("grammar", plan)!, label: `✏️ Ngữ pháp · ${grammar}`, tone: "bg-p-blue text-sky-900" },
+    { to: missionLink("listening", plan)!, label: `🎧 ${PART_LABEL[plan.listeningPart]}`, tone: "bg-p-mint text-emerald-900" },
+    { to: missionLink("reading", plan)!, label: `📖 ${PART_LABEL[plan.readingPart]}`, tone: "bg-p-cream text-amber-900" },
   ];
-  if (plan.test) links.push({ to: "/mini-test", label: "⏱️ Mini test", tone: "bg-indigo-100 text-indigo-900" });
+  if (plan.test) links.push({ to: "/mini-test", label: "⏱️ Mini test", tone: "bg-p-blue text-indigo-900" });
   return (
     <div className="mt-3 flex flex-wrap gap-2">
       {links.map((l) => (
@@ -54,7 +54,7 @@ export function PlanPage(_props: { profile: Profile }) {
               <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4">
                 <span
                   className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-sm font-extrabold ${
-                    current ? "bg-brand-600 text-white" : w.weekNumber * 7 < today ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
+                    current ? "bg-brand-700 text-white" : w.weekNumber * 7 < today ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
                   }`}
                 >
                   T{w.weekNumber}
@@ -85,7 +85,7 @@ export function PlanPage(_props: { profile: Profile }) {
                             {d.day < today ? "✓ " : ""}Ngày {d.day}
                           </span>
                           <span className="flex-1 font-medium text-slate-900">{d.title}</span>
-                          {isToday && <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">Hôm nay</span>}
+                          {isToday && <span className="rounded-full bg-brand-700 px-2 py-0.5 text-xs font-semibold text-white">Hôm nay</span>}
                           {d.test && !isToday && <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-800">Kiểm tra</span>}
                         </summary>
                         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-slate-700">

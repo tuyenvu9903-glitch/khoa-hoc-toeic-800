@@ -312,7 +312,7 @@ export function ReadingPage() {
           <h2 className="mt-6 text-sm font-semibold text-slate-500">Luyện thêm (các phần đã học tới)</h2>
           <section className="card mt-3 p-5">
             <div className="flex items-start gap-3">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-sky-100 text-xl" aria-hidden>✏️</span>
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-p-blue text-xl" aria-hidden>✏️</span>
               <div>
                 <h2 className="font-bold">Part 5 · Ngữ pháp theo dạng</h2>
                 <p className="mt-1 text-sm text-slate-600">{PART5_COUNT} câu mỗi lượt. Dạng chưa học tới sẽ mở theo lộ trình.</p>
@@ -342,7 +342,7 @@ export function ReadingPage() {
 
           <section className={`card mt-4 p-5 ${bank7Open ? "" : "opacity-60"}`}>
             <div className="flex items-start gap-3">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-100 text-xl" aria-hidden>{bank7Open ? "📖" : "🔒"}</span>
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-p-cream text-xl" aria-hidden>{bank7Open ? "📖" : "🔒"}</span>
               <div className="flex-1">
                 <h2 className="font-bold">Part 7 · Đọc hiểu tổng hợp</h2>
                 <p className="mt-1 text-sm text-slate-600">E-mail, quảng cáo, thông báo, tin nhắn, bài báo. {PART7_SETS} bài mỗi lượt.</p>

@@ -14,7 +14,8 @@ export type DashboardView = {
   weekendGate: string | null;
   placementDone: boolean;
   mission: DailyMission;
-  score: ScoreSummary;
+  /** Latest real result (official, mock or mini test). Null until the learner has taken one. */
+  score: (ScoreSummary & { source: string; at: string; official: boolean }) | null;
   weaknesses: Weakness[];
   openErrors: number;
   vocab: VocabCounts;
@@ -64,11 +65,14 @@ export function buildDashboard(state: AppState, profile: Profile, now: Date = ne
   });
 
   const latest = [...state.scores].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0];
-  const score = summarizeScore(
-    latest?.listening ?? profile.estimatedListening,
-    latest?.reading ?? profile.estimatedReading,
-    profile.targetScore,
-  );
+  const score = latest
+    ? {
+        ...summarizeScore(latest.listening, latest.reading, profile.targetScore),
+        source: latest.source,
+        at: latest.at,
+        official: latest.source.startsWith("official"),
+      }
+    : null;
 
   return {
     day: position.day,

@@ -1,81 +1,54 @@
 import { Link } from "react-router-dom";
-import { missionLink, planForDay } from "../data/dailyPlan";
-import { packByDay } from "../data/dayPacks";
-import { TOPIC_ICON, TOPIC_LABEL } from "../data/vocabulary";
-import { isKindDone, requiredKinds, wordsForDay } from "../domain/progress";
 import { Ring } from "../components/ui";
-import { weeks } from "../data/curriculum";
+import { planForDay } from "../data/dailyPlan";
+import { packByDay } from "../data/dayPacks";
+import { TOPIC_ICON } from "../data/vocabulary";
+import { PROGRAM_DAYS } from "../domain/progress";
 import { currentStreak } from "../domain/streak";
 import { buildDashboard, type DashboardView } from "../lib/dashboard";
-import { localDateKey, toggleMissionItem, type Profile } from "../lib/state";
-import { getSaveError, update, useAppState } from "../lib/store";
+import { buildJourney, minutesLeft, nextStep } from "../lib/journey";
+import { scoreSourceLabel, type Profile } from "../lib/state";
+import { getSaveError, useAppState } from "../lib/store";
 
-const KIND: Record<string, { label: string; icon: string; chip: string }> = {
-  vocab: { label: "Từ vựng", icon: "📚", chip: "bg-violet-100" },
-  grammar: { label: "Ngữ pháp", icon: "✏️", chip: "bg-sky-100" },
-  listening: { label: "Nghe", icon: "🎧", chip: "bg-emerald-100" },
-  reading: { label: "Đọc", icon: "📖", chip: "bg-amber-100" },
-  error_review: { label: "Ôn câu sai", icon: "🔁", chip: "bg-rose-100" },
-  mini_test: { label: "Mini test", icon: "⏱️", chip: "bg-indigo-100" },
-  mock: { label: "Thi thử", icon: "📝", chip: "bg-fuchsia-100" },
-  analysis: { label: "Phân tích", icon: "📊", chip: "bg-cyan-100" },
-};
+function greeting(now: Date): string {
+  const h = now.getHours();
+  return h < 11 ? "Chào buổi sáng" : h < 14 ? "Chào buổi trưa" : h < 18 ? "Chào buổi chiều" : "Chào buổi tối";
+}
 
-function ScoreCard({ score }: { score: DashboardView["score"] }) {
-  const pct = Math.min(1, score.current / score.target);
+function ScoreCard({ score, target }: { score: DashboardView["score"]; target: number }) {
+  if (!score) {
+    return (
+      <section className="card p-5" aria-label="Điểm">
+        <h2 className="text-sm font-semibold text-slate-500">Điểm TOEIC</h2>
+        <p className="mt-3 text-sm text-slate-600">
+          Chưa có điểm. Điểm ước lượng sẽ xuất hiện sau Mini test cuối tuần đầu tiên (Ngày 7). Nếu đã từng thi TOEIC thật, bạn có thể nhập điểm ở
+          trang <Link to="/progress" className="font-medium text-brand-700 underline">Tiến độ</Link>.
+        </p>
+        <p className="mt-3 text-xs text-slate-500">Mục tiêu: {target}</p>
+      </section>
+    );
+  }
+  const src = scoreSourceLabel(score.source);
   return (
-    <section className="card p-6" aria-label="Điểm ước tính">
-      <h2 className="text-sm font-semibold text-slate-500">Điểm ước tính</h2>
-      <div className="mt-3 flex items-center gap-5">
-        <Ring value={pct} id="score-ring">
+    <section className="card p-5" aria-label="Điểm">
+      <h2 className="text-sm font-semibold text-slate-500">{src.official ? "Điểm thi chính thức gần nhất" : "Điểm ước lượng gần nhất"}</h2>
+      <div className="mt-3 flex items-center gap-4">
+        <Ring value={Math.min(1, score.current / score.target)} id="score-ring" size={112} stroke={10}>
           <div>
-            <p className="text-3xl font-extrabold leading-none">{score.current}</p>
+            <p className="text-2xl font-extrabold leading-none">{score.current}</p>
             <p className="mt-1 text-xs text-slate-400">/ {score.target}</p>
           </div>
         </Ring>
-        <dl className="grid flex-1 gap-2 text-sm">
-          <div className="flex justify-between rounded-lg bg-brand-50 px-3 py-1.5">
-            <dt className="text-slate-500">Nghe</dt>
-            <dd className="font-semibold">{score.listening}</dd>
-          </div>
-          <div className="flex justify-between rounded-lg bg-brand-50 px-3 py-1.5">
-            <dt className="text-slate-500">Đọc</dt>
-            <dd className="font-semibold">{score.reading}</dd>
-          </div>
-          <div className="flex justify-between rounded-lg bg-amber-50 px-3 py-1.5">
-            <dt className="text-slate-500">Mốc tiếp</dt>
-            <dd className="font-semibold text-amber-700">{score.nextTarget}</dd>
-          </div>
+        <dl className="grid flex-1 gap-1.5 text-sm">
+          <div className="flex justify-between rounded-lg bg-p-mint px-3 py-1.5"><dt className="text-slate-600">Nghe</dt><dd className="font-semibold">{score.listening}</dd></div>
+          <div className="flex justify-between rounded-lg bg-p-cream px-3 py-1.5"><dt className="text-slate-600">Đọc</dt><dd className="font-semibold">{score.reading}</dd></div>
+          <div className="flex justify-between px-3 text-xs"><dt className="text-slate-500">Còn thiếu</dt><dd className="font-semibold">{score.gapToTarget}</dd></div>
         </dl>
       </div>
+      <p className="mt-3 text-xs text-slate-500">
+        {src.label} · {new Date(score.at).toLocaleDateString("vi-VN")}
+      </p>
     </section>
-  );
-}
-
-function WeekTrack({ week }: { week: number }) {
-  return (
-    <ol className="grid grid-cols-8 gap-1.5" aria-label="Lộ trình 8 tuần">
-      {weeks.map((w) => {
-        const state = w.weekNumber < week ? "done" : w.weekNumber === week ? "now" : "todo";
-        return (
-          <li
-            key={w.weekNumber}
-            title={`Tuần ${w.weekNumber}: ${w.title}`}
-            aria-current={state === "now" ? "step" : undefined}
-            className={`rounded-lg px-1 py-2 text-center text-xs font-semibold transition ${
-              state === "done"
-                ? "bg-brand-600 text-white"
-                : state === "now"
-                  ? "bg-brand-600 text-white"
-                  : "bg-white/70 text-slate-400"
-            }`}
-          >
-            <span className="hidden sm:inline">Tuần </span>
-            {w.weekNumber}
-          </li>
-        );
-      })}
-    </ol>
   );
 }
 
@@ -83,195 +56,128 @@ export function DashboardPage({ profile }: { profile: Profile }) {
   const state = useAppState();
   const now = new Date();
   const view = buildDashboard(state, profile, now);
-  const plan = planForDay(view.day);
-  const dateKey = localDateKey(now);
-  const pack = packByDay.get(view.day);
-  const todayWords = wordsForDay(view.day);
-  const learnedToday = todayWords.filter((w) => state.srs[w.id]).length;
-  const tracked = new Set<string>(requiredKinds(plan));
-  const manualDone = new Set(state.missionDone[dateKey] ?? []);
-  const isDone = (kind: string) =>
-    tracked.has(kind) ? isKindDone(state.progress, state.srs, view.day, kind) : manualDone.has(kind);
-  // The mini test only counts on the weekly checkpoint days.
-  const items = view.mission.items.filter((i) => i.kind !== "mini_test" || plan.test);
-  const done = new Set(items.filter((i) => isDone(i.kind)).map((i) => i.kind));
-  const dayComplete = [...tracked].every((k) => isDone(k));
-  const doneMinutes = items.filter((i) => done.has(i.kind)).reduce((n, i) => n + i.minutes, 0);
-  const dayPct = view.mission.totalMinutes === 0 ? 0 : Math.round((doneMinutes / view.mission.totalMinutes) * 100);
-  const allDone = dayComplete;
+  const day = view.day;
+  const plan = planForDay(day);
+  const pack = packByDay.get(day);
+  const steps = buildJourney(state);
+  const next = nextStep(steps);
+  const doneCount = steps.filter((s) => s.done).length;
   const streak = currentStreak(state.missionDone, now);
   const saveError = getSaveError();
+  const pct = Math.round((doneCount / steps.length) * 100);
 
   return (
     <div className="space-y-5">
       {saveError && (
-        <p role="alert" className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <p role="alert" className="rounded-xl bg-p-coral px-4 py-3 text-sm text-rose-800">
           Không lưu được tiến độ vào trình duyệt ({saveError}). Hãy tải file sao lưu ở trang Dữ liệu.
         </p>
       )}
 
-      <section className="relative overflow-hidden rounded-3xl bg-brand-700 p-6 text-white sm:p-8">
-        <div className="relative flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-white/80">Chào {profile.displayName} 👋</p>
-            <h1 className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Ngày {view.day}
-              <span className="text-white/60">/56</span>
-            </h1>
-            <p className="mt-1 text-white/85">
-              Tuần {view.week}
-              {view.weekTitle ? ` · ${view.weekTitle}` : ""}
-            </p>
-            <p className="mt-0.5 text-sm text-white/80">Hôm nay: <strong className="text-white">{plan.title}</strong></p>
+      {/* Hero: who, where in the course, and the one main action */}
+      <section className="card overflow-hidden">
+        <div className="bg-p-mint p-6 sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-brand-800">{greeting(now)}, {profile.displayName} 👋</p>
+              <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
+                Ngày {day}<span className="text-slate-400">/{PROGRAM_DAYS}</span>
+              </h1>
+              <p className="mt-1 flex items-center gap-2 text-slate-700">
+                <span aria-hidden>{TOPIC_ICON[pack?.topic ?? plan.vocabTopic]}</span>
+                Tuần {view.week} · {pack?.theme ?? plan.title}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-white/80 px-4 py-2.5 text-center" title="Số ngày liên tiếp có học">
+              <p className="text-xl font-extrabold">🔥 {streak}</p>
+              <p className="text-xs text-slate-500">ngày liên tiếp</p>
+            </div>
           </div>
-          <div
-            className="flex items-center gap-2 rounded-2xl bg-white/15 px-4 py-2.5"
-            title="Số ngày liên tiếp có hoàn thành ít nhất một nhiệm vụ"
-          >
-            <span className="text-2xl" aria-hidden>🔥</span>
-            <div className="leading-tight">
-              <p className="text-xl font-extrabold">{streak}</p>
-              <p className="text-xs text-white/75">ngày liên tiếp</p>
+
+          <div className="mt-6">
+            {next ? (
+              <Link to={next.to} className="btn-primary w-full !py-3.5 text-base sm:w-auto sm:!px-6">
+                ▶ {doneCount === 0 ? "Bắt đầu học hôm nay" : `Tiếp tục: Bước ${next.n} · ${next.title}`}
+              </Link>
+            ) : (
+              <p role="status" className="rounded-xl bg-white/80 px-4 py-3 text-sm text-brand-800">
+                🎉 Bạn đã xong Ngày {day}. {day < PROGRAM_DAYS ? `Ngày ${day + 1} mở vào ngày mai.` : ""}
+              </p>
+            )}
+            <div className="mt-4 max-w-md">
+              <div className="flex justify-between text-xs text-slate-600">
+                <span>{doneCount}/{steps.length} bước hôm nay</span>
+                <span>{next ? `còn ~${minutesLeft(steps)} phút` : "hoàn thành"}</span>
+              </div>
+              <div className="mt-1 h-2 overflow-hidden rounded-full bg-white" role="progressbar" aria-label="Tiến độ hôm nay" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+                <div className="h-full rounded-full bg-brand-600 transition-all duration-700" style={{ width: `${pct}%` }} />
+              </div>
             </div>
           </div>
         </div>
-        <div className="relative mt-6">
-          <div className="mb-1.5 flex justify-between text-sm text-white/85">
-            <span>{allDone ? "Hoàn thành nhiệm vụ hôm nay 🎉" : "Tiến độ hôm nay"}</span>
-            <span>{doneMinutes}/{view.mission.totalMinutes} phút</span>
-          </div>
-          <div
-            className="h-2.5 overflow-hidden rounded-full bg-white/25"
-            role="progressbar"
-            aria-label="Tiến độ hôm nay"
-            aria-valuenow={dayPct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div className="h-full rounded-full bg-white transition-all duration-700" style={{ width: `${dayPct}%` }} />
-          </div>
-        </div>
       </section>
 
-      <WeekTrack week={view.week} />
-
-      <section className="card p-6" aria-labelledby="lesson-title">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="lesson-title" className="text-lg font-bold">
-            📘 Bài học hôm nay · <span className="text-brand-700">Tuần {plan.week} · Ngày {plan.day}</span>
-          </h2>
-          <Link to="/plan" className="text-sm font-medium text-brand-700 hover:underline">Xem cả lộ trình →</Link>
-        </div>
-        <p className="mt-1 font-semibold text-slate-800">{plan.title}</p>
-        <ul className="mt-3 space-y-2 text-sm text-slate-700">
-          {plan.lesson.map((l, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">{i + 1}</span>
-              <span>{l}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-violet-100 text-base" aria-hidden>
-            {TOPIC_ICON[pack?.topic ?? plan.vocabTopic]}
-          </span>
-          Chủ đề hôm nay: <strong className="text-slate-800">{pack?.theme ?? TOPIC_LABEL[plan.vocabTopic]}</strong>
-          <span className="text-slate-400">·</span>
-          {todayWords.length} từ mới, bài nghe và bài đọc cùng chủ đề
-        </p>
-      </section>
-
-      {dayComplete && !view.finished && (
-        <div role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-          🎉 Bạn đã hoàn thành <strong>Ngày {view.day}</strong>. Ngày {view.day + 1} sẽ mở vào ngày mai, hãy ôn lại từ vựng đến hạn nếu còn thời gian.
-        </div>
-      )}
-
-      {!view.placementDone && (
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/90 p-4 text-sm text-amber-900">
-          <span className="text-xl" aria-hidden>🧭</span>
-          <p>
-            Bạn chưa làm <strong>Placement Test</strong>. Bài này sẽ xác định điểm yếu ban đầu (sắp có ở Phase 3).
-          </p>
-        </div>
-      )}
-      {view.finished && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-          Bạn đã đi hết 56 ngày. Có thể bắt đầu lại ở trang Dữ liệu.
-        </div>
-      )}
-
-      <div className="grid gap-5 md:grid-cols-3">
-        <section className="card p-6 md:col-span-2">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-xl font-bold">Hôm nay tôi phải học gì?</h2>
-            <p className="text-xs text-slate-500">
-              {Math.round(view.mission.learningRatio * 100)}% học · {Math.round(view.mission.practiceRatio * 100)}% luyện
-            </p>
+      <div className="grid gap-5 lg:grid-cols-3">
+        <section className="card p-5 lg:col-span-2" aria-labelledby="plan-title">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 id="plan-title" className="text-lg font-bold">Kế hoạch hôm nay</h2>
+            <Link to="/today" className="text-sm font-medium text-brand-700 hover:underline">Xem chi tiết →</Link>
           </div>
           <ol className="mt-4 space-y-2">
-            {items.map((item) => {
-              const checked = done.has(item.kind);
-              const k = KIND[item.kind] ?? { label: item.title, icon: "•", chip: "bg-slate-100" };
-              return (
-                <li
-                  key={item.kind}
-                  className={`flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border px-3.5 py-3 transition ${
-                    checked ? "border-transparent bg-brand-50/70" : "border-slate-200/80 bg-white hover:border-brand-200 hover:shadow-sm"
+            {steps.map((s) => (
+              <li key={s.kind}>
+                <Link
+                  to={s.to}
+                  className={`flex items-center gap-3 rounded-xl border px-3.5 py-3 transition ${
+                    s.done ? "border-transparent bg-slate-50" : s === next ? "border-brand-300 bg-white" : "border-slate-200 bg-white hover:border-brand-200"
                   }`}
                 >
-                  <input
-                    id={`m-${item.kind}`}
-                    type="checkbox"
-                    className="check disabled:cursor-default"
-                    checked={checked}
-                    disabled={tracked.has(item.kind)}
-                    title={tracked.has(item.kind) ? "Tự đánh dấu khi bạn làm xong bài luyện" : undefined}
-                    onChange={() => update((s) => toggleMissionItem(s, dateKey, item.kind))}
-                  />
-                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg ${k.chip}`} aria-hidden>
-                    {k.icon}
+                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg ${s.tone}`} aria-hidden>{s.done ? "✅" : s.icon}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className={`block font-semibold ${s.done ? "text-slate-400" : "text-slate-900"}`}>{s.n}. {s.title}</span>
+                    <span className="block truncate text-xs text-slate-500">{s.detail}</span>
                   </span>
-                  <label htmlFor={`m-${item.kind}`} className="min-w-[8rem] flex-1 cursor-pointer">
-                    <span className={`block whitespace-nowrap font-semibold ${checked ? "text-slate-400 line-through" : ""}`}>{k.label}</span>
-                    <span className="block truncate text-xs text-slate-500">
-                      {item.kind === "vocab"
-                        ? `${learnedToday}/${todayWords.length} từ mới hôm nay${view.vocab.due > 0 ? ` · ${view.vocab.due} từ cần ôn` : ""}`
-                        : (item.reason ?? `${item.itemCount} câu · ${item.minutes} phút`)}
-                    </span>
-                  </label>
-                  {missionLink(item.kind, plan) && !checked && (
-                    <Link to={missionLink(item.kind, plan)!} className="btn-primary ml-auto shrink-0 !px-3 !py-1.5 !text-xs">
-                      Luyện ngay
-                    </Link>
-                  )}
-                  <p className="hidden shrink-0 text-right text-sm font-medium text-slate-600 sm:block">
-                    {item.itemCount} câu
-                    <span className="block text-xs font-normal text-slate-400">{item.minutes} phút</span>
-                  </p>
-                </li>
-              );
-            })}
+                  <span className="shrink-0 text-xs text-slate-400">{s.done ? "Đã xong" : `~${s.minutes}'`}</span>
+                </Link>
+              </li>
+            ))}
           </ol>
-          {view.weekendGate && (
-            <p className="mt-4 rounded-xl bg-slate-100 px-4 py-2.5 text-xs text-slate-600">
-              🏁 Cuối tuần: <strong>{view.weekendGate}</strong>
-            </p>
-          )}
+          <details className="mt-4 rounded-xl bg-slate-50 p-4 text-sm">
+            <summary className="cursor-pointer font-medium text-slate-700">📘 3 ý chính hôm nay</summary>
+            <ul className="mt-2 list-disc space-y-1.5 pl-5 text-slate-700">
+              {plan.lesson.map((l, i) => <li key={i}>{l}</li>)}
+            </ul>
+          </details>
         </section>
 
         <aside className="space-y-5">
-          <ScoreCard score={view.score} />
-          <section className="card p-6">
-            <h2 className="text-sm font-semibold text-slate-500">Top điểm yếu</h2>
-            {view.weaknesses.length === 0 ? (
-              <p className="mt-2 text-sm text-slate-500">Chưa có dữ liệu. Làm bài đầu tiên để hệ thống phân tích.</p>
+          <ScoreCard score={view.score} target={profile.targetScore} />
+
+          <section className="card p-5">
+            <h2 className="text-sm font-semibold text-slate-500">Ôn từ vựng</h2>
+            {view.vocab.due > 0 ? (
+              <>
+                <p className="mt-2 text-sm text-slate-700"><strong className="text-lg">{view.vocab.due}</strong> từ đến hạn ôn hôm nay.</p>
+                <Link to="/vocab" className="btn-ghost mt-3 !py-1.5">Ôn ngay</Link>
+              </>
             ) : (
-              <ol className="mt-3 space-y-3 text-sm">
-                {view.weaknesses.slice(0, 5).map((w, i) => (
+              <p className="mt-2 text-sm text-slate-600">Không có từ nào đến hạn ôn. Đã học {view.vocab.learned} từ.</p>
+            )}
+          </section>
+
+          <section className="card p-5">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold text-slate-500">Cần cải thiện</h2>
+              <Link to="/progress" className="text-xs font-medium text-brand-700 hover:underline">Tiến độ →</Link>
+            </div>
+            {view.weaknesses.length === 0 ? (
+              <p className="mt-2 text-sm text-slate-600">Chưa đủ dữ liệu. Sau vài bài luyện, các dạng bạn hay sai sẽ hiện ở đây.</p>
+            ) : (
+              <ol className="mt-3 space-y-2.5 text-sm">
+                {view.weaknesses.slice(0, 3).map((w) => (
                   <li key={w.skillCode}>
                     <div className="flex justify-between gap-2">
-                      <span className="font-medium">{i + 1}. {w.name}</span>
+                      <span className="font-medium">{w.name}</span>
                       <span className="text-slate-500">{Math.round(w.accuracy * 100)}%</span>
                     </div>
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
@@ -281,7 +187,6 @@ export function DashboardPage({ profile }: { profile: Profile }) {
                 ))}
               </ol>
             )}
-            <p className="mt-4 text-xs text-slate-500">Câu sai chưa ôn: <strong>{view.openErrors}</strong></p>
           </section>
         </aside>
       </div>

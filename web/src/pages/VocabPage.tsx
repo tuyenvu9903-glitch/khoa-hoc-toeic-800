@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Stat } from "../components/ui";
 import { TOPIC_LABEL, VOCAB_GROUPS, vocabulary, type VocabTopic, type VocabWord } from "../data/vocabulary";
 import { isDue, isMature } from "../domain/srs";
@@ -76,6 +77,16 @@ export function VocabPage() {
       (topic === "all" || w.topic === topic) &&
       (q === "" || w.word.toLowerCase().includes(q) || w.meaningVi.toLowerCase().includes(q)),
   );
+  const [params, setParams] = useSearchParams();
+  // /vocab?start=learn (from the daily journey): go straight into today's new words, or reviews.
+  useEffect(() => {
+    if (params.get("start") !== "learn") return;
+    if (learnIds.length > 0) setMode({ kind: "learn", ids: learnIds });
+    else if (flashIds.length > 0) setMode({ kind: "flash", ids: flashIds });
+    setParams({}, { replace: true });
+    // Run once on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const exit = () => setMode(null);
 
   return (
@@ -95,10 +106,10 @@ export function VocabPage() {
         <>
           <section className="card mt-5 p-6">
             <dl className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-              <Stat label="Đến hạn ôn" value={counts.due} icon="⏰" tone="bg-amber-100" />
-              <Stat label="Từ mới hôm nay" value={counts.newAvailable} icon="✨" tone="bg-violet-100" />
+              <Stat label="Đến hạn ôn" value={counts.due} icon="⏰" tone="bg-p-cream" />
+              <Stat label="Từ mới hôm nay" value={counts.newAvailable} icon="✨" tone="bg-p-purple" />
               <Stat label="Đã học" value={counts.learned} hint={`/${counts.total}`} icon="📚" tone="bg-brand-100" />
-              <Stat label="Thuộc lâu" value={counts.mature} icon="🏅" tone="bg-emerald-100" />
+              <Stat label="Thuộc lâu" value={counts.mature} icon="🏅" tone="bg-p-mint" />
             </dl>
           </section>
 
@@ -138,7 +149,7 @@ export function VocabPage() {
           <section className="mt-5 grid gap-4 sm:grid-cols-2" aria-label="Chế độ luyện">
             <ModeCard
               icon="🧠"
-              tone="bg-violet-100"
+              tone="bg-p-purple"
               title="Học từ mới"
               desc="Trắc nghiệm hai chiều rồi gõ lại từ, như chế độ Learn của Quizlet. Mỗi lượt tối đa 8 từ."
               action={learnIds.length > 0 ? `Học ${learnIds.length} từ mới` : "Hết từ mới hôm nay"}
@@ -147,7 +158,7 @@ export function VocabPage() {
             />
             <ModeCard
               icon="🃏"
-              tone="bg-sky-100"
+              tone="bg-p-blue"
               title="Thẻ ghi nhớ"
               desc="Lật thẻ, tự chấm 4 mức. Từ đến hạn được ôn trước theo lịch lặp lại ngắt quãng."
               action={flashIds.length > 0 ? `Ôn ${flashIds.length} thẻ` : "Hôm nay đã xong"}
@@ -156,7 +167,7 @@ export function VocabPage() {
             />
             <ModeCard
               icon="⌨️"
-              tone="bg-amber-100"
+              tone="bg-p-cream"
               title="Gõ từ bắn gà"
               desc={`Gà rơi xuống mang nghĩa tiếng Việt, gõ đúng từ tiếng Anh là tàu bay bắn.${state.typingBest !== null ? ` Kỷ lục ${state.typingBest} điểm.` : ""}`}
               action="Chơi"
@@ -164,7 +175,7 @@ export function VocabPage() {
             />
             <ModeCard
               icon="🐔"
-              tone="bg-rose-100"
+              tone="bg-p-coral"
               title="Bắn gà"
               desc={`Điều khiển tàu bay, bắn con gà mang nghĩa đúng trước khi đàn gà đáp xuống. Né trứng!${state.shooterBest !== null ? ` Kỷ lục ${state.shooterBest} điểm.` : ""}`}
               action="Bắn gà"

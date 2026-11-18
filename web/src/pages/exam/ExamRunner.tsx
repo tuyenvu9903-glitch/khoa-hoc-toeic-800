@@ -37,7 +37,7 @@ function Choice({
         chosen ? "border-brand-600 bg-brand-50 font-medium" : "border-slate-200 bg-white hover:border-brand-300"
       }`}
     >
-      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border text-xs font-bold ${chosen ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 text-slate-500"}`}>
+      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border text-xs font-bold ${chosen ? "border-brand-600 bg-brand-700 text-white" : "border-slate-300 text-slate-500"}`}>
         {letter}
       </span>
       {text && <span className="pt-0.5">{text}</span>}
@@ -109,7 +109,7 @@ function AnswerSheet({
                 onClick={() => onJump?.(gi)}
                 title={done ? `Câu ${q.number}: ${LETTERS[answers[q.id]!]}` : `Câu ${q.number}: chưa trả lời`}
                 className={`relative h-8 rounded text-xs font-semibold transition disabled:cursor-default ${
-                  done ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-500"
+                  done ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-500"
                 } ${gi === current ? "ring-2 ring-brand-400 ring-offset-1" : ""}`}
               >
                 {q.number}

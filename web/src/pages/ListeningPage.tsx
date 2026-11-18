@@ -472,7 +472,7 @@ export function ListeningPage() {
           <section className="mt-3 grid gap-4 sm:grid-cols-3" aria-label="Chọn phần luyện">
             <ModeCard
               icon="💬"
-              tone="bg-sky-100"
+              tone="bg-p-blue"
               title="Part 2 · Hỏi – đáp"
               desc={`Nghe một câu hỏi và 3 câu trả lời, không có chữ. ${PART2_COUNT} câu mỗi lượt (ngân hàng ${counts.p2} câu).`}
               action="Bắt đầu"
@@ -484,7 +484,7 @@ export function ListeningPage() {
             />
             <ModeCard
               icon="👥"
-              tone="bg-emerald-100"
+              tone="bg-p-mint"
               title="Part 3 · Hội thoại"
               desc={`Hội thoại 2–3 người, mỗi đoạn 3 câu hỏi in sẵn. ${SETS_PER_SESSION} đoạn mỗi lượt (có ${counts.p3} đoạn).`}
               action="Bắt đầu"
@@ -496,7 +496,7 @@ export function ListeningPage() {
             />
             <ModeCard
               icon="📢"
-              tone="bg-amber-100"
+              tone="bg-p-cream"
               title="Part 4 · Bài nói"
               desc={`Thông báo, tin nhắn, quảng cáo… mỗi bài 3 câu hỏi. ${SETS_PER_SESSION} bài mỗi lượt (có ${counts.p4} bài).`}
               action="Bắt đầu"

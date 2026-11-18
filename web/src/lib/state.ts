@@ -232,3 +232,26 @@ export function recordShooterScore(state: AppState, score: number): { state: App
   const record = score > 0 && (state.shooterBest === null || score > state.shooterBest);
   return { state: record ? { ...state, shooterBest: score } : state, record };
 }
+
+/** A real TOEIC result entered by the learner. Section scores are 5–495 in steps of 5. */
+export function addOfficialScore(state: AppState, input: { date: string; listening: number; reading: number }): AppState {
+  const valid = (n: number) => Number.isInteger(n) && n >= 5 && n <= 495 && n % 5 === 0;
+  if (!valid(input.listening) || !valid(input.reading)) throw new Error("Điểm mỗi phần phải từ 5 đến 495 và chia hết cho 5.");
+  const at = new Date(`${input.date}T12:00:00`);
+  if (Number.isNaN(at.getTime())) throw new Error("Ngày thi không hợp lệ.");
+  return {
+    ...state,
+    scores: [
+      ...state.scores,
+      { at: at.toISOString(), listening: input.listening, reading: input.reading, total: input.listening + input.reading, source: "official" },
+    ],
+  };
+}
+
+/** Human label for where a score came from; estimates are always marked as such. */
+export function scoreSourceLabel(source: string): { label: string; official: boolean } {
+  if (source.startsWith("official")) return { label: "Điểm thi TOEIC chính thức", official: true };
+  if (source.startsWith("short-mock")) return { label: "Ước lượng từ đề thi thử rút gọn (50 câu)", official: false };
+  if (source.startsWith("mini-")) return { label: "Ước lượng từ Mini test (ít câu, chỉ để tham khảo)", official: false };
+  return { label: "Ước lượng", official: false };
+}

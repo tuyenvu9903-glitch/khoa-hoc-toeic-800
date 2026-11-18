@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import type { ExamPaper } from "../domain/exam";
+import { scorePaper, type ExamPaper } from "../domain/exam";
 import { firstTestDay, miniTestUnlocked } from "../domain/progress";
 import { buildMiniPaper, recordExam } from "../lib/papers";
 import { localDateKey, markMissionDone } from "../lib/state";
@@ -21,7 +21,14 @@ export function MiniTestPage() {
   };
   const finish = (a: Record<string, number>) => {
     setAnswers(a);
-    update((s) => markMissionDone(recordExam(s, paper!, a, null), localDateKey(new Date()), "mini_test"));
+    const r = scorePaper(paper!, a);
+    update((s) =>
+      markMissionDone(
+        recordExam(s, paper!, a, { listening: r.listening?.estimated ?? 5, reading: r.reading?.estimated ?? 5 }),
+        localDateKey(new Date()),
+        "mini_test",
+      ),
+    );
   };
 
   return (

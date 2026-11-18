@@ -8,6 +8,8 @@ import { ListeningPage } from "./pages/ListeningPage";
 import { MiniTestPage } from "./pages/MiniTestPage";
 import { MockTestPage } from "./pages/MockTestPage";
 import { PlanPage } from "./pages/PlanPage";
+import { ProgressPage } from "./pages/ProgressPage";
+import { TodayPage } from "./pages/TodayPage";
 import { ReadingPage } from "./pages/ReadingPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -33,6 +35,8 @@ export function App() {
         <Route path="/" element={<DashboardPage profile={profile} />} />
         <Route path="/vocab" element={<VocabPage />} />
         <Route path="/plan" element={<PlanPage profile={profile} />} />
+        <Route path="/today" element={<TodayPage />} />
+        <Route path="/progress" element={<ProgressPage profile={profile} />} />
         <Route path="/listening" element={<ListeningPage />} />
         <Route path="/reading" element={<ReadingPage />} />
         <Route path="/mini-test" element={<MiniTestPage />} />

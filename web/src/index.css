@@ -1,18 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Primary green. White text sits on brand-700 (#15803d) for 5:1 contrast. */
+  --color-brand-50: #f0fdf4;
+  --color-brand-100: #dcfce7;
+  --color-brand-200: #bbf7d0;
+  --color-brand-300: #86efac;
+  --color-brand-400: #4ade80;
+  --color-brand-500: #22c55e;
+  --color-brand-600: #16a34a;
+  --color-brand-700: #15803d;
+  --color-brand-800: #166534;
   --color-accent-400: #ffb547;
   --color-accent-500: #f59e0b;
+  /* Pastel surfaces */
+  --color-p-mint: #dff5e8;
+  --color-p-cream: #fff4d6;
+  --color-p-blue: #e7efff;
+  --color-p-purple: #f4eafe;
+  --color-p-coral: #fff0ec;
 }
 
 @layer base {
@@ -21,7 +28,8 @@
   }
   body {
     @apply text-slate-900 antialiased;
-    background-color: #f8fafc;
+    background-color: #f6faf7;
+    line-height: 1.55;
   }
   h1,
   h2,
@@ -36,9 +44,9 @@
 @layer components {
   .card {
     border-radius: 1rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5ece7;
     background: #fff;
-    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 14px rgb(22 101 52 / 0.05);
   }
   :is(.btn, .btn-primary, .btn-ghost) {
     display: inline-flex;
@@ -69,10 +77,10 @@
   }
   .btn-primary {
     color: #fff;
-    background: var(--color-brand-600);
+    background: var(--color-brand-700);
   }
   .btn-primary:hover:not(:disabled) {
-    background: var(--color-brand-700);
+    background: var(--color-brand-800);
   }
   .btn-ghost {
     color: #334155;
@@ -118,7 +126,7 @@
   }
   .check:checked {
     border-color: transparent;
-    background-color: var(--color-brand-600);
+    background-color: var(--color-brand-700);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E");
     transform: scale(1.05);
   }

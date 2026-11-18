@@ -59,7 +59,7 @@ describe("buildDashboard", () => {
     const v = buildDashboard(s, s.profile!, start);
     expect(v).toMatchObject({ day: 1, week: 1, placementDone: false, openErrors: 0 });
     expect(v.mission.items.map((i) => i.kind)).toEqual(["vocab", "grammar", "listening", "reading", "mini_test"]);
-    expect(v.score).toMatchObject({ current: 400, target: 800 });
+    expect(v.score).toBeNull(); // no test taken yet: no score is shown
   });
 
   it("shows week 6 on day 37 and focuses on recorded weaknesses", () => {
