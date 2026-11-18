@@ -14,7 +14,7 @@ Status as of 2026-11-19. Work is incremental on the existing React/TS/Vite/Tailw
 | Adaptive | Skill stats (EMA accuracy, response time), error log, weakest-skill focus in missions | Recommendations not driving which items are served; no retention metric |
 | Analytics | Score ring, top weaknesses, streak | No time studied, weekly accuracy, vocab mastery, weekly report |
 
-Known issues: the GitHub Pages source must be set to *GitHub Actions* (otherwise the README is served).
+Pages source is set to GitHub Actions (2026-11-19).
 
 ## Constraints and decisions
 

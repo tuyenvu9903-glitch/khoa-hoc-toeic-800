@@ -42,10 +42,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # While the repo's Pages source is still "Deploy from a branch", GitHub also publishes the
-      # README from main. Waiting makes this deployment finish last so the app wins. Remove once
-      # Settings → Pages → Source is set to "GitHub Actions".
-      - name: Wait for the branch-based Pages build to finish
-        run: sleep 150
       - id: deployment
         uses: actions/deploy-pages@v4
