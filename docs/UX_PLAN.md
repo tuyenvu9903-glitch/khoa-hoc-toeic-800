@@ -59,6 +59,12 @@ Home                                   Today (/today)
 3. **Learning screens:** flashcards with IPA/audio/collocations and Unknown/Difficult/Known; listening
    learning mode polish; reading highlight, word lookup, mobile Passage/Questions switch, reading-speed tracking.
 4. **Grammar lessons:** short Vietnamese lesson → examples → traps → exercises → review quiz.
+2b. **Vocabulary games (both kept: "Bắn gà" and "Gõ từ bắn gà"):** Easy/Normal/Hard with progressive speed,
+   short rounds, daily challenge, personal best per mode and difficulty, combo and speed bonuses; word filters
+   (topic, difficulty, recently learned, weak words, due for review) from the course database; end-of-round
+   review of right/wrong words with meanings, mistakes logged and wrong words scheduled for SRS, "play again
+   with weak words"; pause/resume, keyboard and touch; shared real statistics (accuracy, average response
+   time, best combo, games played, retention). Existing records (`shooterBest`, `typingBest`) are preserved.
 5. **Motivation & analytics:** XP from real activity, badges, weekly achievements, study-time tracking,
    weekly report.
 6. **Full mock test (200 q)** once the original question bank is large enough (see ROADMAP).
