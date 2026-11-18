@@ -3,6 +3,9 @@ import { Layout } from "./components/Layout";
 import { useAppState } from "./lib/store";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ListeningPage } from "./pages/ListeningPage";
+import { MiniTestPage } from "./pages/MiniTestPage";
+import { PlanPage } from "./pages/PlanPage";
+import { ReadingPage } from "./pages/ReadingPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { VocabPage } from "./pages/VocabPage";
@@ -15,7 +18,10 @@ export function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<DashboardPage profile={profile} />} />
         <Route path="/vocab" element={<VocabPage />} />
+        <Route path="/plan" element={<PlanPage profile={profile} />} />
         <Route path="/listening" element={<ListeningPage />} />
+        <Route path="/reading" element={<ReadingPage />} />
+        <Route path="/mini-test" element={<MiniTestPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { missionLink, planForDay } from "../data/dailyPlan";
+import { TOPIC_LABEL } from "../data/vocabulary";
 import { Ring } from "../components/ui";
 import { weeks } from "../data/curriculum";
 import { currentStreak } from "../domain/streak";
@@ -79,6 +81,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
   const state = useAppState();
   const now = new Date();
   const view = buildDashboard(state, profile, now);
+  const plan = planForDay(view.day);
   const dateKey = localDateKey(now);
   const done = new Set(state.missionDone[dateKey] ?? []);
   const doneMinutes = view.mission.items.filter((i) => done.has(i.kind)).reduce((n, i) => n + i.minutes, 0);
@@ -107,7 +110,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
               Tuần {view.week}
               {view.weekTitle ? ` · ${view.weekTitle}` : ""}
             </p>
-            {view.focus && <p className="mt-0.5 text-sm text-white/70">Trọng tâm: {view.focus}</p>}
+            <p className="mt-0.5 text-sm text-white/80">Hôm nay: <strong className="text-white">{plan.title}</strong></p>
           </div>
           <div
             className="flex items-center gap-2 rounded-2xl bg-white/15 px-4 py-2.5"
@@ -139,6 +142,25 @@ export function DashboardPage({ profile }: { profile: Profile }) {
       </section>
 
       <WeekTrack week={view.week} />
+
+      <section className="card p-6" aria-labelledby="lesson-title">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="lesson-title" className="text-lg font-bold">
+            📘 Bài học hôm nay · <span className="text-brand-700">Tuần {plan.week} · Ngày {plan.day}</span>
+          </h2>
+          <Link to="/plan" className="text-sm font-medium text-brand-700 hover:underline">Xem cả lộ trình →</Link>
+        </div>
+        <p className="mt-1 font-semibold text-slate-800">{plan.title}</p>
+        <ul className="mt-3 space-y-2 text-sm text-slate-700">
+          {plan.lesson.map((l, i) => (
+            <li key={i} className="flex gap-2">
+              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">{i + 1}</span>
+              <span>{l}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs text-slate-500">Chủ đề từ vựng gợi ý: {TOPIC_LABEL[plan.vocabTopic]}</p>
+      </section>
 
       {!view.placementDone && (
         <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/90 p-4 text-sm text-amber-900">
@@ -189,9 +211,9 @@ export function DashboardPage({ profile }: { profile: Profile }) {
                       {item.reason ?? `${item.itemCount} câu · ${item.minutes} phút`}
                     </span>
                   </label>
-                  {item.kind === "vocab" && (
-                    <Link to="/vocab" className="btn-primary ml-auto shrink-0 !px-3 !py-1.5 !text-xs">
-                      Luyện ngay ({view.vocab.due + view.vocab.newAvailable})
+                  {missionLink(item.kind, plan) && (
+                    <Link to={missionLink(item.kind, plan)!} className="btn-primary ml-auto shrink-0 !px-3 !py-1.5 !text-xs">
+                      Luyện ngay{item.kind === "vocab" ? ` (${view.vocab.due + view.vocab.newAvailable})` : ""}
                     </Link>
                   )}
                   <p className="hidden shrink-0 text-right text-sm font-medium text-slate-600 sm:block">

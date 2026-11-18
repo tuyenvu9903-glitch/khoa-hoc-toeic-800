@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   part2Items,
   part3Sets,
@@ -69,7 +70,7 @@ function Explain({ text }: { text: string }) {
   return <p className="mt-2 rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700">💡 {text}</p>;
 }
 
-function Part2Session({ items, rate, onDone, onExit }: { items: Part2Item[]; rate: number; onDone: (r: Result) => void; onExit: () => void }) {
+export function Part2Session({ items, rate, onDone, onExit }: { items: Part2Item[]; rate: number; onDone: (r: Result) => void; onExit: () => void }) {
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [correct, setCorrect] = useState(0);
@@ -174,7 +175,7 @@ function Part2Session({ items, rate, onDone, onExit }: { items: Part2Item[]; rat
   );
 }
 
-function SetSession({ part, sets, rate, onDone, onExit }: { part: "3" | "4"; sets: ListeningSet[]; rate: number; onDone: (r: Result) => void; onExit: () => void }) {
+export function SetSession({ part, sets, rate, onDone, onExit }: { part: "3" | "4"; sets: ListeningSet[]; rate: number; onDone: (r: Result) => void; onExit: () => void }) {
   const [index, setIndex] = useState(0);
   const [picks, setPicks] = useState<(number | null)[]>([null, null, null]);
   const [submitted, setSubmitted] = useState(false);
@@ -314,13 +315,24 @@ function ModeCard({ icon, tone, title, desc, action, onClick }: { icon: string; 
 }
 
 export function ListeningPage() {
+  const [params, setParams] = useSearchParams();
   const [mode, setMode] = useState<Mode>(null);
+  // Deep links from the daily plan: /listening?part=2|3|4
+  useEffect(() => {
+    const part = params.get("part");
+    if (part === "2") setMode({ kind: "p2", items: shuffle(part2Items).slice(0, PART2_COUNT) });
+    else if (part === "3") setMode({ kind: "sets", part: "3", sets: shuffle(part3Sets).slice(0, SETS_PER_SESSION) });
+    else if (part === "4") setMode({ kind: "sets", part: "4", sets: shuffle(part4Sets).slice(0, SETS_PER_SESSION) });
+    // Run once on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [rate, setRate] = useState(0.95);
   const [result, setResult] = useState<Result | null>(null);
   const counts = useMemo(() => ({ p2: part2Items.length, p3: part3Sets.length, p4: part4Sets.length }), []);
 
   const finish = (r: Result) => {
     setMode(null);
+    setParams({}, { replace: true });
     setResult(r);
     update((s) => markMissionDone(s, localDateKey(new Date()), "listening"));
   };
@@ -337,10 +349,16 @@ export function ListeningPage() {
       )}
 
       {mode?.kind === "p2" && (
-        <div className="mt-5"><Part2Session items={mode.items} rate={rate} onDone={finish} onExit={() => setMode(null)} /></div>
+        <div className="mt-5"><Part2Session items={mode.items} rate={rate} onDone={finish} onExit={() => {
+            setMode(null);
+            setParams({}, { replace: true });
+          }} /></div>
       )}
       {mode?.kind === "sets" && (
-        <div className="mt-5"><SetSession part={mode.part} sets={mode.sets} rate={rate} onDone={finish} onExit={() => setMode(null)} /></div>
+        <div className="mt-5"><SetSession part={mode.part} sets={mode.sets} rate={rate} onDone={finish} onExit={() => {
+            setMode(null);
+            setParams({}, { replace: true });
+          }} /></div>
       )}
 
       {mode === null && (

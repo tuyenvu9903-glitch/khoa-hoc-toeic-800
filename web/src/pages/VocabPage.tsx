@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Stat } from "../components/ui";
-import { TOPIC_LABEL, vocabulary, type VocabTopic, type VocabWord } from "../data/vocabulary";
+import { TOPIC_LABEL, VOCAB_GROUPS, vocabulary, type VocabTopic, type VocabWord } from "../data/vocabulary";
 import { isDue, isMature } from "../domain/srs";
 import { buildVocabSession, nextNewWords, vocabCounts } from "../domain/vocabSession";
 import { useAppState } from "../lib/store";
@@ -76,7 +76,7 @@ export function VocabPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Luyện từ vựng</h1>
-      <p className="mt-1 text-sm text-slate-500">127 từ TOEIC theo chủ đề, ôn lại đúng lúc theo lịch lặp lại ngắt quãng.</p>
+      <p className="mt-1 text-sm text-slate-500">{vocabulary.length} từ TOEIC theo {Object.keys(TOPIC_LABEL).length} chủ đề, ôn lại đúng lúc theo lịch lặp lại ngắt quãng.</p>
 
       {mode?.kind === "flash" && <div className="mt-5"><FlashSession initial={mode.ids} onExit={exit} /></div>}
       {mode?.kind === "learn" && <div className="mt-5"><LearnSession ids={mode.ids} onExit={exit} /></div>}
@@ -93,6 +93,39 @@ export function VocabPage() {
               <Stat label="Thuộc lâu" value={counts.mature} icon="🏅" tone="bg-emerald-100" />
             </dl>
           </section>
+
+          <details className="card mt-5 p-5">
+            <summary className="flex cursor-pointer list-none flex-wrap items-baseline justify-between gap-2">
+              <span className="font-bold">🎯 Mục tiêu 2.000 từ cho 750–800 điểm</span>
+              <span className="text-sm text-slate-500">
+                Đã học {counts.learned} · Có trong app {vocabulary.length}/2.000 ▾
+              </span>
+            </summary>
+            <ul className="mt-4 space-y-3 text-sm">
+              {VOCAB_GROUPS.map((g) => {
+                const words = vocabulary.filter((w) => g.topics.includes(w.topic));
+                const learned = words.filter((w) => state.srs[w.id]).length;
+                return (
+                  <li key={g.name}>
+                    <div className="flex justify-between gap-2">
+                      <span className="font-medium text-slate-800">{g.name}</span>
+                      <span className="text-slate-500">
+                        <strong className="text-slate-800">{learned}</strong> đã học · {words.length}/{g.target} từ
+                      </span>
+                    </div>
+                    <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100" aria-hidden>
+                      <div className="h-full bg-brand-200" style={{ width: `${Math.min(100, (words.length / g.target) * 100)}%` }}>
+                        <div className="h-full bg-brand-600" style={{ width: `${words.length ? (learned / words.length) * 100 : 0}%` }} />
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-3 text-xs text-slate-500">
+              Thanh đậm: số từ đã học. Thanh nhạt: số từ đã có trong app. Kho từ đang được bổ sung dần cho đủ mục tiêu từng nhóm.
+            </p>
+          </details>
 
           <section className="mt-5 grid gap-4 sm:grid-cols-2" aria-label="Chế độ luyện">
             <ModeCard

@@ -9,7 +9,13 @@ export type VocabTopic =
   | "shopping"
   | "customer_service"
   | "delivery"
-  | "schedule";
+  | "schedule"
+  | "contracts"
+  | "marketing"
+  | "finance"
+  | "hr"
+  | "product"
+  | "events";
 
 export type VocabWord = {
   id: string;
@@ -34,7 +40,28 @@ export const TOPIC_LABEL: Record<VocabTopic, string> = {
   customer_service: "Chăm sóc khách hàng",
   delivery: "Giao hàng",
   schedule: "Lịch trình & thời gian",
+  contracts: "Hợp đồng",
+  marketing: "Tiếp thị",
+  finance: "Tài chính & ngân hàng",
+  hr: "Nhân sự & đào tạo",
+  product: "Sản phẩm & chất lượng",
+  events: "Sự kiện",
 };
+
+/** The 11 study groups from the 2,000-word plan, with how many words each should reach. */
+export const VOCAB_GROUPS: { name: string; target: number; topics: VocabTopic[] }[] = [
+  { name: "Office & Business", target: 250, topics: ["workplace", "office", "meeting"] },
+  { name: "Finance & Accounting", target: 200, topics: ["finance"] },
+  { name: "Marketing & Sales", target: 200, topics: ["marketing"] },
+  { name: "Recruitment & HR", target: 200, topics: ["hr"] },
+  { name: "Travel & Transportation", target: 200, topics: ["travel"] },
+  { name: "Restaurant & Hospitality", target: 150, topics: ["restaurant", "hotel", "events"] },
+  { name: "Manufacturing & Production", target: 200, topics: ["product", "delivery"] },
+  { name: "Shopping & Retail", target: 150, topics: ["shopping", "customer_service"] },
+  { name: "Technology & Communication", target: 150, topics: [] },
+  { name: "Contracts & Legal", target: 100, topics: ["contracts"] },
+  { name: "General vocabulary", target: 200, topics: ["schedule"] },
+];
 
 // [topic, word, pos, Vietnamese, English definition, paraphrase ("" if none), example]
 type Row = [VocabTopic, string, string, string, string, string, string];
@@ -177,6 +204,77 @@ const rows: Row[] = [
   ["schedule", "subsequent", "adj", "tiếp theo, sau đó", "coming after something else", "following", "Subsequent meetings will be held online."],
   ["schedule", "duration", "n", "khoảng thời gian kéo dài", "the length of time something lasts", "", "The duration of the workshop is two hours."],
   ["schedule", "extend", "v", "gia hạn, kéo dài", "to make something last longer", "prolong", "The deadline has been extended by one week."],
+  // contracts
+  ["contracts", "agreement", "n", "thỏa thuận, hợp đồng", "a formal arrangement accepted by two or more parties", "contract", "Both companies signed the agreement on Monday."],
+  ["contracts", "abide by", "v", "tuân thủ, làm theo", "to accept and follow a rule or decision", "comply with", "All vendors must abide by our safety rules."],
+  ["contracts", "provision", "n", "điều khoản", "a condition written in a contract or law", "clause", "A provision in the lease allows early termination."],
+  ["contracts", "terminate", "v", "chấm dứt", "to bring something to an end", "end", "Either party may terminate the contract with 30 days' notice."],
+  ["contracts", "renew", "v", "gia hạn, làm mới", "to make an agreement valid for a further period", "extend", "We renewed our office lease for two more years."],
+  ["contracts", "obligation", "n", "nghĩa vụ", "something you must do because of a law or agreement", "duty", "The supplier has an obligation to deliver on time."],
+  ["contracts", "party", "n", "bên (trong hợp đồng)", "a person or group involved in an agreement", "", "The contract must be signed by both parties."],
+  ["contracts", "negotiate", "v", "đàm phán, thương lượng", "to discuss something to reach an agreement", "bargain", "The manager negotiated a lower price with the vendor."],
+  ["contracts", "binding", "adj", "có tính ràng buộc", "that must be obeyed by law", "", "The agreement becomes binding once it is signed."],
+  ["contracts", "draft", "n", "bản nháp", "an early version of a document", "", "Please review the first draft of the contract."],
+
+  // marketing
+  ["marketing", "campaign", "n", "chiến dịch", "a planned series of activities to reach a goal", "", "The new advertising campaign starts next month."],
+  ["marketing", "consumer", "n", "người tiêu dùng", "a person who buys goods or services", "customer", "Consumers are spending more on online shopping."],
+  ["marketing", "launch", "v", "ra mắt (sản phẩm)", "to introduce a new product to the public", "release", "The company will launch its new phone in May."],
+  ["marketing", "brand", "n", "thương hiệu", "a name that identifies a company's products", "", "Our brand is well known among young customers."],
+  ["marketing", "target", "v", "nhắm tới (đối tượng)", "to aim something at a particular group", "aim at", "The ads target university students."],
+  ["marketing", "revenue", "n", "doanh thu", "money a company earns from its business", "income", "Annual revenue rose by 12 percent."],
+  ["marketing", "strategy", "n", "chiến lược", "a plan to achieve a goal", "plan", "We need a new strategy to attract customers."],
+  ["marketing", "competitor", "n", "đối thủ cạnh tranh", "a company selling similar products", "rival", "Our prices are lower than our competitors' prices."],
+  ["marketing", "survey", "n", "khảo sát", "a set of questions asked to many people", "questionnaire", "Customers who complete the survey get a coupon."],
+  ["marketing", "loyalty", "n", "sự trung thành (của khách)", "the habit of continuing to buy from the same company", "", "The store's loyalty program offers points on every purchase."],
+
+  // finance
+  ["finance", "budget", "n", "ngân sách", "a plan for how much money can be spent", "", "The project stayed within budget."],
+  ["finance", "expense", "n", "chi phí, khoản chi", "money spent on something", "cost", "Travel expenses will be paid by the company."],
+  ["finance", "account", "n", "tài khoản", "an arrangement to keep money at a bank", "", "You can open an account online in ten minutes."],
+  ["finance", "balance", "n", "số dư", "the amount of money in an account", "", "Please check your balance before making a transfer."],
+  ["finance", "withdraw", "v", "rút (tiền)", "to take money out of an account", "take out", "Customers can withdraw cash at any branch."],
+  ["finance", "loan", "n", "khoản vay", "money that is borrowed and must be paid back", "", "The bank approved a loan for the new factory."],
+  ["finance", "interest rate", "n", "lãi suất", "the percentage charged or paid for borrowing money", "", "Interest rates are expected to fall this year."],
+  ["finance", "audit", "n", "kiểm toán", "an official check of financial records", "inspection", "The annual audit will take place in January."],
+  ["finance", "profit", "n", "lợi nhuận", "money gained after costs are paid", "earnings", "The store made a large profit during the holidays."],
+  ["finance", "overdue", "adj", "quá hạn", "not paid or done by the expected time", "late", "This invoice is two weeks overdue."],
+
+  // hr
+  ["hr", "applicant", "n", "người nộp đơn", "a person who formally asks for a job", "candidate", "Each applicant will be interviewed by two managers."],
+  ["hr", "hire", "v", "thuê, tuyển", "to employ someone", "recruit", "We hired three new sales representatives."],
+  ["hr", "orientation", "n", "buổi định hướng (nhân viên mới)", "a session that introduces new staff to a company", "", "New employees attend orientation on their first day."],
+  ["hr", "trainee", "n", "thực tập sinh, người được đào tạo", "a person being trained for a job", "", "Each trainee is assigned a mentor."],
+  ["hr", "payroll", "n", "bảng lương", "the list of employees and the money paid to them", "", "Payroll is processed on the 25th of each month."],
+  ["hr", "bonus", "n", "tiền thưởng", "extra money paid for good work", "", "Staff received a year-end bonus."],
+  ["hr", "incentive", "n", "khuyến khích, ưu đãi", "something that encourages people to do more", "motivation", "The company offers incentives for meeting sales targets."],
+  ["hr", "evaluate", "v", "đánh giá", "to judge the quality or value of something", "assess", "Managers evaluate staff performance twice a year."],
+  ["hr", "eligible", "adj", "đủ điều kiện", "allowed to do or receive something", "qualified", "Full-time employees are eligible for health insurance."],
+  ["hr", "workforce", "n", "lực lượng lao động", "all the people who work for a company", "staff", "Half of our workforce works remotely."],
+
+  // product
+  ["product", "prototype", "n", "mẫu thử", "a first model used for testing a design", "", "Engineers are testing the prototype this week."],
+  ["product", "defective", "adj", "bị lỗi", "not working correctly because of a fault", "faulty", "Defective items can be returned within 30 days."],
+  ["product", "inspect", "v", "kiểm tra kỹ", "to look at something carefully to check it", "examine", "Every product is inspected before shipping."],
+  ["product", "specification", "n", "thông số kỹ thuật", "a detailed description of how something must be made", "", "The parts do not meet our specifications."],
+  ["product", "durable", "adj", "bền", "able to last a long time", "long-lasting", "These durable bags are made from recycled plastic."],
+  ["product", "manufacture", "v", "sản xuất", "to make goods in large quantities", "produce", "The factory manufactures car parts."],
+  ["product", "component", "n", "linh kiện, bộ phận", "one of the parts of a machine or system", "part", "We order components from three suppliers."],
+  ["product", "assemble", "v", "lắp ráp", "to put the parts of something together", "put together", "The desk is easy to assemble."],
+  ["product", "comply with", "v", "tuân theo (quy định)", "to act according to a rule or standard", "abide by", "All products comply with safety standards."],
+  ["product", "modify", "v", "điều chỉnh, sửa đổi", "to change something slightly", "adjust", "The design was modified after customer feedback."],
+
+  // events
+  ["events", "venue", "n", "địa điểm tổ chức", "the place where an event happens", "location", "The venue can hold up to 500 guests."],
+  ["events", "attendee", "n", "người tham dự", "a person who goes to an event", "participant", "Attendees will receive a name badge at the entrance."],
+  ["events", "register", "v", "đăng ký", "to put your name on an official list", "sign up", "Please register for the seminar by Friday."],
+  ["events", "sponsor", "n", "nhà tài trợ", "a company that pays for an event in return for advertising", "", "The festival has several local sponsors."],
+  ["events", "exhibition", "n", "triển lãm", "a public show of objects or products", "exhibit", "The exhibition runs until the end of March."],
+  ["events", "banquet", "n", "tiệc chiêu đãi", "a large formal dinner", "formal dinner", "The awards banquet will be held at the Plaza Hotel."],
+  ["events", "refreshments", "n", "đồ ăn nhẹ, nước uống", "small amounts of food and drink", "snacks", "Refreshments will be served during the break."],
+  ["events", "keynote speech", "n", "bài phát biểu chính", "the main speech at a conference", "", "The CEO will give the keynote speech."],
+  ["events", "trade show", "n", "hội chợ thương mại", "an event where companies show their products", "trade fair", "We met many new clients at the trade show."],
+  ["events", "organizer", "n", "ban tổ chức, người tổ chức", "a person or group that plans an event", "planner", "Contact the organizer if you need special seating."],
 ];
 
 function slug(s: string): string {

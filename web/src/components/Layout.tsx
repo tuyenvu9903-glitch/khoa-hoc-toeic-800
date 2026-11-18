@@ -3,8 +3,10 @@ import { useAppState } from "../lib/store";
 
 const LINKS = [
   { to: "/", label: "Dashboard", icon: "🏠", end: true },
+  { to: "/plan", label: "Lộ trình", icon: "🗓️", end: false },
   { to: "/vocab", label: "Từ vựng", icon: "📚", end: false },
   { to: "/listening", label: "Nghe", icon: "🎧", end: false },
+  { to: "/reading", label: "Đọc", icon: "📖", end: false },
   { to: "/settings", label: "Dữ liệu", icon: "💾", end: false },
 ];
 
@@ -13,7 +15,7 @@ export function Layout() {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white">
-        <nav className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-2.5" aria-label="Điều hướng chính">
+        <nav className="mx-auto flex max-w-5xl items-center gap-1 overflow-x-auto px-4 py-2.5 sm:gap-2" aria-label="Điều hướng chính">
           <NavLink to="/" className="mr-2 flex items-center gap-2 font-bold tracking-tight">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-sm font-extrabold text-white">
               T8
@@ -23,6 +25,8 @@ export function Layout() {
           {LINKS.map((l) => (
             <NavLink
               key={l.to}
+              title={l.label}
+              aria-label={l.label}
               to={l.to}
               end={l.end}
               className={({ isActive }) =>
@@ -32,7 +36,7 @@ export function Layout() {
               }
             >
               <span aria-hidden>{l.icon}</span>
-              <span className={l.to === "/" ? "hidden sm:inline" : ""}>{l.label}</span>
+              <span className="hidden md:inline">{l.label}</span>
             </NavLink>
           ))}
           {profile && (
