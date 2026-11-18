@@ -108,8 +108,13 @@ export function drawChicken(ctx: CanvasRenderingContext2D, c: ChickenSprite, tim
   ctx.font = `700 ${size}px ${TEXT}`;
   lines.forEach((l, i) => ctx.fillText(l, c.x, by + 6 + lh * i + lh / 2));
   if (c.sub) {
+    // Shrink the hint until it fits inside the board, so long words stay readable.
+    let hintSize = 15;
+    for (; hintSize > 8; hintSize -= 1) {
+      ctx.font = `700 ${hintSize}px ui-monospace, Consolas, monospace`;
+      if (ctx.measureText(c.sub).width <= CHICKEN_W - 16) break;
+    }
     ctx.fillStyle = "#1d4ed8";
-    ctx.font = `700 14px ui-monospace, Consolas, monospace`;
     ctx.fillText(c.sub, c.x, by + bh + subH / 2 - 4);
   }
   ctx.restore();
