@@ -4,10 +4,12 @@ import { packByDay } from "../data/dayPacks";
 import { PART5_SKILLS } from "../data/reading";
 import { isKindDone, requiredKinds, wordsForDay, type MissionKindTracked } from "../domain/progress";
 import { isDue } from "../domain/srs";
-import type { AppState } from "./state";
+import { errorsDue, type AppState } from "./state";
 
 export type JourneyStep = {
-  kind: MissionKindTracked;
+  /** "error_review" is optional: it never blocks the next day. */
+  kind: MissionKindTracked | "error_review";
+  optional?: boolean;
   n: number;
   title: string;
   icon: string;
@@ -46,7 +48,7 @@ export function buildJourney(state: AppState, day = state.progress.day): Journey
     mini_test: "Làm theo giao diện thi thật",
   };
 
-  return requiredKinds(plan).map((kind, i) => ({
+  const steps: JourneyStep[] = requiredKinds(plan).map((kind, i) => ({
     kind,
     n: i + 1,
     ...META[kind],
@@ -54,6 +56,25 @@ export function buildJourney(state: AppState, day = state.progress.day): Journey
     done: isKindDone(state.progress, state.srs, day, kind),
     detail: detail[kind],
   }));
+  // Review today's due mistakes once there are any (optional, does not gate the next day).
+  const dueErrors = errorsDue(state).length;
+  const open = state.errors.filter((e) => e.resolvedAt === null).length;
+  if (open > 0) {
+    const reading = steps.findIndex((s) => s.kind === "reading");
+    steps.splice(reading + 1, 0, {
+      kind: "error_review",
+      optional: true,
+      n: 0,
+      title: "Ôn câu sai",
+      icon: "📒",
+      tone: "bg-p-coral",
+      minutes: dueErrors > 0 ? Math.min(15, 2 * dueErrors) : 0,
+      to: "/errors?due=1",
+      done: dueErrors === 0,
+      detail: dueErrors > 0 ? `${dueErrors} câu đến hạn ôn` : "Không có câu đến hạn",
+    });
+  }
+  return steps.map((s, i) => ({ ...s, n: i + 1 }));
 }
 
 export function nextStep(steps: JourneyStep[]): JourneyStep | null {

@@ -60,6 +60,7 @@ export function recordExam(
         skillCode: q.skill,
         part: q.part,
         correct: answers[q.id] === q.answer,
+        chosen: answers[q.id] !== undefined ? q.options[answers[q.id]!] : undefined,
         responseMs: 30_000,
         errorClass: Number(q.part) <= 4 ? "listening_gap" : q.part === "5" ? "grammar_gap" : "reading_gap",
       },

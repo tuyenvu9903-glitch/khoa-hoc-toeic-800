@@ -68,6 +68,7 @@ export function TodayPage() {
             <div className="min-w-[10rem] flex-1">
               <p className="font-semibold text-slate-900">
                 Bước {s.n} · {s.title}
+                {s.optional && <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">Tùy chọn</span>}
                 {s.done && <span className="ml-2 text-xs font-medium text-brand-700">Đã xong</span>}
               </p>
               <p className="text-sm text-slate-500">{s.detail} · ~{s.minutes} phút</p>

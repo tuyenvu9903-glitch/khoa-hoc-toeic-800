@@ -54,7 +54,7 @@ export function groupFromPart2(item: Part2Item, rng: Rng = Math.random): Omit<Ex
       { speaker: q.speakers[0], text: q.prompt },
       ...q.options.map((o, i) => ({ speaker: q.speakers[1], text: `${LETTERS[i]}. ${o}` })),
     ],
-    questions: [{ id: item.id, part: "2", skill: item.skill, question: null, options: [...q.options], answer: q.answer, explainVi: item.explainVi }],
+    questions: [{ id: item.id, part: "2", skill: item.skill, question: null, options: [...q.options], answer: q.answer, explainVi: q.explainVi }],
   };
 }
 
@@ -75,7 +75,7 @@ export function groupFromPart5(item: Part5Item, rng: Rng = Math.random): Omit<Ex
   return {
     id: item.id,
     part: "5",
-    questions: [{ id: item.id, part: "5", skill: item.skill, question: item.sentence, options: [...q.options], answer: q.answer, explainVi: item.explainVi }],
+    questions: [{ id: item.id, part: "5", skill: item.skill, question: item.sentence, options: [...q.options], answer: q.answer, explainVi: q.explainVi }],
   };
 }
 

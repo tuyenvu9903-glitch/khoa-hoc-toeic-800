@@ -41,6 +41,12 @@ export const stateSchema = z.object({
       errorClass: errorClassSchema,
       createdAt: isoDate,
       resolvedAt: isoDate.nullable(),
+      /** Text of the option the learner chose (absent in older saves). */
+      chosen: z.string().optional(),
+      /** When the mistake is next due for review in the error notebook. */
+      reviewAt: isoDate.optional(),
+      /** Failed retries so far; spaces out the next review. */
+      retries: z.number().int().min(0).optional(),
     }),
   ),
   scores: z.array(
@@ -153,7 +159,13 @@ export type AnswerRecord = {
   correct: boolean;
   responseMs: number;
   errorClass?: z.infer<typeof errorClassSchema>;
+  /** Text of the chosen option, kept for the error notebook. */
+  chosen?: string;
 };
+
+/** Days until a mistake comes back, after 1, 2, 3+ failed retries. */
+const RETRY_DAYS = [1, 3, 7];
+const addDays = (d: Date, n: number) => new Date(d.getTime() + n * 86_400_000).toISOString();
 
 const EMA_ALPHA = 0.25;
 
@@ -194,8 +206,17 @@ export function recordAnswer(state: AppState, a: AnswerRecord, now: Date = new D
         errorClass: a.errorClass ?? "listening_gap",
         createdAt: now.toISOString(),
         resolvedAt: null,
+        chosen: a.chosen,
+        reviewAt: now.toISOString(),
+        retries: 0,
       },
     ];
+  } else if (!a.correct && open) {
+    errors = errors.map((e) => {
+      if (e.questionId !== a.questionId || e.resolvedAt !== null) return e;
+      const retries = (e.retries ?? 0) + 1;
+      return { ...e, chosen: a.chosen ?? e.chosen, retries, reviewAt: addDays(now, RETRY_DAYS[Math.min(retries, RETRY_DAYS.length) - 1]!) };
+    });
   } else if (a.correct && open) {
     errors = errors.map((e) =>
       e.questionId === a.questionId && e.resolvedAt === null ? { ...e, resolvedAt: now.toISOString() } : e,
@@ -254,4 +275,9 @@ export function scoreSourceLabel(source: string): { label: string; official: boo
   if (source.startsWith("short-mock")) return { label: "Ước lượng từ đề thi thử rút gọn (50 câu)", official: false };
   if (source.startsWith("mini-")) return { label: "Ước lượng từ Mini test (ít câu, chỉ để tham khảo)", official: false };
   return { label: "Ước lượng", official: false };
+}
+
+/** Open mistakes whose review time has come (older saves without a schedule are due). */
+export function errorsDue(state: AppState, now: Date = new Date()) {
+  return state.errors.filter((e) => e.resolvedAt === null && Date.parse(e.reviewAt ?? e.createdAt) <= now.getTime());
 }

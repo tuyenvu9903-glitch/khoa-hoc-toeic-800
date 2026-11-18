@@ -8,6 +8,7 @@ import { ListeningPage } from "./pages/ListeningPage";
 import { MiniTestPage } from "./pages/MiniTestPage";
 import { MockTestPage } from "./pages/MockTestPage";
 import { PlanPage } from "./pages/PlanPage";
+import { ErrorsPage } from "./pages/ErrorsPage";
 import { ProgressPage } from "./pages/ProgressPage";
 import { TodayPage } from "./pages/TodayPage";
 import { ReadingPage } from "./pages/ReadingPage";
@@ -36,6 +37,7 @@ export function App() {
         <Route path="/vocab" element={<VocabPage />} />
         <Route path="/plan" element={<PlanPage profile={profile} />} />
         <Route path="/today" element={<TodayPage />} />
+        <Route path="/errors" element={<ErrorsPage />} />
         <Route path="/progress" element={<ProgressPage profile={profile} />} />
         <Route path="/listening" element={<ListeningPage />} />
         <Route path="/reading" element={<ReadingPage />} />

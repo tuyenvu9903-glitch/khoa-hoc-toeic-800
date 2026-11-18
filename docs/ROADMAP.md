@@ -19,9 +19,9 @@ Known issues: the GitHub Pages source must be set to *GitHub Actions* (otherwise
 ## Constraints and decisions
 
 - **Original content only.** No items from ETS/Study4/other sites or books.
-- **Audio.** No recorded audio exists yet. Plan: every listening group may reference an MP3 in
-  `web/public/audio/`; the player uses it when present and falls back to browser TTS. A script can
-  generate the MP3s from the scripts with a TTS service, which needs the owner's API key (cost).
+- **Audio (decided 2026-11-19): keep browser speech synthesis for now.** The player already accepts an
+  optional MP3 per listening group (`audioSrc`, files in `web/public/audio/`) and falls back to speech, so
+  recorded or generated audio can be added later without code changes.
 - **Part 1 photos** must be free to reuse (Unsplash/Pexels licence), stored in `web/public/photos/`.
 - **IPA** is generated from the CMU Pronouncing Dictionary (BSD licence) by a script, not typed by hand.
 - **Scores** are estimates from a conversion table, always labelled as unofficial.

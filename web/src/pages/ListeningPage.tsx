@@ -99,7 +99,7 @@ export function Part2Session({ items: raw, rate, onDone, onExit }: { items: Part
     const ok = i === item.answer;
     if (ok) setCorrect((c) => c + 1);
     update((s) =>
-      recordAnswer(s, { questionId: item.id, skillCode: item.skill, part: "2", correct: ok, responseMs: Date.now() - startedAt.current }),
+      recordAnswer(s, { questionId: item.id, skillCode: item.skill, part: "2", correct: ok, responseMs: Date.now() - startedAt.current, chosen: item.options[i] }),
     );
   };
 
@@ -216,6 +216,7 @@ export function SetSession({ part, sets: raw, rate, onDone, onExit }: { part: "3
           skillCode: qq.skill,
           part,
           correct: picks[i] === qq.answer,
+          chosen: picks[i] != null ? qq.options[picks[i]!] : undefined,
           responseMs: ms / 3,
           errorClass: qq.skill.endsWith("paraphrase") ? "paraphrase_failure" : "listening_gap",
         });

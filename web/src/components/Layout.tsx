@@ -14,6 +14,7 @@ const MAIN = [
 /** Contextual links, kept out of the main navigation. */
 const MORE = [
   { to: "/today", label: "Bài học hôm nay", icon: "✅" },
+  { to: "/errors", label: "Sổ lỗi", icon: "📒" },
   { to: "/plan", label: "Lộ trình 56 ngày", icon: "🗓️" },
   { to: "/settings", label: "Dữ liệu & sao lưu", icon: "💾" },
 ];

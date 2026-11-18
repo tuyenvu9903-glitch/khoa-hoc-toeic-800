@@ -129,7 +129,23 @@ export function learnProgress(s: LearnState): number {
  * Shuffle a question's options and remap its answer index, so the right answer is not always
  * in the same position (content files may list the correct option first).
  */
-export function shuffleOptions<T extends { options: readonly string[]; answer: number }>(item: T, rng: Rng = Math.random): T {
+export function shuffleOptions<T extends { options: readonly string[]; answer: number; explainVi?: string }>(item: T, rng: Rng = Math.random): T {
   const order = shuffle(item.options.map((_, i) => i), rng);
-  return { ...item, options: order.map((i) => item.options[i]!) as unknown as T["options"], answer: order.indexOf(item.answer) };
+  const out = { ...item, options: order.map((i) => item.options[i]!) as unknown as T["options"], answer: order.indexOf(item.answer) };
+  // Explanations name options by letter ("(B) lặp từ…"): move those letters with the options.
+  if (typeof item.explainVi === "string") {
+    out.explainVi = item.explainVi.replace(/\(([A-D])\)/g, (m, l: string) => {
+      const pos = order.indexOf(l.charCodeAt(0) - 65);
+      return pos < 0 ? m : `(${String.fromCharCode(65 + pos)})`;
+    });
+  }
+  return out;
+}
+
+/** Replace option letters in an explanation with the option text, for places that show no letters. */
+export function explainWithOptionText(explain: string, options: readonly string[]): string {
+  return explain.replace(/\(([A-D])\)/g, (m, l: string) => {
+    const text = options[l.charCodeAt(0) - 65];
+    return text ? `“${text}”` : m;
+  });
 }

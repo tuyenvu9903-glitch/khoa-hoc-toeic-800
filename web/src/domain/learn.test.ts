@@ -147,3 +147,20 @@ describe("shuffleOptions", () => {
     }
   });
 });
+
+import { explainWithOptionText } from "./learn";
+
+describe("explanations follow shuffled options", () => {
+  it("moves option letters with the options", () => {
+    const item = { options: ["right", "b", "c", "d"], answer: 0, explainVi: "(A) đúng; (C) là bẫy." };
+    for (let s = 1; s < 20; s++) {
+      const out = shuffleOptions(item, seeded(s));
+      const a = "ABCD"[out.options.indexOf("right")];
+      const c = "ABCD"[out.options.indexOf("c")];
+      expect(out.explainVi).toBe(`(${a}) đúng; (${c}) là bẫy.`);
+    }
+  });
+  it("can spell out the option instead of the letter", () => {
+    expect(explainWithOptionText("(B) lặp từ.", ["x", "repeat"])).toBe("“repeat” lặp từ.");
+  });
+});
