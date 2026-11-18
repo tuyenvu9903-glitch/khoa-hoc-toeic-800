@@ -1,8 +1,7 @@
 import { days, missionTemplates, skillRows, weeks } from "../data/curriculum";
 import { buildDailyMission, rankWeaknesses, type DailyMission, type Weakness } from "../domain/mission";
-import { programPosition } from "../domain/program";
+import { programFinished, unlockedWords } from "../domain/progress";
 import { vocabCounts, type VocabCounts } from "../domain/vocabSession";
-import { vocabulary } from "../data/vocabulary";
 import { summarizeScore, type ScoreSummary } from "../domain/score";
 import type { AppState, Profile } from "./state";
 
@@ -24,9 +23,10 @@ export type DashboardView = {
 const skillByCode = new Map(skillRows.map((s) => [s.code, s]));
 
 export function buildDashboard(state: AppState, profile: Profile, now: Date = new Date()): DashboardView {
-  const position = programPosition(new Date(profile.programStartDate), now);
+  const day = state.progress.day;
+  const position = { day, week: Math.ceil(day / 7), finished: programFinished(state.progress, state.srs) };
   const week = weeks.find((w) => w.weekNumber === position.week);
-  const day = days.find((d) => d.dayNumber === position.day);
+  const dayDef = days.find((d) => d.dayNumber === position.day);
 
   const weaknesses = rankWeaknesses(
     Object.entries(state.skillStats).flatMap(([skillCode, s]) => {
@@ -52,7 +52,7 @@ export function buildDashboard(state: AppState, profile: Profile, now: Date = ne
   );
 
   const openErrors = state.errors.filter((e) => e.resolvedAt === null).length;
-  const vocab = vocabCounts(state.srs, vocabulary, now);
+  const vocab = vocabCounts(state.srs, unlockedWords(day), now, Infinity);
   const mission = buildDailyMission({
     week: position.week,
     day: position.day,
@@ -75,7 +75,7 @@ export function buildDashboard(state: AppState, profile: Profile, now: Date = ne
     week: position.week,
     finished: position.finished,
     weekTitle: week?.title ?? null,
-    focus: day?.focus ?? null,
+    focus: dayDef?.focus ?? null,
     weekendGate: week?.weekendGate ?? null,
     placementDone: profile.placementCompletedAt !== null,
     mission,

@@ -9,6 +9,10 @@ All content must be original and written in TOEIC style. Never copy items from E
 dethitracnghiem.vn or any other test site or book, even if the user asks: explain why and offer to
 write original items instead.
 
+## Day packs come first
+
+Daily practice comes from `web/src/data/dayPacks/weekN.ts`: each day has ~30 words, 6 Part 2 items, 6 Part 5 items (the day's grammar skill), one Part 7 passage, and from week 3 a Part 3/4 `talk`, all on the day's theme and reusing the day's words. Write the correct option first (answer 0); the app shuffles. Register new week files in `dayPacks/index.ts`. Word ids must be unique across `vocabulary.ts` and all packs.
+
 ## Where things go
 
 | Part | File | Shape |

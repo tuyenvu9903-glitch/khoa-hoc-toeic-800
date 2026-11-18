@@ -27,7 +27,9 @@ Before any commit: `npm run typecheck`, `npm test` and `npm run build` must all 
   - `reading.ts`: Part 5 items (blank written as `-------`), Part 7 passages.
   - `curriculum.ts`: weeks, skill tree (`L.P2.who`, `R.P5.tense`…), mission templates.
   - `dailyPlan.ts`: the 56-day lesson plan and `missionLink()` deep links.
+  - `dayPacks/`: one pack per day (`weekN.ts`) tying that day's words, Part 2 items, optional Part 3/4 talk, Part 5 items and a Part 7 passage to one theme. Pack words are merged into `vocabulary`. Write the correct option first; sessions shuffle options (`shuffleOptions`).
 - `web/src/domain/`: pure logic with tests (SRS, missions, games, scoring).
+- `web/src/domain/progress.ts`: day-by-day gating. A day is complete when its words are learned and grammar/listening/reading (plus the mini test on day 7, 14…) are done; the next day opens on a later date. Pages only offer content of days already reached.
 - `web/src/lib/`: app state (`state.ts`, zod schema + `recordAnswer`, `gradeVocab`…), store, speech.
 - `web/src/pages/`: one page per route; `pages/vocab/` holds the vocabulary modes and games.
 - Routes are in `web/src/App.tsx`, nav tabs in `web/src/components/Layout.tsx`.

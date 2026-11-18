@@ -1,5 +1,6 @@
 // Day-by-day lesson plan for the 8-week program: what to learn (short lesson notes)
 // and which practice each mission links to.
+import { packByDay } from "./dayPacks";
 import type { VocabTopic } from "./vocabulary";
 
 export type DayPlan = {
@@ -232,15 +233,16 @@ export function planForDay(day: number): DayPlan {
 
 /** Practice link for each mission kind on a given day. */
 export function missionLink(kind: string, plan: DayPlan): string | null {
+  const pack = packByDay.has(plan.day);
   switch (kind) {
     case "vocab":
       return "/vocab";
     case "grammar":
-      return `/reading?part=5&skill=${plan.grammar}`;
+      return pack ? "/reading?today=p5" : `/reading?part=5&skill=${plan.grammar}`;
     case "listening":
-      return `/listening?part=${plan.listeningPart}`;
+      return pack ? "/listening?today=1" : `/listening?part=${plan.listeningPart}`;
     case "reading":
-      return plan.readingPart === "5" ? "/reading?part=5" : "/reading?part=7";
+      return pack ? "/reading?today=p7" : plan.readingPart === "5" ? "/reading?part=5" : "/reading?part=7";
     case "mini_test":
       return "/mini-test";
     default:

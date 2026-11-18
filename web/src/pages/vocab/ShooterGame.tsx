@@ -19,6 +19,7 @@ import {
 } from "../../domain/shooter";
 import { gradeVocab, localDateKey, markMissionDone, recordShooterScore } from "../../lib/state";
 import { update, useAppState } from "../../lib/store";
+import { unlockedWords } from "../../domain/progress";
 import { isTypingTarget, SpeakButton } from "./shared";
 import { drawBackdrop, drawBullet, drawChicken, drawDangerLine, drawFx, drawShip, EMOJI, makeStars, type Star } from "./canvasArt";
 
@@ -107,7 +108,7 @@ export function ShooterGame({ onExit }: { onExit: () => void }) {
   const stars = useMemo(makeStars, []);
 
   const start = useCallback(() => {
-    const picks = pickShooterWords(state.srs, vocabulary, new Date());
+    const picks = pickShooterWords(state.srs, unlockedWords(state.progress.day), new Date());
     scheduledRef.current = new Set(picks.filter((p) => p.scheduled).map((p) => p.word.id));
     const g = createGame(
       picks.map((p) => p.word),

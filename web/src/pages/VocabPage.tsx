@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { Stat } from "../components/ui";
 import { TOPIC_LABEL, VOCAB_GROUPS, vocabulary, type VocabTopic, type VocabWord } from "../data/vocabulary";
 import { isDue, isMature } from "../domain/srs";
-import { buildVocabSession, nextNewWords, vocabCounts } from "../domain/vocabSession";
+import { packByDay } from "../data/dayPacks";
+import { unlockedWords, wordsForDay } from "../domain/progress";
+import { buildVocabSession, vocabCounts } from "../domain/vocabSession";
 import { useAppState } from "../lib/store";
 import { FlashSession } from "./vocab/FlashSession";
 import { LearnSession } from "./vocab/LearnSession";
@@ -55,18 +57,21 @@ export function VocabPage() {
   const [query, setQuery] = useState("");
   const [topic, setTopic] = useState<VocabTopic | "all">("all");
   const now = new Date();
-  const counts = vocabCounts(state.srs, vocabulary, now);
-  const flashIds = useMemo(() => buildVocabSession(state.srs, vocabulary, new Date()), [state.srs]);
+  const day = state.progress.day;
+  // Only words of days already reached are open; earlier days' leftovers come first.
+  const open = useMemo(() => unlockedWords(day), [day]);
+  const today = wordsForDay(day);
+  const learnedToday = today.filter((w) => state.srs[w.id]).length;
+  const pack = packByDay.get(day);
+  const counts = vocabCounts(state.srs, open, now, Infinity);
+  const flashIds = useMemo(() => buildVocabSession(state.srs, open, new Date(), { newPerDay: Infinity }), [state.srs, open]);
   const learnIds = useMemo(
-    () =>
-      nextNewWords(state.srs, vocabulary)
-        .slice(0, Math.min(LEARN_BATCH, counts.newAvailable))
-        .map((w) => w.id),
-    [state.srs, counts.newAvailable],
+    () => open.filter((w) => !state.srs[w.id]).slice(0, LEARN_BATCH).map((w) => w.id),
+    [state.srs, open],
   );
 
   const q = query.trim().toLowerCase();
-  const list = vocabulary.filter(
+  const list = open.filter(
     (w) =>
       (topic === "all" || w.topic === topic) &&
       (q === "" || w.word.toLowerCase().includes(q) || w.meaningVi.toLowerCase().includes(q)),
@@ -76,7 +81,10 @@ export function VocabPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Luyện từ vựng</h1>
-      <p className="mt-1 text-sm text-slate-500">{vocabulary.length} từ TOEIC theo {Object.keys(TOPIC_LABEL).length} chủ đề, ôn lại đúng lúc theo lịch lặp lại ngắt quãng.</p>
+      <p className="mt-1 text-sm text-slate-500">
+        Ngày {day}{pack ? ` · ${pack.theme}` : ""}: đã học <strong className="text-slate-800">{learnedToday}/{today.length}</strong> từ mới của hôm nay.
+        Từ của các ngày sau sẽ mở khi bạn tới ngày đó.
+      </p>
 
       {mode?.kind === "flash" && <div className="mt-5"><FlashSession initial={mode.ids} onExit={exit} /></div>}
       {mode?.kind === "learn" && <div className="mt-5"><LearnSession ids={mode.ids} onExit={exit} /></div>}
@@ -164,7 +172,7 @@ export function VocabPage() {
             />
           </section>
           <p className="mt-3 text-xs text-slate-500">
-            Tối đa 15 từ mới mỗi ngày. Học xong một từ ở chế độ Học hoặc Thẻ ghi nhớ sẽ được xếp lịch ôn lại, và nhiệm vụ "Từ vựng" trên Dashboard tự được đánh dấu.
+            Mỗi ngày có một nhóm từ mới theo chủ đề của ngày (khoảng 36 từ khi kho đủ 2.000 từ). Học hết từ của hôm nay thì nhiệm vụ "Từ vựng" được đánh dấu. Từ đã học được xếp lịch ôn lại tự động.
           </p>
 
           <section className="mt-6">

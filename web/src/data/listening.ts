@@ -33,7 +33,7 @@ export type ListeningSet = {
   questions: [ListeningQuestion, ListeningQuestion, ListeningQuestion];
 };
 
-const p2 = (
+export const p2 = (
   id: string,
   skill: string,
   prompt: string,
@@ -94,7 +94,7 @@ export const part2Items: Part2Item[] = [
     "Chọn một trong hai phương án.", ["M", "W"]),
 ];
 
-const q = (
+export const q = (
   skill: string,
   question: string,
   options: [string, string, string, string],

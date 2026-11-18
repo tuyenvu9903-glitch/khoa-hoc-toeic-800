@@ -50,8 +50,11 @@ describe("daily plan", () => {
     expect(planForDay(0).day).toBe(1);
     expect(planForDay(99).day).toBe(56);
     const d2 = planForDay(2);
-    expect(missionLink("grammar", d2)).toBe("/reading?part=5&skill=R.P5.wordform");
-    expect(missionLink("listening", d2)).toBe("/listening?part=2");
+    expect(missionLink("grammar", d2)).toBe("/reading?today=p5");
+    expect(missionLink("listening", d2)).toBe("/listening?today=1");
+    expect(missionLink("reading", d2)).toBe("/reading?today=p7");
+    const d40 = planForDay(40);
+    expect(missionLink("grammar", d40)).toMatch(/^\/reading\?(today=p5|part=5&skill=R\.P5\.)/);
     expect(missionLink("error_review", d2)).toBeNull();
   });
 });

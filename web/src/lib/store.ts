@@ -26,7 +26,9 @@ function persist(next: AppState): void {
 }
 
 export function update(fn: (s: AppState) => AppState): void {
-  current = fn(current);
+  const next = fn(current);
+  if (next === current) return;
+  current = next;
   persist(current);
   listeners.forEach((l) => l());
 }

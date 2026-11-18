@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { missionLink, planForDay } from "../data/dailyPlan";
-import { TOPIC_LABEL } from "../data/vocabulary";
+import { packByDay } from "../data/dayPacks";
+import { TOPIC_ICON, TOPIC_LABEL } from "../data/vocabulary";
+import { isKindDone, requiredKinds, wordsForDay } from "../domain/progress";
 import { Ring } from "../components/ui";
 import { weeks } from "../data/curriculum";
 import { currentStreak } from "../domain/streak";
@@ -83,10 +85,20 @@ export function DashboardPage({ profile }: { profile: Profile }) {
   const view = buildDashboard(state, profile, now);
   const plan = planForDay(view.day);
   const dateKey = localDateKey(now);
-  const done = new Set(state.missionDone[dateKey] ?? []);
-  const doneMinutes = view.mission.items.filter((i) => done.has(i.kind)).reduce((n, i) => n + i.minutes, 0);
+  const pack = packByDay.get(view.day);
+  const todayWords = wordsForDay(view.day);
+  const learnedToday = todayWords.filter((w) => state.srs[w.id]).length;
+  const tracked = new Set<string>(requiredKinds(plan));
+  const manualDone = new Set(state.missionDone[dateKey] ?? []);
+  const isDone = (kind: string) =>
+    tracked.has(kind) ? isKindDone(state.progress, state.srs, view.day, kind) : manualDone.has(kind);
+  // The mini test only counts on the weekly checkpoint days.
+  const items = view.mission.items.filter((i) => i.kind !== "mini_test" || plan.test);
+  const done = new Set(items.filter((i) => isDone(i.kind)).map((i) => i.kind));
+  const dayComplete = [...tracked].every((k) => isDone(k));
+  const doneMinutes = items.filter((i) => done.has(i.kind)).reduce((n, i) => n + i.minutes, 0);
   const dayPct = view.mission.totalMinutes === 0 ? 0 : Math.round((doneMinutes / view.mission.totalMinutes) * 100);
-  const allDone = view.mission.items.length > 0 && view.mission.items.every((i) => done.has(i.kind));
+  const allDone = dayComplete;
   const streak = currentStreak(state.missionDone, now);
   const saveError = getSaveError();
 
@@ -159,8 +171,21 @@ export function DashboardPage({ profile }: { profile: Profile }) {
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs text-slate-500">Chủ đề từ vựng gợi ý: {TOPIC_LABEL[plan.vocabTopic]}</p>
+        <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-violet-100 text-base" aria-hidden>
+            {TOPIC_ICON[pack?.topic ?? plan.vocabTopic]}
+          </span>
+          Chủ đề hôm nay: <strong className="text-slate-800">{pack?.theme ?? TOPIC_LABEL[plan.vocabTopic]}</strong>
+          <span className="text-slate-400">·</span>
+          {todayWords.length} từ mới, bài nghe và bài đọc cùng chủ đề
+        </p>
       </section>
+
+      {dayComplete && !view.finished && (
+        <div role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+          🎉 Bạn đã hoàn thành <strong>Ngày {view.day}</strong>. Ngày {view.day + 1} sẽ mở vào ngày mai, hãy ôn lại từ vựng đến hạn nếu còn thời gian.
+        </div>
+      )}
 
       {!view.placementDone && (
         <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/90 p-4 text-sm text-amber-900">
@@ -185,7 +210,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
             </p>
           </div>
           <ol className="mt-4 space-y-2">
-            {view.mission.items.map((item) => {
+            {items.map((item) => {
               const checked = done.has(item.kind);
               const k = KIND[item.kind] ?? { label: item.title, icon: "•", chip: "bg-slate-100" };
               return (
@@ -198,8 +223,10 @@ export function DashboardPage({ profile }: { profile: Profile }) {
                   <input
                     id={`m-${item.kind}`}
                     type="checkbox"
-                    className="check"
+                    className="check disabled:cursor-default"
                     checked={checked}
+                    disabled={tracked.has(item.kind)}
+                    title={tracked.has(item.kind) ? "Tự đánh dấu khi bạn làm xong bài luyện" : undefined}
                     onChange={() => update((s) => toggleMissionItem(s, dateKey, item.kind))}
                   />
                   <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg ${k.chip}`} aria-hidden>
@@ -208,12 +235,14 @@ export function DashboardPage({ profile }: { profile: Profile }) {
                   <label htmlFor={`m-${item.kind}`} className="min-w-[8rem] flex-1 cursor-pointer">
                     <span className={`block whitespace-nowrap font-semibold ${checked ? "text-slate-400 line-through" : ""}`}>{k.label}</span>
                     <span className="block truncate text-xs text-slate-500">
-                      {item.reason ?? `${item.itemCount} câu · ${item.minutes} phút`}
+                      {item.kind === "vocab"
+                        ? `${learnedToday}/${todayWords.length} từ mới hôm nay${view.vocab.due > 0 ? ` · ${view.vocab.due} từ cần ôn` : ""}`
+                        : (item.reason ?? `${item.itemCount} câu · ${item.minutes} phút`)}
                     </span>
                   </label>
-                  {missionLink(item.kind, plan) && (
+                  {missionLink(item.kind, plan) && !checked && (
                     <Link to={missionLink(item.kind, plan)!} className="btn-primary ml-auto shrink-0 !px-3 !py-1.5 !text-xs">
-                      Luyện ngay{item.kind === "vocab" ? ` (${view.vocab.due + view.vocab.newAvailable})` : ""}
+                      Luyện ngay
                     </Link>
                   )}
                   <p className="hidden shrink-0 text-right text-sm font-medium text-slate-600 sm:block">

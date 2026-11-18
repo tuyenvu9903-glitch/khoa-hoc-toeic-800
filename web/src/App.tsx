@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
-import { useAppState } from "./lib/store";
+import { advanceDay } from "./lib/state";
+import { update, useAppState } from "./lib/store";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ListeningPage } from "./pages/ListeningPage";
 import { MiniTestPage } from "./pages/MiniTestPage";
@@ -12,6 +14,17 @@ import { VocabPage } from "./pages/VocabPage";
 
 export function App() {
   const { profile } = useAppState();
+  // Open the next day when its time has come: on start, and whenever the tab gets focus again.
+  useEffect(() => {
+    const check = () => update((s) => advanceDay(s, new Date()));
+    check();
+    window.addEventListener("focus", check);
+    const t = setInterval(check, 60_000);
+    return () => {
+      window.removeEventListener("focus", check);
+      clearInterval(t);
+    };
+  }, [profile]);
   if (!profile) return <OnboardingPage />;
   return (
     <Routes>

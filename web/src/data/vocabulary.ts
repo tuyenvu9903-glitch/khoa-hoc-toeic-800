@@ -1,4 +1,8 @@
 // Core TOEIC vocabulary by topic. Static data bundled with the app.
+// Words come from two places: the original topic rows below and the day packs (data/dayPacks),
+// which tie each day's words to that day's listening and reading.
+import { dayPacks } from "./dayPacks";
+
 export type VocabTopic =
   | "workplace"
   | "office"
@@ -15,7 +19,9 @@ export type VocabTopic =
   | "finance"
   | "hr"
   | "product"
-  | "events";
+  | "events"
+  | "tech"
+  | "general";
 
 export type VocabWord = {
   id: string;
@@ -46,6 +52,29 @@ export const TOPIC_LABEL: Record<VocabTopic, string> = {
   hr: "Nhân sự & đào tạo",
   product: "Sản phẩm & chất lượng",
   events: "Sự kiện",
+  tech: "Công nghệ & liên lạc",
+  general: "Từ vựng chung",
+};
+
+export const TOPIC_ICON: Record<VocabTopic, string> = {
+  workplace: "🧑‍💼",
+  office: "🗂️",
+  meeting: "🗣️",
+  travel: "✈️",
+  hotel: "🏨",
+  restaurant: "🍽️",
+  shopping: "🛍️",
+  customer_service: "☎️",
+  delivery: "📦",
+  schedule: "📅",
+  contracts: "📜",
+  marketing: "📣",
+  finance: "💰",
+  hr: "🤝",
+  product: "🏭",
+  events: "🎪",
+  tech: "💻",
+  general: "🔤",
 };
 
 /** The 11 study groups from the 2,000-word plan, with how many words each should reach. */
@@ -58,9 +87,9 @@ export const VOCAB_GROUPS: { name: string; target: number; topics: VocabTopic[] 
   { name: "Restaurant & Hospitality", target: 150, topics: ["restaurant", "hotel", "events"] },
   { name: "Manufacturing & Production", target: 200, topics: ["product", "delivery"] },
   { name: "Shopping & Retail", target: 150, topics: ["shopping", "customer_service"] },
-  { name: "Technology & Communication", target: 150, topics: [] },
+  { name: "Technology & Communication", target: 150, topics: ["tech"] },
   { name: "Contracts & Legal", target: 100, topics: ["contracts"] },
-  { name: "General vocabulary", target: 200, topics: ["schedule"] },
+  { name: "General vocabulary", target: 200, topics: ["schedule", "general"] },
 ];
 
 // [topic, word, pos, Vietnamese, English definition, paraphrase ("" if none), example]
@@ -279,6 +308,12 @@ const rows: Row[] = [
 
 function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+for (const pack of dayPacks) {
+  for (const [word, pos, meaningVi, meaningEn, paraphrase, example] of pack.words) {
+    rows.push([pack.topic, word, pos, meaningVi, meaningEn, paraphrase, example]);
+  }
 }
 
 export const vocabulary: VocabWord[] = rows.map(([topic, word, pos, meaningVi, meaningEn, paraphrase, example]) => ({

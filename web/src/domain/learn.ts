@@ -124,3 +124,12 @@ export function learnProgress(s: LearnState): number {
   const stageDone = s.queue.reduce((n, i) => n + i.stage, 0) + s.done.length * 3;
   return Math.round((stageDone / (s.total * 3)) * 100);
 }
+
+/**
+ * Shuffle a question's options and remap its answer index, so the right answer is not always
+ * in the same position (content files may list the correct option first).
+ */
+export function shuffleOptions<T extends { options: readonly string[]; answer: number }>(item: T, rng: Rng = Math.random): T {
+  const order = shuffle(item.options.map((_, i) => i), rng);
+  return { ...item, options: order.map((i) => item.options[i]!) as unknown as T["options"], answer: order.indexOf(item.answer) };
+}

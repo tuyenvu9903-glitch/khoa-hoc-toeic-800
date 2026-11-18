@@ -40,7 +40,7 @@ export const PART5_SKILLS: { code: string; label: string }[] = [
   { code: "R.P5.passive", label: "Câu bị động" },
 ];
 
-const p5 = (id: string, skill: string, sentence: string, options: Choice4, answer: AnswerIndex, explainVi: string): Part5Item => ({
+export const p5 = (id: string, skill: string, sentence: string, options: Choice4, answer: AnswerIndex, explainVi: string): Part5Item => ({
   id,
   skill: `R.P5.${skill}`,
   sentence,
@@ -149,7 +149,7 @@ export const part5Items: Part5Item[] = [
     "Nhân viên \"được ghi nhận\" → bị động are recognized."),
 ];
 
-const rq = (skill: string, question: string, options: Choice4, answer: AnswerIndex, explainVi: string): ReadingQuestion => ({
+export const rq = (skill: string, question: string, options: Choice4, answer: AnswerIndex, explainVi: string): ReadingQuestion => ({
   skill: `R.P7.${skill}`,
   question,
   options,

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { dayPacks } from "../data/dayPacks";
 import { part2Items, part3Sets } from "../data/listening";
 import { part5Items, part7Sets } from "../data/reading";
 import { shuffle } from "../domain/learn";
+import { firstTestDay, listeningUnlocked, miniTestUnlocked, part7BankUnlocked, unlockedGrammar } from "../domain/progress";
 import { localDateKey, markMissionDone } from "../lib/state";
-import { update } from "../lib/store";
+import { update, useAppState } from "../lib/store";
 import { Part2Session, SetSession } from "./ListeningPage";
 import { Part5Session, Part7Session, type SessionResult } from "./ReadingPage";
 
@@ -18,19 +20,30 @@ type Paper = {
   p7: typeof part7Sets;
 };
 
-const newPaper = (): Paper => ({
-  p2: shuffle(part2Items).slice(0, 5),
-  p3: shuffle(part3Sets).slice(0, 1),
-  p5: shuffle(part5Items).slice(0, 5),
-  p7: shuffle(part7Sets).slice(0, 1),
-});
+/** A paper built only from parts, skills and day packs the learner has already reached. */
+const newPaper = (day: number): Paper => {
+  const packs = dayPacks.filter((p) => p.day <= day);
+  const skills = unlockedGrammar(day);
+  const p2Pool = [...part2Items, ...packs.flatMap((p) => p.part2)];
+  const p5Pool = [...part5Items.filter((i) => skills.has(i.skill)), ...packs.flatMap((p) => p.part5)];
+  const p7Pool = [...(part7BankUnlocked(day) ? part7Sets : []), ...packs.map((p) => p.part7)];
+  const hasP3 = listeningUnlocked(day, "3");
+  return {
+    p2: shuffle(p2Pool).slice(0, hasP3 ? 5 : 8),
+    p3: hasP3 ? shuffle(part3Sets).slice(0, 1) : [],
+    p5: shuffle(p5Pool).slice(0, 5),
+    p7: shuffle(p7Pool).slice(0, 1),
+  };
+};
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
 /** A short mixed test (about 16 questions, 20 minutes) for the weekend checkpoints. */
 export function MiniTestPage() {
+  const day = useAppState().progress.day;
+  const unlocked = miniTestUnlocked(day);
   const [status, setStatus] = useState<"ready" | "running" | "done">("ready");
-  const [paper, setPaper] = useState<Paper>(newPaper);
+  const [paper, setPaper] = useState<Paper>(() => newPaper(day));
   const [section, setSection] = useState(0);
   const [results, setResults] = useState<SessionResult[]>([]);
   const [left, setLeft] = useState(MINUTES * 60);
@@ -56,17 +69,20 @@ export function MiniTestPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [left, status]);
 
+  // Skip the conversation section when Part 3 has not been reached yet.
+  const nextSection = (from: number) => (from + 1 === 1 && paper.p3.length === 0 ? from + 2 : from + 1);
   const sectionDone = (r: SessionResult) => {
     const all = [...results, r];
-    if (section + 1 >= SECTIONS.length) finish(all);
+    const next = nextSection(section);
+    if (next >= SECTIONS.length) finish(all);
     else {
       setResults(all);
-      setSection(section + 1);
+      setSection(next);
     }
   };
 
   const start = () => {
-    setPaper(newPaper());
+    setPaper(newPaper(day));
     setSection(0);
     setResults([]);
     setLeft(MINUTES * 60);
@@ -75,6 +91,7 @@ export function MiniTestPage() {
   };
   const quit = () => setStatus("ready");
 
+  const present = paper.p3.length > 0 ? [0, 1, 2, 3] : [0, 2, 3];
   const total = results.reduce((n, r) => n + r.total, 0);
   const correct = results.reduce((n, r) => n + r.correct, 0);
 
@@ -89,16 +106,24 @@ export function MiniTestPage() {
         )}
       </div>
 
-      {status === "ready" && (
+      {status === "ready" && !unlocked && (
+        <div className="card mx-auto mt-5 max-w-2xl p-6 text-center">
+          <p className="text-4xl" aria-hidden>🔒</p>
+          <p className="mt-2 text-slate-700">Mini test đầu tiên mở vào <strong>Ngày {firstTestDay()}</strong>, cuối tuần 1. Bạn đang ở Ngày {day}.</p>
+          <Link to="/" className="btn-ghost mt-4">Về Dashboard</Link>
+        </div>
+      )}
+
+      {status === "ready" && unlocked && (
         <div className="card mx-auto mt-5 max-w-2xl p-6">
           <p className="text-slate-700">Bài kiểm tra ngắn gồm 4 phần, làm liền mạch trong {MINUTES} phút:</p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-slate-700">
-            <li>Part 2: 5 câu hỏi – đáp</li>
-            <li>Part 3: 1 đoạn hội thoại (3 câu)</li>
+            <li>Part 2: {paper.p3.length > 0 ? 5 : 8} câu hỏi – đáp</li>
+            {paper.p3.length > 0 && <li>Part 3: 1 đoạn hội thoại (3 câu)</li>}
             <li>Part 5: 5 câu điền vào câu</li>
             <li>Part 7: 1 bài đọc</li>
           </ol>
-          <p className="mt-3 text-sm text-slate-500">Hết giờ, bài tự nộp với các phần đã làm xong. Câu sai được ghi vào nhật ký lỗi.</p>
+          <p className="mt-3 text-sm text-slate-500">Chỉ gồm nội dung bạn đã học tới Ngày {day}. Hết giờ, bài tự nộp với các phần đã làm xong. Câu sai được ghi vào nhật ký lỗi.</p>
           <button onClick={start} className="btn-primary mt-5">Bắt đầu</button>
         </div>
       )}
@@ -106,7 +131,7 @@ export function MiniTestPage() {
       {status === "running" && (
         <div className="mt-4">
           <ol className="mb-4 flex flex-wrap gap-2 text-xs" aria-label="Các phần">
-            {SECTIONS.map((s, i) => (
+            {SECTIONS.map((s, i) => !present.includes(i) ? null : (
               <li
                 key={s}
                 className={`rounded-full px-3 py-1 ${i === section ? "bg-brand-600 text-white" : i < section ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-500"}`}
@@ -135,7 +160,7 @@ export function MiniTestPage() {
           <ul className="mx-auto mt-4 max-w-sm space-y-1 text-left text-sm">
             {results.map((r, i) => (
               <li key={i} className="flex justify-between rounded-lg bg-slate-100 px-3 py-1.5">
-                <span>{SECTIONS[i]}</span>
+                <span>{SECTIONS[present[i] ?? i]}</span>
                 <span className="font-semibold">{r.correct}/{r.total}</span>
               </li>
             ))}

@@ -133,3 +133,17 @@ describe("learn flow", () => {
     expect(last).toBe(100);
   });
 });
+
+import { shuffleOptions } from "./learn";
+
+describe("shuffleOptions", () => {
+  it("keeps the same options and the answer pointing at the same text", () => {
+    const item = { options: ["right", "b", "c", "d"] as const, answer: 0, id: "x" };
+    for (let s = 1; s < 20; s++) {
+      const out = shuffleOptions(item, seeded(s));
+      expect([...out.options].sort()).toEqual([...item.options].sort());
+      expect(out.options[out.answer]).toBe("right");
+      expect(out.id).toBe("x");
+    }
+  });
+});

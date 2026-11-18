@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { PART5_SKILLS, part5Items, part7Sets, type Part5Item, type Part7Set } from "../data/reading";
-import { shuffle } from "../domain/learn";
+import { packByDay } from "../data/dayPacks";
+import { shuffle, shuffleOptions } from "../domain/learn";
+import { firstGrammarDay, part7BankUnlocked, unlockedGrammar } from "../domain/progress";
 import { localDateKey, markMissionDone, recordAnswer } from "../lib/state";
-import { update } from "../lib/store";
+import { update, useAppState } from "../lib/store";
 
 const LETTERS = ["A", "B", "C", "D"] as const;
 const PART5_COUNT = 10;
@@ -26,7 +28,7 @@ function optionStyle(submitted: boolean, isAnswer: boolean, chosen: boolean): st
 
 /** Part 5: one sentence at a time with instant feedback. */
 export function Part5Session({
-  items,
+  items: raw,
   onDone,
   onExit,
   header,
@@ -36,6 +38,7 @@ export function Part5Session({
   onExit?: () => void;
   header?: string;
 }) {
+  const items = useMemo(() => raw.map((i) => shuffleOptions(i)), [raw]);
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [correct, setCorrect] = useState(0);
@@ -131,7 +134,7 @@ export function Part5Session({
 
 /** Part 7: a passage with its questions, answered together then checked. */
 export function Part7Session({
-  sets,
+  sets: raw,
   onDone,
   onExit,
   header,
@@ -141,6 +144,7 @@ export function Part7Session({
   onExit?: () => void;
   header?: string;
 }) {
+  const sets = useMemo(() => raw.map((st) => ({ ...st, questions: st.questions.map((qq) => shuffleOptions(qq)) })), [raw]);
   const [index, setIndex] = useState(0);
   const set = sets[index]!;
   const [picks, setPicks] = useState<(number | null)[]>(() => set.questions.map(() => null));
@@ -223,23 +227,33 @@ export function Part7Session({
   );
 }
 
+type Kind = "p5" | "p7";
 type Mode = { kind: "p5"; items: Part5Item[] } | { kind: "p7"; sets: Part7Set[] } | null;
 
-function pickPart5(skill: string | null): Part5Item[] {
-  const pool = skill ? part5Items.filter((i) => i.skill === skill) : part5Items;
-  return shuffle(pool.length > 0 ? pool : part5Items).slice(0, PART5_COUNT);
+function pickPart5(skills: Set<string>, only: string | null): Part5Item[] {
+  const pool = part5Items.filter((i) => (only ? i.skill === only : skills.has(i.skill)));
+  return shuffle(pool.length > 0 ? pool : part5Items.filter((i) => skills.has(i.skill))).slice(0, PART5_COUNT);
 }
 
 export function ReadingPage() {
+  const state = useAppState();
+  const day = state.progress.day;
+  const pack = packByDay.get(day);
+  const skills = useMemo(() => unlockedGrammar(day), [day]);
+  const bank7Open = part7BankUnlocked(day);
   const [params, setParams] = useSearchParams();
   const [mode, setMode] = useState<Mode>(null);
-  const [result, setResult] = useState<(SessionResult & { kind: "p5" | "p7" }) | null>(null);
+  const [result, setResult] = useState<(SessionResult & { kind: Kind }) | null>(null);
 
-  // Deep links from the daily plan: /reading?part=5&skill=R.P5.tense or /reading?part=7
+  // Deep links from the daily plan: /reading?today=p5|p7, /reading?part=5&skill=…, /reading?part=7
   useEffect(() => {
+    const today = params.get("today");
     const part = params.get("part");
-    if (part === "5") setMode({ kind: "p5", items: pickPart5(params.get("skill")) });
-    else if (part === "7") setMode({ kind: "p7", sets: shuffle(part7Sets).slice(0, PART7_SETS) });
+    const skill = params.get("skill");
+    if (today === "p5" && pack) setMode({ kind: "p5", items: pack.part5 });
+    else if (today === "p7" && pack) setMode({ kind: "p7", sets: [pack.part7] });
+    else if (part === "5") setMode({ kind: "p5", items: pickPart5(skills, skill && skills.has(skill) ? skill : null) });
+    else if (part === "7" && bank7Open) setMode({ kind: "p7", sets: shuffle(part7Sets).slice(0, PART7_SETS) });
     // Run once on arrival.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -248,7 +262,7 @@ export function ReadingPage() {
     setMode(null);
     setParams({}, { replace: true });
   };
-  const finish = (kind: "p5" | "p7") => (r: SessionResult) => {
+  const finish = (kind: Kind) => (r: SessionResult) => {
     update((s) => markMissionDone(s, localDateKey(new Date()), kind === "p5" ? "grammar" : "reading"));
     setResult({ ...r, kind });
     exit();
@@ -257,7 +271,7 @@ export function ReadingPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Luyện đọc &amp; ngữ pháp</h1>
-      <p className="mt-1 text-sm text-slate-500">Part 5 luyện ngữ pháp theo từng dạng, Part 7 luyện đọc hiểu. Câu sai được ghi vào nhật ký lỗi.</p>
+      <p className="mt-1 text-sm text-slate-500">Câu ngữ pháp và bài đọc mỗi ngày dùng từ vựng của ngày đó. Câu sai được ghi vào nhật ký lỗi.</p>
 
       {mode?.kind === "p5" && <div className="mx-auto mt-5 max-w-3xl"><Part5Session items={mode.items} onDone={finish("p5")} onExit={exit} /></div>}
       {mode?.kind === "p7" && <div className="mt-5"><Part7Session sets={mode.sets} onDone={finish("p7")} onExit={exit} /></div>}
@@ -268,40 +282,80 @@ export function ReadingPage() {
             <div role="status" className="card mt-5 p-5 text-center">
               <p className="text-3xl font-extrabold">{result.correct}/{result.total}</p>
               <p className="mt-1 text-sm text-slate-600">
-                câu đúng ({Math.round((result.correct / result.total) * 100)}%). Nhiệm vụ "{result.kind === "p5" ? "Ngữ pháp" : "Đọc"}" hôm nay đã được đánh dấu.
+                câu đúng ({Math.round((result.correct / result.total) * 100)}%). Nhiệm vụ "{result.kind === "p5" ? "Ngữ pháp" : "Đọc"}" của Ngày {day} đã được đánh dấu.
               </p>
             </div>
           )}
 
-          <section className="card mt-5 p-5">
+          {pack && (
+            <section className="card mt-5 border-brand-200 bg-brand-50 p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">Bài hôm nay · Ngày {day} · {pack.theme}</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl bg-white p-4">
+                  <h2 className="font-bold">✏️ Ngữ pháp (Part 5)</h2>
+                  <p className="mt-1 text-sm text-slate-600">{pack.part5.length} câu điền từ, dùng từ vựng của hôm nay.</p>
+                  <button onClick={() => { setResult(null); setMode({ kind: "p5", items: pack.part5 }); }} className="btn-primary mt-3 !py-1.5">
+                    Làm bài
+                  </button>
+                </div>
+                <div className="rounded-xl bg-white p-4">
+                  <h2 className="font-bold">📖 Đọc hiểu (Part 7)</h2>
+                  <p className="mt-1 text-sm text-slate-600">{pack.part7.title}, {pack.part7.questions.length} câu hỏi.</p>
+                  <button onClick={() => { setResult(null); setMode({ kind: "p7", sets: [pack.part7] }); }} className="btn-primary mt-3 !py-1.5">
+                    Làm bài
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          <h2 className="mt-6 text-sm font-semibold text-slate-500">Luyện thêm (các phần đã học tới)</h2>
+          <section className="card mt-3 p-5">
             <div className="flex items-start gap-3">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-sky-100 text-xl" aria-hidden>✏️</span>
               <div>
-                <h2 className="font-bold">Part 5 · Ngữ pháp (điền vào câu)</h2>
-                <p className="mt-1 text-sm text-slate-600">{PART5_COUNT} câu mỗi lượt, có giải thích ngay. Chọn một dạng để luyện riêng ({part5Items.length} câu trong ngân hàng).</p>
+                <h2 className="font-bold">Part 5 · Ngữ pháp theo dạng</h2>
+                <p className="mt-1 text-sm text-slate-600">{PART5_COUNT} câu mỗi lượt. Dạng chưa học tới sẽ mở theo lộ trình.</p>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button onClick={() => setMode({ kind: "p5", items: pickPart5(null) })} className="btn-primary !py-1.5">Trộn tất cả</button>
-              {PART5_SKILLS.map((s) => (
-                <button key={s.code} onClick={() => setMode({ kind: "p5", items: pickPart5(s.code) })} className="btn-ghost !py-1.5">
-                  {s.label}
-                </button>
-              ))}
+              <button onClick={() => setMode({ kind: "p5", items: pickPart5(skills, null) })} className="btn-primary !py-1.5">
+                Trộn các dạng đã học
+              </button>
+              {PART5_SKILLS.map((sk) => {
+                const open = skills.has(sk.code);
+                return (
+                  <button
+                    key={sk.code}
+                    disabled={!open}
+                    title={open ? undefined : `Mở từ Ngày ${firstGrammarDay(sk.code) ?? "?"}`}
+                    onClick={() => setMode({ kind: "p5", items: pickPart5(skills, sk.code) })}
+                    className="btn-ghost !py-1.5"
+                  >
+                    {open ? "" : "🔒 "}
+                    {sk.label}
+                  </button>
+                );
+              })}
             </div>
           </section>
 
-          <section className="card mt-4 p-5">
+          <section className={`card mt-4 p-5 ${bank7Open ? "" : "opacity-60"}`}>
             <div className="flex items-start gap-3">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-100 text-xl" aria-hidden>📖</span>
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-amber-100 text-xl" aria-hidden>{bank7Open ? "📖" : "🔒"}</span>
               <div className="flex-1">
-                <h2 className="font-bold">Part 7 · Đọc hiểu</h2>
-                <p className="mt-1 text-sm text-slate-600">E-mail, quảng cáo, thông báo, tin nhắn, bài báo. {PART7_SETS} bài mỗi lượt ({part7Sets.length} bài trong ngân hàng).</p>
+                <h2 className="font-bold">Part 7 · Đọc hiểu tổng hợp</h2>
+                <p className="mt-1 text-sm text-slate-600">E-mail, quảng cáo, thông báo, tin nhắn, bài báo. {PART7_SETS} bài mỗi lượt.</p>
               </div>
             </div>
-            <button onClick={() => setMode({ kind: "p7", sets: shuffle(part7Sets).slice(0, PART7_SETS) })} className="btn-primary mt-4">Bắt đầu</button>
+            <button
+              disabled={!bank7Open}
+              onClick={() => setMode({ kind: "p7", sets: shuffle(part7Sets).slice(0, PART7_SETS) })}
+              className="btn-primary mt-4"
+            >
+              {bank7Open ? "Bắt đầu" : "Mở từ tuần 3"}
+            </button>
           </section>
-          <p className="mt-3 text-xs text-slate-500">Part 6 (điền vào đoạn văn) sẽ được bổ sung sau.</p>
         </div>
       )}
     </div>

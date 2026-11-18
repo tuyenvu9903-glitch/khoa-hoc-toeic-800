@@ -3,7 +3,7 @@ import { dailyPlan, missionLink, type DayPlan } from "../data/dailyPlan";
 import { weeks } from "../data/curriculum";
 import { PART5_SKILLS } from "../data/reading";
 import { TOPIC_LABEL } from "../data/vocabulary";
-import { programPosition } from "../domain/program";
+import { useAppState } from "../lib/store";
 import type { Profile } from "../lib/state";
 
 const PART_LABEL: Record<string, string> = {
@@ -35,14 +35,14 @@ function PracticeLinks({ plan }: { plan: DayPlan }) {
 }
 
 /** The full 8-week plan, day by day. */
-export function PlanPage({ profile }: { profile: Profile }) {
-  const today = programPosition(new Date(profile.programStartDate), new Date()).day;
+export function PlanPage(_props: { profile: Profile }) {
+  const today = useAppState().progress.day;
 
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Lộ trình 8 tuần</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Mỗi ngày: học 3 ý chính rồi luyện đúng dạng bài của ngày. Bấm vào một ngày để xem chi tiết. Hôm nay là ngày {today}.
+        Mỗi ngày: học 3 ý chính rồi luyện đúng dạng bài của ngày. Làm xong hết nhiệm vụ của một ngày thì ngày sau mới mở (từ hôm sau). Bạn đang ở Ngày {today}.
       </p>
 
       <div className="mt-5 space-y-4">
@@ -68,6 +68,15 @@ export function PlanPage({ profile }: { profile: Profile }) {
               <ol className="space-y-2 border-t border-slate-100 px-5 py-4">
                 {daysOfWeek.map((d) => {
                   const isToday = d.day === today;
+                  if (d.day > today) {
+                    return (
+                      <li key={d.day} className="flex items-center gap-3 rounded-xl border border-dashed border-slate-200 px-4 py-3 text-slate-400">
+                        <span className="w-16 shrink-0 text-xs font-semibold">Ngày {d.day}</span>
+                        <span className="flex-1">{d.title}</span>
+                        <span aria-label="Chưa mở">🔒</span>
+                      </li>
+                    );
+                  }
                   return (
                     <li key={d.day}>
                       <details open={isToday} className={`rounded-xl border px-4 py-3 ${isToday ? "border-brand-300 bg-brand-50" : "border-slate-200"}`}>

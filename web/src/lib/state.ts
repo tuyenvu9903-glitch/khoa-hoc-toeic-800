@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { errorClassSchema, toeicPartSchema } from "../domain/question";
+import { advanceProgress, initialProgress, markKindDone } from "../domain/progress";
 import { reviewCard, type Grade } from "../domain/srs";
 
 export const STORAGE_KEY = "toeic800.state";
@@ -71,15 +72,23 @@ export const stateSchema = z.object({
   typingBest: z.number().int().min(0).nullable().default(null),
   /** Best "Bắn gà" score. */
   shooterBest: z.number().int().min(0).nullable().default(null),
-  /** Mission items ticked off, keyed by local date (YYYY-MM-DD). */
+  /** Mission items ticked off, keyed by local date (YYYY-MM-DD). Drives the streak. */
   missionDone: z.record(z.string(), z.array(z.string())),
+  /** Day-by-day progression: the current day only advances after it is completed. */
+  progress: z
+    .object({
+      day: z.number().int().min(1).max(56),
+      dayStartedOn: z.string().nullable(),
+      done: z.record(z.string(), z.array(z.string())),
+    })
+    .default(initialProgress),
 });
 
 export type AppState = z.infer<typeof stateSchema>;
 export type Profile = NonNullable<AppState["profile"]>;
 
 export function emptyState(): AppState {
-  return { version: STATE_VERSION, profile: null, skillStats: {}, errors: [], scores: [], srs: {}, shooterBest: null, typingBest: null, missionDone: {} };
+  return { version: STATE_VERSION, profile: null, skillStats: {}, errors: [], scores: [], srs: {}, shooterBest: null, typingBest: null, missionDone: {}, progress: initialProgress() };
 }
 
 /** Validate untrusted JSON (storage or an imported backup). Throws a readable error. */
@@ -120,7 +129,12 @@ export function toggleMissionItem(state: AppState, dateKey: string, kind: string
 /** Restart the 8 weeks from `now`, keeping scores, error log and skill stats. */
 export function restartProgram(state: AppState, now: Date = new Date()): AppState {
   if (!state.profile) return state;
-  return { ...state, profile: { ...state.profile, programStartDate: now.toISOString() }, missionDone: {} };
+  return {
+    ...state,
+    profile: { ...state.profile, programStartDate: now.toISOString() },
+    missionDone: {},
+    progress: { ...initialProgress(), dayStartedOn: localDateKey(now) },
+  };
 }
 
 export function localDateKey(d: Date = new Date()): string {
@@ -190,12 +204,21 @@ export function recordAnswer(state: AppState, a: AnswerRecord, now: Date = new D
   return { ...state, skillStats: { ...state.skillStats, [a.skillCode]: stat }, errors };
 }
 
-/** Tick a mission item on (never off), e.g. when a vocabulary session is completed. */
+/**
+ * Tick a mission item on (never off), e.g. when a practice session is completed. It counts for
+ * today's date (streak) and for the current program day (progression).
+ */
 export function markMissionDone(state: AppState, dateKey: string, kind: string): AppState {
   const current = state.missionDone[dateKey] ?? [];
-  return current.includes(kind)
-    ? state
-    : { ...state, missionDone: { ...state.missionDone, [dateKey]: [...current, kind] } };
+  const missionDone = current.includes(kind) ? state.missionDone : { ...state.missionDone, [dateKey]: [...current, kind] };
+  const progress = markKindDone(state.progress, kind);
+  return missionDone === state.missionDone && progress === state.progress ? state : { ...state, missionDone, progress };
+}
+
+/** Open the next program day when the current one is finished and a new calendar day has begun. */
+export function advanceDay(state: AppState, now: Date = new Date()): AppState {
+  const progress = advanceProgress(state.progress, state.srs, localDateKey(now));
+  return progress === state.progress ? state : { ...state, progress };
 }
 
 /** Record a Gõ từ score; keeps the best. Returns whether it is a new record. */

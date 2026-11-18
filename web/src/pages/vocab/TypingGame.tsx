@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { vocabById, vocabulary } from "../../data/vocabulary";
+import { vocabById } from "../../data/vocabulary";
 import { CHICKEN_H, gradeForOutcome, H, pickShooterWords, ROUNDS, START_LIVES, W, type RoundOutcome } from "../../domain/shooter";
 import {
   createTypingGame,
@@ -12,6 +12,7 @@ import {
 } from "../../domain/typing";
 import { gradeVocab, localDateKey, markMissionDone, recordTypingScore } from "../../lib/state";
 import { update, useAppState } from "../../lib/store";
+import { unlockedWords } from "../../domain/progress";
 import { drawBackdrop, drawBullet, drawChicken, drawDangerLine, drawFx, drawShip, makeStars, type Star } from "./canvasArt";
 import { speak } from "./shared";
 
@@ -82,7 +83,7 @@ export function TypingGame({ onExit }: { onExit: () => void }) {
   typedRef.current = typed;
 
   const start = useCallback(() => {
-    const picks = pickShooterWords(state.srs, vocabulary, new Date());
+    const picks = pickShooterWords(state.srs, unlockedWords(state.progress.day), new Date());
     scheduledRef.current = new Set(picks.filter((p) => p.scheduled).map((p) => p.word.id));
     const g = createTypingGame(picks.map((p) => p.word));
     gameRef.current = g;

@@ -62,10 +62,11 @@ describe("buildDashboard", () => {
     expect(v.score).toMatchObject({ current: 400, target: 800 });
   });
 
-  it("moves to week 6 after 36 days and focuses on recorded weaknesses", () => {
+  it("shows week 6 on day 37 and focuses on recorded weaknesses", () => {
     const base = withProfile();
     const s = {
       ...base,
+      progress: { day: 37, dayStartedOn: "2026-01-01", done: {} },
       skillStats: {
         "L.P3.purpose": {
           attempts: 30,
@@ -173,5 +174,45 @@ describe("recordAnswer", () => {
     s = recordAnswer(s, { ...a, correct: true }, now);
     expect(s.errors.every((e) => e.resolvedAt !== null)).toBe(true);
     expect(parseState(JSON.parse(JSON.stringify(s))).errors).toHaveLength(1);
+  });
+});
+
+import { advanceDay, markMissionDone as markDone, type AppState } from "./state";
+import { wordsForDay } from "../domain/progress";
+import { reviewCard } from "../domain/srs";
+
+describe("day-by-day progression", () => {
+  const d1 = new Date(2026, 2, 2, 9);
+  const sameDayLater = new Date(2026, 2, 2, 21);
+  const nextDay = new Date(2026, 2, 3, 8);
+
+  const learnAll = (s: ReturnType<typeof withProfile>, day: number) => ({
+    ...s,
+    srs: Object.fromEntries(wordsForDay(day).map((w) => [w.id, reviewCard(undefined, "good", d1)])),
+  });
+
+  it("opens day 1 and stays there until every mission is done", () => {
+    let s = advanceDay(withProfile(), d1);
+    expect(s.progress).toMatchObject({ day: 1, dayStartedOn: "2026-03-02" });
+    for (const k of ["grammar", "listening", "reading"]) s = markDone(s, "2026-03-02", k);
+    expect(advanceDay(s, nextDay).progress.day).toBe(1); // vocabulary not learned yet
+  });
+
+  it("opens the next day only on a later date once the day is complete", () => {
+    let s = learnAll(advanceDay(withProfile(), d1), 1);
+    for (const k of ["grammar", "listening", "reading"]) s = markDone(s, "2026-03-02", k);
+    expect(advanceDay(s, sameDayLater).progress.day).toBe(1);
+    const next = advanceDay(s, nextDay);
+    expect(next.progress).toMatchObject({ day: 2, dayStartedOn: "2026-03-03" });
+    expect(advanceDay(next, nextDay).progress.day).toBe(2);
+  });
+
+  it("requires the mini test on checkpoint days", () => {
+    let s: AppState = { ...withProfile(), progress: { day: 7, dayStartedOn: "2026-03-02", done: {} } };
+    s = learnAll(s, 7);
+    for (const k of ["grammar", "listening", "reading"]) s = markDone(s, "2026-03-02", k);
+    expect(advanceDay(s, nextDay).progress.day).toBe(7);
+    s = markDone(s, "2026-03-02", "mini_test");
+    expect(advanceDay(s, nextDay).progress.day).toBe(8);
   });
 });
