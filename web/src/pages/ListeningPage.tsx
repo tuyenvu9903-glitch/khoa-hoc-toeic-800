@@ -302,10 +302,11 @@ function SetSession({ part, sets, rate, onDone, onExit }: { part: "3" | "4"; set
   );
 }
 
-function ModeCard({ title, desc, action, onClick }: { title: string; desc: string; action: string; onClick: () => void }) {
+function ModeCard({ icon, tone, title, desc, action, onClick }: { icon: string; tone: string; title: string; desc: string; action: string; onClick: () => void }) {
   return (
     <div className="card flex flex-col p-5">
-      <h2 className="font-bold text-slate-900">{title}</h2>
+      <span className={`grid h-11 w-11 place-items-center rounded-xl text-xl ${tone}`} aria-hidden>{icon}</span>
+      <h2 className="mt-3 font-bold text-slate-900">{title}</h2>
       <p className="mt-1 flex-1 text-sm text-slate-600">{desc}</p>
       <button onClick={onClick} className="btn-primary mt-4 self-start">{action}</button>
     </div>
@@ -368,6 +369,8 @@ export function ListeningPage() {
 
           <section className="mt-5 grid gap-4 sm:grid-cols-3" aria-label="Chọn phần luyện">
             <ModeCard
+              icon="💬"
+              tone="bg-sky-100"
               title="Part 2 · Hỏi – đáp"
               desc={`Nghe một câu hỏi và 3 câu trả lời, không có chữ. ${PART2_COUNT} câu mỗi lượt (ngân hàng ${counts.p2} câu).`}
               action="Bắt đầu"
@@ -377,6 +380,8 @@ export function ListeningPage() {
               }}
             />
             <ModeCard
+              icon="👥"
+              tone="bg-emerald-100"
               title="Part 3 · Hội thoại"
               desc={`Hội thoại 2–3 người, mỗi đoạn 3 câu hỏi in sẵn. ${SETS_PER_SESSION} đoạn mỗi lượt (có ${counts.p3} đoạn).`}
               action="Bắt đầu"
@@ -386,6 +391,8 @@ export function ListeningPage() {
               }}
             />
             <ModeCard
+              icon="📢"
+              tone="bg-amber-100"
               title="Part 4 · Bài nói"
               desc={`Thông báo, tin nhắn, quảng cáo… mỗi bài 3 câu hỏi. ${SETS_PER_SESSION} bài mỗi lượt (có ${counts.p4} bài).`}
               action="Bắt đầu"

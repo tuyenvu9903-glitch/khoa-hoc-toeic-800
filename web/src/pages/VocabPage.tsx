@@ -87,17 +87,17 @@ export function VocabPage() {
         <>
           <section className="card mt-5 p-6">
             <dl className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-              <Stat label="Đến hạn ôn" value={counts.due} icon="⏰" tone="bg-slate-100" />
-              <Stat label="Từ mới hôm nay" value={counts.newAvailable} icon="✨" tone="bg-slate-100" />
+              <Stat label="Đến hạn ôn" value={counts.due} icon="⏰" tone="bg-amber-100" />
+              <Stat label="Từ mới hôm nay" value={counts.newAvailable} icon="✨" tone="bg-violet-100" />
               <Stat label="Đã học" value={counts.learned} hint={`/${counts.total}`} icon="📚" tone="bg-brand-100" />
-              <Stat label="Thuộc lâu" value={counts.mature} icon="🏅" tone="bg-slate-100" />
+              <Stat label="Thuộc lâu" value={counts.mature} icon="🏅" tone="bg-emerald-100" />
             </dl>
           </section>
 
           <section className="mt-5 grid gap-4 sm:grid-cols-2" aria-label="Chế độ luyện">
             <ModeCard
               icon="🧠"
-              tone="bg-slate-100"
+              tone="bg-violet-100"
               title="Học từ mới"
               desc="Trắc nghiệm hai chiều rồi gõ lại từ, như chế độ Learn của Quizlet. Mỗi lượt tối đa 8 từ."
               action={learnIds.length > 0 ? `Học ${learnIds.length} từ mới` : "Hết từ mới hôm nay"}
@@ -106,7 +106,7 @@ export function VocabPage() {
             />
             <ModeCard
               icon="🃏"
-              tone="bg-slate-100"
+              tone="bg-sky-100"
               title="Thẻ ghi nhớ"
               desc="Lật thẻ, tự chấm 4 mức. Từ đến hạn được ôn trước theo lịch lặp lại ngắt quãng."
               action={flashIds.length > 0 ? `Ôn ${flashIds.length} thẻ` : "Hôm nay đã xong"}
@@ -115,7 +115,7 @@ export function VocabPage() {
             />
             <ModeCard
               icon="⌨️"
-              tone="bg-slate-100"
+              tone="bg-amber-100"
               title="Gõ từ bắn gà"
               desc={`Gà rơi xuống mang nghĩa tiếng Việt, gõ đúng từ tiếng Anh là tàu bay bắn.${state.typingBest !== null ? ` Kỷ lục ${state.typingBest} điểm.` : ""}`}
               action="Chơi"
@@ -123,7 +123,7 @@ export function VocabPage() {
             />
             <ModeCard
               icon="🐔"
-              tone="bg-slate-100"
+              tone="bg-rose-100"
               title="Bắn gà"
               desc={`Điều khiển tàu bay, bắn con gà mang nghĩa đúng trước khi đàn gà đáp xuống. Né trứng!${state.shooterBest !== null ? ` Kỷ lục ${state.shooterBest} điểm.` : ""}`}
               action="Bắn gà"

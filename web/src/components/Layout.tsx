@@ -2,10 +2,10 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useAppState } from "../lib/store";
 
 const LINKS = [
-  { to: "/", label: "Dashboard", end: true },
-  { to: "/vocab", label: "Từ vựng", end: false },
-  { to: "/listening", label: "Nghe", end: false },
-  { to: "/settings", label: "Dữ liệu", end: false },
+  { to: "/", label: "Dashboard", icon: "🏠", end: true },
+  { to: "/vocab", label: "Từ vựng", icon: "📚", end: false },
+  { to: "/listening", label: "Nghe", icon: "🎧", end: false },
+  { to: "/settings", label: "Dữ liệu", icon: "💾", end: false },
 ];
 
 export function Layout() {
@@ -26,12 +26,13 @@ export function Layout() {
               to={l.to}
               end={l.end}
               className={({ isActive }) =>
-                `rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                  isActive ? "bg-brand-100 text-brand-800" : "text-slate-600 hover:bg-white hover:text-slate-900"
+                `flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                  isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`
               }
             >
-              {l.label}
+              <span aria-hidden>{l.icon}</span>
+              <span className={l.to === "/" ? "hidden sm:inline" : ""}>{l.label}</span>
             </NavLink>
           ))}
           {profile && (

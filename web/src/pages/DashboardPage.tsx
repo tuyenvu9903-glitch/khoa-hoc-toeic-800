@@ -7,13 +7,13 @@ import { localDateKey, toggleMissionItem, type Profile } from "../lib/state";
 import { getSaveError, update, useAppState } from "../lib/store";
 
 const KIND: Record<string, { label: string; icon: string; chip: string }> = {
-  vocab: { label: "Từ vựng", icon: "📚", chip: "bg-slate-100" },
-  grammar: { label: "Ngữ pháp", icon: "✏️", chip: "bg-slate-100" },
-  listening: { label: "Nghe", icon: "🎧", chip: "bg-slate-100" },
-  reading: { label: "Đọc", icon: "📖", chip: "bg-slate-100" },
-  error_review: { label: "Ôn câu sai", icon: "🔁", chip: "bg-slate-100" },
+  vocab: { label: "Từ vựng", icon: "📚", chip: "bg-violet-100" },
+  grammar: { label: "Ngữ pháp", icon: "✏️", chip: "bg-sky-100" },
+  listening: { label: "Nghe", icon: "🎧", chip: "bg-emerald-100" },
+  reading: { label: "Đọc", icon: "📖", chip: "bg-amber-100" },
+  error_review: { label: "Ôn câu sai", icon: "🔁", chip: "bg-rose-100" },
   mini_test: { label: "Mini test", icon: "⏱️", chip: "bg-indigo-100" },
-  mock: { label: "Thi thử", icon: "📝", chip: "bg-slate-100" },
+  mock: { label: "Thi thử", icon: "📝", chip: "bg-fuchsia-100" },
   analysis: { label: "Phân tích", icon: "📊", chip: "bg-cyan-100" },
 };
 
