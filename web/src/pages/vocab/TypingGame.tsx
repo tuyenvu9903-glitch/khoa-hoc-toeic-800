@@ -95,9 +95,20 @@ export function TypingGame({ onExit }: { onExit: () => void }) {
     setStatus("playing");
   }, [state.srs]);
 
-  // Keep the cursor in the answer box while playing.
+  // Keep the cursor in the answer box while playing: on start/resume, after a wrong answer
+  // (the box is re-created to replay the shake), and whenever a key is pressed elsewhere on the page.
   useEffect(() => {
     if (status === "playing") inputRef.current?.focus();
+  }, [status, shake]);
+  useEffect(() => {
+    if (status !== "playing") return;
+    const onKey = (e: KeyboardEvent) => {
+      const input = inputRef.current;
+      if (!input || document.activeElement === input || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key.length === 1 || e.key === "Backspace" || e.key === "Enter") input.focus();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [status]);
 
   // Crisp canvas on high-DPI screens; also paints the idle backdrop.
