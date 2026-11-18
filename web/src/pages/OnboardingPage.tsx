@@ -25,9 +25,8 @@ export function OnboardingPage() {
         onSubmit={form.handleSubmit((v) => update((s) => createProfile(s, v)))}
         className="card animate-in w-full max-w-md overflow-hidden"
       >
-        <div className="relative bg-linear-to-br from-brand-600 via-violet-600 to-fuchsia-600 px-8 pb-8 pt-9 text-white">
-          <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" aria-hidden />
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/20 text-lg font-extrabold backdrop-blur">T8</span>
+        <div className="relative bg-brand-700 px-8 pb-8 pt-9 text-white">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/20 text-lg font-extrabold">T8</span>
           <p className="mt-4 text-sm font-medium text-white/80">TOEIC 400 → 800 · 8 tuần</p>
           <h1 className="mt-1 text-3xl font-extrabold tracking-tight">Bắt đầu bootcamp</h1>
           <p className="mt-2 text-sm text-white/80">Tiến độ được lưu ngay trong trình duyệt này. Ngày 1 bắt đầu từ hôm nay.</p>

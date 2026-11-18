@@ -4,6 +4,7 @@ import { useAppState } from "../lib/store";
 const LINKS = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/vocab", label: "Từ vựng", end: false },
+  { to: "/listening", label: "Nghe", end: false },
   { to: "/settings", label: "Dữ liệu", end: false },
 ];
 
@@ -11,10 +12,10 @@ export function Layout() {
   const { profile } = useAppState();
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-white/70 bg-white/70 backdrop-blur-md">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white">
         <nav className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-2.5" aria-label="Điều hướng chính">
           <NavLink to="/" className="mr-2 flex items-center gap-2 font-bold tracking-tight">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-linear-to-br from-brand-500 to-fuchsia-500 text-sm font-extrabold text-white shadow-md shadow-brand-600/30">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-sm font-extrabold text-white">
               T8
             </span>
             <span className="hidden sm:inline">TOEIC 800</span>

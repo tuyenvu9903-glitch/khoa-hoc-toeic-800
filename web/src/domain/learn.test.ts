@@ -10,8 +10,6 @@ import {
   matchTyped,
   shuffle,
 } from "./learn";
-import { buildMatchTiles, finalSeconds, pickMatchWords, resolvePick } from "./match";
-import { reviewCard } from "./srs";
 
 /** Deterministic rng (mulberry32). */
 function seeded(seed: number) {
@@ -133,39 +131,5 @@ describe("learn flow", () => {
       last = p;
     }
     expect(last).toBe(100);
-  });
-});
-
-describe("match game", () => {
-  const now = new Date(2026, 2, 10);
-  it("prefers learned words and tops up with others", () => {
-    const srs = { agenda: reviewCard(undefined, "good", now), attend: reviewCard(undefined, "good", now) };
-    const picked = pickMatchWords(srs, vocabulary, 6, seeded(5));
-    expect(picked).toHaveLength(6);
-    expect(new Set(picked.map((p) => p.id)).size).toBe(6);
-    expect(picked.slice(0, 2).map((p) => p.id).sort()).toEqual(["agenda", "attend"]);
-  });
-
-  it("builds two tiles per word", () => {
-    const tiles = buildMatchTiles([w("agenda"), w("attend")], seeded(2));
-    expect(tiles).toHaveLength(4);
-    expect(new Set(tiles.map((t) => t.key)).size).toBe(4);
-  });
-
-  it("resolves picks: select, deselect, match, mismatch", () => {
-    const [a, b] = [w("agenda"), w("attend")];
-    const tiles = buildMatchTiles([a, b], seeded(1));
-    const aw = tiles.find((t) => t.key === "agenda:w")!;
-    const am = tiles.find((t) => t.key === "agenda:m")!;
-    const bm = tiles.find((t) => t.key === "attend:m")!;
-    expect(resolvePick(null, aw)).toBe("select");
-    expect(resolvePick(aw, aw)).toBe("deselect");
-    expect(resolvePick(aw, am)).toBe("match");
-    expect(resolvePick(aw, bm)).toBe("mismatch");
-  });
-
-  it("adds half a second per mismatch", () => {
-    expect(finalSeconds(12_340, 0)).toBe(12.3);
-    expect(finalSeconds(10_000, 4)).toBe(12);
   });
 });

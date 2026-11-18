@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { useAppState } from "./lib/store";
 import { DashboardPage } from "./pages/DashboardPage";
+import { ListeningPage } from "./pages/ListeningPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { VocabPage } from "./pages/VocabPage";
@@ -14,6 +15,7 @@ export function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<DashboardPage profile={profile} />} />
         <Route path="/vocab" element={<VocabPage />} />
+        <Route path="/listening" element={<ListeningPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

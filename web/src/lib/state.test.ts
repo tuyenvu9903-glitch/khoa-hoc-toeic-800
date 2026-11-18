@@ -119,22 +119,18 @@ describe("vocabulary progress", () => {
   });
 });
 
-import { recordMatchTime } from "./state";
+import { recordTypingScore } from "./state";
 
-describe("match best time", () => {
-  it("keeps only the lowest time and reports records", () => {
+describe("typing best score", () => {
+  it("keeps the highest score and defaults old saves to null", () => {
     const s0 = withProfile();
-    const r1 = recordMatchTime(s0, 30);
+    const r1 = recordTypingScore(s0, 300);
     expect(r1).toMatchObject({ record: true });
-    expect(r1.state.matchBest).toBe(30);
-    const r2 = recordMatchTime(r1.state, 35);
-    expect(r2.record).toBe(false);
-    expect(r2.state.matchBest).toBe(30);
-    expect(recordMatchTime(r2.state, 21.5).state.matchBest).toBe(21.5);
-  });
-  it("old backups default to no record", () => {
-    const { matchBest: _m, ...old } = withProfile();
-    expect(parseState(old).matchBest).toBeNull();
+    expect(recordTypingScore(r1.state, 200)).toMatchObject({ record: false });
+    expect(recordTypingScore(r1.state, 450).state.typingBest).toBe(450);
+    expect(recordTypingScore(s0, 0).record).toBe(false);
+    const { typingBest: _t, ...old } = withProfile();
+    expect(parseState({ ...old, matchBest: 21.5 }).typingBest).toBeNull();
   });
 });
 
@@ -152,5 +148,30 @@ describe("shooter best score", () => {
   it("old backups default to no record", () => {
     const { shooterBest: _s, ...old } = withProfile();
     expect(parseState(old).shooterBest).toBeNull();
+  });
+});
+
+import { recordAnswer } from "./state";
+
+describe("recordAnswer", () => {
+  const now = new Date("2026-03-02T10:00:00Z");
+  const a = { questionId: "p2-01", skillCode: "L.P2.who", part: "2" as const, responseMs: 4000 };
+
+  it("creates and updates skill stats", () => {
+    const s1 = recordAnswer(withProfile(), { ...a, correct: false }, now);
+    expect(s1.skillStats["L.P2.who"]).toMatchObject({ attempts: 1, correct: 0, accuracyEma: 0 });
+    const s2 = recordAnswer(s1, { ...a, correct: true }, now);
+    expect(s2.skillStats["L.P2.who"]).toMatchObject({ attempts: 2, correct: 1 });
+    expect(s2.skillStats["L.P2.who"]!.accuracyEma).toBeCloseTo(0.25);
+  });
+
+  it("logs one open error per question and resolves it when answered correctly", () => {
+    let s = recordAnswer(withProfile(), { ...a, correct: false }, now);
+    s = recordAnswer(s, { ...a, correct: false }, now);
+    expect(s.errors.filter((e) => e.resolvedAt === null)).toHaveLength(1);
+    expect(s.errors[0]).toMatchObject({ errorClass: "listening_gap", part: "2" });
+    s = recordAnswer(s, { ...a, correct: true }, now);
+    expect(s.errors.every((e) => e.resolvedAt !== null)).toBe(true);
+    expect(parseState(JSON.parse(JSON.stringify(s))).errors).toHaveLength(1);
   });
 });

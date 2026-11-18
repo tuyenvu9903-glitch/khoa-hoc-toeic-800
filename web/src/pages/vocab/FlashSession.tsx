@@ -6,9 +6,9 @@ import { update, useAppState } from "../../lib/store";
 import { isTypingTarget, SpeakButton } from "./shared";
 
 const GRADES: { grade: Grade; label: string; key: string; style: string }[] = [
-  { grade: "again", label: "Chưa nhớ", key: "1", style: "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100" },
-  { grade: "hard", label: "Khó", key: "2", style: "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100" },
-  { grade: "good", label: "Nhớ", key: "3", style: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" },
+  { grade: "again", label: "Chưa nhớ", key: "1", style: "border-rose-200 bg-rose-50 text-rose-700 hover:bg-slate-100" },
+  { grade: "hard", label: "Khó", key: "2", style: "border-amber-200 bg-amber-50 text-amber-700 hover:bg-slate-100" },
+  { grade: "good", label: "Nhớ", key: "3", style: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-slate-100" },
   { grade: "easy", label: "Dễ", key: "4", style: "border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100" },
 ];
 
@@ -78,7 +78,7 @@ export function FlashSession({ initial, onExit }: { initial: string[]; onExit: (
   const progress = Math.round(((total - new Set(queue).size) / total) * 100);
   const face =
     "relative col-start-1 row-start-1 overflow-hidden rounded-3xl border border-white/80 p-8 shadow-[0_10px_40px_rgb(79_70_229/0.14)] [backface-visibility:hidden]";
-  const strip = <span className="absolute inset-x-0 top-0 h-1.5 bg-linear-to-r from-brand-500 to-fuchsia-500" aria-hidden />;
+  const strip = <span className="absolute inset-x-0 top-0 h-1.5 bg-brand-600" aria-hidden />;
   return (
     <div>
       <div className="mb-3 flex items-center justify-between text-sm text-slate-500">
@@ -86,7 +86,7 @@ export function FlashSession({ initial, onExit }: { initial: string[]; onExit: (
         <span>Còn {queue.length} · {card ? "Ôn tập" : "Từ mới"}</span>
       </div>
       <div className="mb-4 h-2 overflow-hidden rounded-full bg-brand-100" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-        <div className="h-full rounded-full bg-linear-to-r from-brand-500 to-fuchsia-500 transition-all" style={{ width: `${progress}%` }} />
+        <div className="h-full rounded-full bg-brand-600 transition-all" style={{ width: `${progress}%` }} />
       </div>
 
       <div
@@ -101,12 +101,12 @@ export function FlashSession({ initial, onExit }: { initial: string[]; onExit: (
             flipped ? "[transform:rotateY(180deg)]" : ""
           }`}
         >
-          <div className={`${face} flex flex-col items-center justify-center bg-linear-to-br from-white via-brand-50 to-fuchsia-50 text-center`} aria-hidden={flipped}>
+          <div className={`${face} flex flex-col items-center justify-center bg-white text-center`} aria-hidden={flipped}>
             {strip}
             <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{TOPIC_LABEL[word.topic]}</p>
-            <h2 className="mt-3 bg-linear-to-br from-brand-700 to-fuchsia-600 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent">{word.word}</h2>
+            <h2 className="mt-3 text-5xl font-extrabold tracking-tight text-slate-900">{word.word}</h2>
             <p className="mt-2 text-sm text-slate-400">{word.pos}</p>
-            <div className="mt-4"><SpeakButton text={word.word} label="Nghe phát âm" /></div>
+            <div className="mt-4"><SpeakButton text={word.word} label="Nghe phát âm" autoPlay /></div>
             <p className="mt-6 text-xs text-slate-400">Chạm để lật · Space</p>
           </div>
           <div className={`${face} bg-white [transform:rotateY(180deg)]`} aria-hidden={!flipped}>

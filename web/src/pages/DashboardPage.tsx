@@ -7,13 +7,13 @@ import { localDateKey, toggleMissionItem, type Profile } from "../lib/state";
 import { getSaveError, update, useAppState } from "../lib/store";
 
 const KIND: Record<string, { label: string; icon: string; chip: string }> = {
-  vocab: { label: "Từ vựng", icon: "📚", chip: "bg-violet-100" },
-  grammar: { label: "Ngữ pháp", icon: "✏️", chip: "bg-sky-100" },
-  listening: { label: "Nghe", icon: "🎧", chip: "bg-emerald-100" },
-  reading: { label: "Đọc", icon: "📖", chip: "bg-amber-100" },
-  error_review: { label: "Ôn câu sai", icon: "🔁", chip: "bg-rose-100" },
+  vocab: { label: "Từ vựng", icon: "📚", chip: "bg-slate-100" },
+  grammar: { label: "Ngữ pháp", icon: "✏️", chip: "bg-slate-100" },
+  listening: { label: "Nghe", icon: "🎧", chip: "bg-slate-100" },
+  reading: { label: "Đọc", icon: "📖", chip: "bg-slate-100" },
+  error_review: { label: "Ôn câu sai", icon: "🔁", chip: "bg-slate-100" },
   mini_test: { label: "Mini test", icon: "⏱️", chip: "bg-indigo-100" },
-  mock: { label: "Thi thử", icon: "📝", chip: "bg-fuchsia-100" },
+  mock: { label: "Thi thử", icon: "📝", chip: "bg-slate-100" },
   analysis: { label: "Phân tích", icon: "📊", chip: "bg-cyan-100" },
 };
 
@@ -62,7 +62,7 @@ function WeekTrack({ week }: { week: number }) {
               state === "done"
                 ? "bg-brand-600 text-white"
                 : state === "now"
-                  ? "bg-linear-to-br from-brand-500 to-fuchsia-500 text-white shadow-md shadow-brand-600/30"
+                  ? "bg-brand-600 text-white"
                   : "bg-white/70 text-slate-400"
             }`}
           >
@@ -95,9 +95,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
         </p>
       )}
 
-      <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-brand-600 via-violet-600 to-fuchsia-600 p-6 text-white shadow-xl shadow-brand-700/25 sm:p-8">
-        <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
-        <div className="pointer-events-none absolute -bottom-20 left-1/3 h-48 w-48 rounded-full bg-fuchsia-300/20 blur-2xl" aria-hidden />
+      <section className="relative overflow-hidden rounded-3xl bg-brand-700 p-6 text-white sm:p-8">
         <div className="relative flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-white/80">Chào {profile.displayName} 👋</p>
@@ -112,7 +110,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
             {view.focus && <p className="mt-0.5 text-sm text-white/70">Trọng tâm: {view.focus}</p>}
           </div>
           <div
-            className="flex items-center gap-2 rounded-2xl bg-white/15 px-4 py-2.5 backdrop-blur"
+            className="flex items-center gap-2 rounded-2xl bg-white/15 px-4 py-2.5"
             title="Số ngày liên tiếp có hoàn thành ít nhất một nhiệm vụ"
           >
             <span className="text-2xl" aria-hidden>🔥</span>
@@ -205,7 +203,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
             })}
           </ol>
           {view.weekendGate && (
-            <p className="mt-4 rounded-xl bg-linear-to-r from-brand-50 to-fuchsia-50 px-4 py-2.5 text-xs text-slate-600">
+            <p className="mt-4 rounded-xl bg-slate-100 px-4 py-2.5 text-xs text-slate-600">
               🏁 Cuối tuần: <strong>{view.weekendGate}</strong>
             </p>
           )}
@@ -226,7 +224,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
                       <span className="text-slate-500">{Math.round(w.accuracy * 100)}%</span>
                     </div>
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full rounded-full bg-linear-to-r from-rose-400 to-amber-400" style={{ width: `${Math.round(w.accuracy * 100)}%` }} />
+                      <div className="h-full rounded-full bg-rose-400" style={{ width: `${Math.round(w.accuracy * 100)}%` }} />
                     </div>
                   </li>
                 ))}

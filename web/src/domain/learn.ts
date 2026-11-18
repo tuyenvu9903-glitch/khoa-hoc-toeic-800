@@ -59,7 +59,8 @@ function levenshtein(a: string, b: string): number {
   return dp[a.length]![b.length]!;
 }
 
-const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+export const normalizeTyped = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+const norm = normalizeTyped;
 
 /** "close" = one typo away (only for words of 5+ letters): the UI lets the learner retry once. */
 export function matchTyped(input: string, answer: string): "exact" | "close" | "wrong" {

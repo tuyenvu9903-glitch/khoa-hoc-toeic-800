@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** Circular progress with a gradient stroke. `value` is 0..1. */
+/** Circular progress with a solid stroke. `value` is 0..1. */
 export function Ring({
   value,
   size = 132,
@@ -22,11 +22,11 @@ export function Ring({
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90" aria-hidden>
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#6d63f2" />
-            <stop offset="1" stopColor="#d946ef" />
+            <stop offset="0" stopColor="#2563eb" />
+            <stop offset="1" stopColor="#2563eb" />
           </linearGradient>
         </defs>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e8e8f8" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e2e8f0" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}

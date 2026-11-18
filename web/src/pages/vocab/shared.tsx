@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 const canSpeak = typeof window !== "undefined" && "speechSynthesis" in window;
 
 export function speak(text: string) {
@@ -9,7 +11,10 @@ export function speak(text: string) {
   window.speechSynthesis.speak(u);
 }
 
-export function SpeakButton({ text, label }: { text: string; label: string }) {
+export function SpeakButton({ text, label, autoPlay = false }: { text: string; label: string; autoPlay?: boolean }) {
+  useEffect(() => {
+    if (autoPlay) speak(text);
+  }, [autoPlay, text]);
   if (!canSpeak) return null;
   return (
     <button

@@ -67,8 +67,8 @@ export const stateSchema = z.object({
       }),
     )
     .default({}),
-  /** Best "Ghép thẻ" time in seconds. */
-  matchBest: z.number().positive().nullable().default(null),
+  /** Best "Gõ từ" score. */
+  typingBest: z.number().int().min(0).nullable().default(null),
   /** Best "Bắn gà" score. */
   shooterBest: z.number().int().min(0).nullable().default(null),
   /** Mission items ticked off, keyed by local date (YYYY-MM-DD). */
@@ -79,7 +79,7 @@ export type AppState = z.infer<typeof stateSchema>;
 export type Profile = NonNullable<AppState["profile"]>;
 
 export function emptyState(): AppState {
-  return { version: STATE_VERSION, profile: null, skillStats: {}, errors: [], scores: [], srs: {}, matchBest: null, shooterBest: null, missionDone: {} };
+  return { version: STATE_VERSION, profile: null, skillStats: {}, errors: [], scores: [], srs: {}, shooterBest: null, typingBest: null, missionDone: {} };
 }
 
 /** Validate untrusted JSON (storage or an imported backup). Throws a readable error. */
@@ -132,6 +132,64 @@ export function gradeVocab(state: AppState, wordId: string, grade: Grade, now: D
   return { ...state, srs: { ...state.srs, [wordId]: reviewCard(state.srs[wordId], grade, now) } };
 }
 
+export type AnswerRecord = {
+  questionId: string;
+  skillCode: string;
+  part: z.infer<typeof toeicPartSchema>;
+  correct: boolean;
+  responseMs: number;
+  errorClass?: z.infer<typeof errorClassSchema>;
+};
+
+const EMA_ALPHA = 0.25;
+
+/**
+ * Update the skill's stats with one answered question. A wrong answer opens an entry in the
+ * error log (once per question); a later correct answer to the same question resolves it.
+ */
+export function recordAnswer(state: AppState, a: AnswerRecord, now: Date = new Date()): AppState {
+  const prev = state.skillStats[a.skillCode];
+  const hit = a.correct ? 1 : 0;
+  const stat = prev
+    ? {
+        ...prev,
+        attempts: prev.attempts + 1,
+        correct: prev.correct + hit,
+        accuracyEma: prev.accuracyEma + EMA_ALPHA * (hit - prev.accuracyEma),
+        avgResponseMs: prev.avgResponseMs + EMA_ALPHA * (a.responseMs - prev.avgResponseMs),
+        lastPracticedAt: now.toISOString(),
+      }
+    : {
+        attempts: 1,
+        correct: hit,
+        accuracyEma: hit,
+        avgResponseMs: a.responseMs,
+        lastPracticedAt: now.toISOString(),
+        mastered: false,
+      };
+  const open = state.errors.some((e) => e.questionId === a.questionId && e.resolvedAt === null);
+  let errors = state.errors;
+  if (!a.correct && !open) {
+    errors = [
+      ...errors,
+      {
+        id: `${a.questionId}@${now.getTime()}`,
+        questionId: a.questionId,
+        skillCode: a.skillCode,
+        part: a.part,
+        errorClass: a.errorClass ?? "listening_gap",
+        createdAt: now.toISOString(),
+        resolvedAt: null,
+      },
+    ];
+  } else if (a.correct && open) {
+    errors = errors.map((e) =>
+      e.questionId === a.questionId && e.resolvedAt === null ? { ...e, resolvedAt: now.toISOString() } : e,
+    );
+  }
+  return { ...state, skillStats: { ...state.skillStats, [a.skillCode]: stat }, errors };
+}
+
 /** Tick a mission item on (never off), e.g. when a vocabulary session is completed. */
 export function markMissionDone(state: AppState, dateKey: string, kind: string): AppState {
   const current = state.missionDone[dateKey] ?? [];
@@ -140,10 +198,10 @@ export function markMissionDone(state: AppState, dateKey: string, kind: string):
     : { ...state, missionDone: { ...state.missionDone, [dateKey]: [...current, kind] } };
 }
 
-/** Record a Match game time; keeps the best (lowest). Returns whether it is a new record. */
-export function recordMatchTime(state: AppState, seconds: number): { state: AppState; record: boolean } {
-  const record = state.matchBest === null || seconds < state.matchBest;
-  return { state: record ? { ...state, matchBest: seconds } : state, record };
+/** Record a Gõ từ score; keeps the best. Returns whether it is a new record. */
+export function recordTypingScore(state: AppState, score: number): { state: AppState; record: boolean } {
+  const record = score > 0 && (state.typingBest === null || score > state.typingBest);
+  return { state: record ? { ...state, typingBest: score } : state, record };
 }
 
 /** Record a Bắn gà score; keeps the best. Returns whether it is a new record. */

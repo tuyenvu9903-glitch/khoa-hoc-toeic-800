@@ -6,7 +6,7 @@ import { buildVocabSession, nextNewWords, vocabCounts } from "../domain/vocabSes
 import { useAppState } from "../lib/store";
 import { FlashSession } from "./vocab/FlashSession";
 import { LearnSession } from "./vocab/LearnSession";
-import { MatchGame } from "./vocab/MatchGame";
+import { TypingGame } from "./vocab/TypingGame";
 import { ShooterGame } from "./vocab/ShooterGame";
 
 const LEARN_BATCH = 8;
@@ -14,7 +14,7 @@ const LEARN_BATCH = 8;
 type Mode =
   | { kind: "flash"; ids: string[] }
   | { kind: "learn"; ids: string[] }
-  | { kind: "match" }
+  | { kind: "typing" }
   | { kind: "shooter" }
   | null;
 
@@ -80,24 +80,24 @@ export function VocabPage() {
 
       {mode?.kind === "flash" && <div className="mt-5"><FlashSession initial={mode.ids} onExit={exit} /></div>}
       {mode?.kind === "learn" && <div className="mt-5"><LearnSession ids={mode.ids} onExit={exit} /></div>}
-      {mode?.kind === "match" && <div className="mt-5"><MatchGame onExit={exit} /></div>}
+      {mode?.kind === "typing" && <div className="mt-5"><TypingGame onExit={exit} /></div>}
       {mode?.kind === "shooter" && <div className="mt-5"><ShooterGame onExit={exit} /></div>}
 
       {mode === null && (
         <>
           <section className="card mt-5 p-6">
             <dl className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-              <Stat label="Đến hạn ôn" value={counts.due} icon="⏰" tone="bg-amber-100" />
-              <Stat label="Từ mới hôm nay" value={counts.newAvailable} icon="✨" tone="bg-violet-100" />
+              <Stat label="Đến hạn ôn" value={counts.due} icon="⏰" tone="bg-slate-100" />
+              <Stat label="Từ mới hôm nay" value={counts.newAvailable} icon="✨" tone="bg-slate-100" />
               <Stat label="Đã học" value={counts.learned} hint={`/${counts.total}`} icon="📚" tone="bg-brand-100" />
-              <Stat label="Thuộc lâu" value={counts.mature} icon="🏅" tone="bg-emerald-100" />
+              <Stat label="Thuộc lâu" value={counts.mature} icon="🏅" tone="bg-slate-100" />
             </dl>
           </section>
 
           <section className="mt-5 grid gap-4 sm:grid-cols-2" aria-label="Chế độ luyện">
             <ModeCard
               icon="🧠"
-              tone="bg-violet-100"
+              tone="bg-slate-100"
               title="Học từ mới"
               desc="Trắc nghiệm hai chiều rồi gõ lại từ, như chế độ Learn của Quizlet. Mỗi lượt tối đa 8 từ."
               action={learnIds.length > 0 ? `Học ${learnIds.length} từ mới` : "Hết từ mới hôm nay"}
@@ -106,7 +106,7 @@ export function VocabPage() {
             />
             <ModeCard
               icon="🃏"
-              tone="bg-sky-100"
+              tone="bg-slate-100"
               title="Thẻ ghi nhớ"
               desc="Lật thẻ, tự chấm 4 mức. Từ đến hạn được ôn trước theo lịch lặp lại ngắt quãng."
               action={flashIds.length > 0 ? `Ôn ${flashIds.length} thẻ` : "Hôm nay đã xong"}
@@ -114,16 +114,16 @@ export function VocabPage() {
               onClick={() => setMode({ kind: "flash", ids: flashIds })}
             />
             <ModeCard
-              icon="⚡"
-              tone="bg-amber-100"
-              title="Ghép thẻ"
-              desc={`Ghép từ với nghĩa thật nhanh, ghép sai bị phạt giờ.${state.matchBest !== null ? ` Kỷ lục ${state.matchBest.toFixed(1)}s.` : ""}`}
+              icon="⌨️"
+              tone="bg-slate-100"
+              title="Gõ từ bắn gà"
+              desc={`Gà rơi xuống mang nghĩa tiếng Việt, gõ đúng từ tiếng Anh là tàu bay bắn.${state.typingBest !== null ? ` Kỷ lục ${state.typingBest} điểm.` : ""}`}
               action="Chơi"
-              onClick={() => setMode({ kind: "match" })}
+              onClick={() => setMode({ kind: "typing" })}
             />
             <ModeCard
               icon="🐔"
-              tone="bg-rose-100"
+              tone="bg-slate-100"
               title="Bắn gà"
               desc={`Điều khiển tàu bay, bắn con gà mang nghĩa đúng trước khi đàn gà đáp xuống. Né trứng!${state.shooterBest !== null ? ` Kỷ lục ${state.shooterBest} điểm.` : ""}`}
               action="Bắn gà"

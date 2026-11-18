@@ -3,7 +3,6 @@ import { vocabById, vocabulary } from "../../data/vocabulary";
 import type { Direction } from "../../domain/learn";
 import {
   CHICKEN_H,
-  CHICKEN_W,
   createGame,
   gradeForOutcome,
   H,
@@ -11,11 +10,9 @@ import {
   NO_INPUT,
   pickShooterWords,
   ROUNDS,
-  SHIP_Y,
   START_LIVES,
   step,
   W,
-  type Chicken,
   type Game,
   type Input,
   type RoundOutcome,
@@ -23,9 +20,9 @@ import {
 import { gradeVocab, localDateKey, markMissionDone, recordShooterScore } from "../../lib/state";
 import { update, useAppState } from "../../lib/store";
 import { isTypingTarget, SpeakButton } from "./shared";
+import { drawBackdrop, drawBullet, drawChicken, drawDangerLine, drawFx, drawShip, EMOJI, makeStars, type Star } from "./canvasArt";
 
 type Status = "ready" | "playing" | "paused" | "done";
-type Star = { x: number; y: number; r: number; v: number; a: number };
 type Hud = {
   round: number;
   rounds: number;
@@ -46,165 +43,16 @@ type Summary = {
   rows: { wordId: string; outcome: RoundOutcome }[];
 };
 
-const EMOJI = '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
-const TEXT = 'ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif';
-
-function makeStars(): Star[] {
-  return Array.from({ length: 70 }, () => ({
-    x: Math.random() * W,
-    y: Math.random() * H,
-    r: 1 + Math.random() * 2,
-    v: 8 + Math.random() * 30,
-    a: 0.3 + Math.random() * 0.6,
-  }));
-}
-
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
-}
-
-function wrapText(ctx: CanvasRenderingContext2D, text: string, maxW: number): string[] {
-  const lines: string[] = [];
-  let line = "";
-  for (const word of text.split(/\s+/)) {
-    const test = line ? `${line} ${word}` : word;
-    if (line && ctx.measureText(test).width > maxW) {
-      lines.push(line);
-      line = word;
-    } else line = test;
-  }
-  if (line) lines.push(line);
-  return lines;
-}
-
-function drawChicken(ctx: CanvasRenderingContext2D, c: Chicken, time: number) {
-  const alpha = c.state === "flee" ? Math.max(0, 1 - c.t * 1.6) : c.state === "wrong" ? Math.max(0, 1 - c.t * 0.9) : 1;
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  const bob = c.state === "alive" ? Math.sin(time * 6 + c.id) * 3 : 0;
-  if (c.state === "right") {
-    if (c.t < 0.4) {
-      ctx.font = `${56 + c.t * 120}px ${EMOJI}`;
-      ctx.globalAlpha = 1 - c.t * 1.2;
-      ctx.fillText("💥", c.x, c.y - 22);
-    } else {
-      ctx.font = `40px ${EMOJI}`;
-      ctx.globalAlpha = Math.max(0, 1 - (c.t - 0.4) * 0.9);
-      ctx.fillText("🍗", c.x, c.y - 22 - (c.t - 0.4) * 30);
-    }
-  } else {
-    ctx.font = `46px ${EMOJI}`;
-    ctx.save();
-    ctx.translate(c.x, c.y - 22 + bob);
-    if (c.state === "wrong") ctx.rotate(c.t * 6);
-    ctx.fillText("🐔", 0, 0);
-    ctx.restore();
-  }
-
-  // Label board
-  let size = 15;
-  let lines: string[] = [];
-  for (; size >= 12; size -= 1) {
-    ctx.font = `700 ${size}px ${TEXT}`;
-    lines = wrapText(ctx, c.label, CHICKEN_W - 16);
-    if (lines.length <= 2) break;
-  }
-  const lh = size + 3;
-  const bh = lines.length * lh + 12;
-  const bx = c.x - CHICKEN_W / 2;
-  const by = c.y + 6;
-  roundRect(ctx, bx, by, CHICKEN_W, bh, 12);
-  ctx.fillStyle = c.state === "right" ? "#bbf7d0" : c.state === "wrong" ? "#fecaca" : "rgba(255,255,255,0.96)";
-  ctx.shadowColor = "rgba(0,0,0,0.35)";
-  ctx.shadowBlur = 10;
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "#1e1b4b";
-  ctx.font = `700 ${size}px ${TEXT}`;
-  lines.forEach((l, i) => ctx.fillText(l, c.x, by + 6 + lh * i + lh / 2));
-  ctx.restore();
-}
-
-function drawShip(ctx: CanvasRenderingContext2D, x: number, time: number, blink: boolean) {
-  if (blink && Math.floor(time * 12) % 2 === 0) return;
-  ctx.save();
-  ctx.translate(x, SHIP_Y);
-  const flicker = 6 + Math.sin(time * 40) * 3;
-  const flame = ctx.createLinearGradient(0, 14, 0, 36 + flicker);
-  flame.addColorStop(0, "#fde047");
-  flame.addColorStop(1, "rgba(251,113,133,0)");
-  ctx.fillStyle = flame;
-  ctx.beginPath();
-  ctx.moveTo(-9, 14);
-  ctx.lineTo(0, 36 + flicker);
-  ctx.lineTo(9, 14);
-  ctx.closePath();
-  ctx.fill();
-
-  const body = ctx.createLinearGradient(-26, -30, 26, 24);
-  body.addColorStop(0, "#e0e7ff");
-  body.addColorStop(1, "#6d63f2");
-  ctx.fillStyle = body;
-  ctx.beginPath();
-  ctx.moveTo(0, -30);
-  ctx.lineTo(13, 4);
-  ctx.lineTo(26, 22);
-  ctx.lineTo(10, 16);
-  ctx.lineTo(0, 24);
-  ctx.lineTo(-10, 16);
-  ctx.lineTo(-26, 22);
-  ctx.lineTo(-13, 4);
-  ctx.closePath();
-  ctx.shadowColor = "rgba(129,140,248,0.8)";
-  ctx.shadowBlur = 14;
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "#38bdf8";
-  ctx.beginPath();
-  ctx.ellipse(0, -4, 6, 11, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#e879f9";
-  ctx.fillRect(-3, 12, 6, 6);
-  ctx.restore();
-}
-
 function draw(canvas: HTMLCanvasElement, g: Game | null, stars: Star[]) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const scale = canvas.width / W;
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
   const time = g?.time ?? 0;
-
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, "#0f0c29");
-  bg.addColorStop(0.6, "#2b1b6b");
-  bg.addColorStop(1, "#5b2a9f");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-  for (const s of stars) {
-    ctx.fillStyle = `rgba(255,255,255,${s.a})`;
-    ctx.fillRect(s.x, (s.y + time * s.v) % H, s.r, s.r);
-  }
+  drawBackdrop(ctx, time, stars);
   if (!g) return;
 
-  // Danger line
-  ctx.strokeStyle = "rgba(251,113,133,0.35)";
-  ctx.setLineDash([10, 10]);
-  ctx.beginPath();
-  ctx.moveTo(0, INVADE_Y + CHICKEN_H / 2);
-  ctx.lineTo(W, INVADE_Y + CHICKEN_H / 2);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
+  drawDangerLine(ctx, INVADE_Y + CHICKEN_H / 2);
   for (const c of g.round.chickens) drawChicken(ctx, c, time);
 
   ctx.textAlign = "center";
@@ -212,27 +60,9 @@ function draw(canvas: HTMLCanvasElement, g: Game | null, stars: Star[]) {
   ctx.font = `22px ${EMOJI}`;
   for (const e of g.eggs) ctx.fillText("🥚", e.x, e.y);
 
-  for (const b of g.bullets) {
-    ctx.shadowColor = "#fde047";
-    ctx.shadowBlur = 12;
-    ctx.fillStyle = "#fef08a";
-    roundRect(ctx, b.x - 3, b.y - 9, 6, 18, 3);
-    ctx.fill();
-  }
-  ctx.shadowBlur = 0;
-
+  for (const b of g.bullets) drawBullet(ctx, b.x, b.y);
   drawShip(ctx, g.ship.x, time, g.ship.invuln > 0);
-
-  for (const f of g.fx) {
-    ctx.globalAlpha = Math.max(0, 1 - f.t / f.ttl);
-    ctx.font = `800 20px ${TEXT}`;
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "rgba(15,12,41,0.85)";
-    ctx.strokeText(f.text, f.x, f.y);
-    ctx.fillStyle = f.color;
-    ctx.fillText(f.text, f.x, f.y);
-    ctx.globalAlpha = 1;
-  }
+  drawFx(ctx, g.fx);
 }
 
 function hudOf(g: Game): Hud {
@@ -479,10 +309,10 @@ export function ShooterGame({ onExit }: { onExit: () => void }) {
               {hud.dir === "en2vi" ? "Bắn con gà mang nghĩa tiếng Việt của" : "Bắn con gà mang từ tiếng Anh có nghĩa"}
             </p>
             <p className="flex items-center gap-2">
-              <span className="bg-linear-to-br from-brand-700 to-fuchsia-600 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent" data-testid="prompt">
+              <span className="text-2xl font-extrabold tracking-tight text-slate-900" data-testid="prompt">
                 {hud.prompt}
               </span>
-              {hud.dir === "en2vi" && <SpeakButton text={hud.prompt} label="Nghe phát âm" />}
+              {hud.dir === "en2vi" && <SpeakButton text={hud.prompt} label="Nghe phát âm" autoPlay />}
             </p>
           </div>
           <dl className="flex items-center gap-4 text-sm">
@@ -501,7 +331,7 @@ export function ShooterGame({ onExit }: { onExit: () => void }) {
       )}
 
       <div
-        className="relative touch-none select-none overflow-hidden rounded-2xl shadow-xl shadow-brand-800/25 ring-1 ring-brand-900/30"
+        className="relative touch-none select-none overflow-hidden rounded-2xl ring-1 ring-brand-900/30"
         style={{ aspectRatio: `${W} / ${H}` }}
         onPointerMove={(e) => {
           if (status === "playing") inputRef.current.pointerX = pointerX(e);

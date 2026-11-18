@@ -135,7 +135,7 @@ export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => voi
         <span>{ls.done.length}/{ls.total} từ đã xong</span>
       </div>
       <div className="mb-4 h-2 overflow-hidden rounded-full bg-brand-100" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-        <div className="h-full rounded-full bg-linear-to-r from-brand-500 to-fuchsia-500 transition-all" style={{ width: `${progress}%` }} />
+        <div className="h-full rounded-full bg-brand-600 transition-all" style={{ width: `${progress}%` }} />
       </div>
 
       <div className="card p-8">
@@ -145,9 +145,9 @@ export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => voi
 
         {stage === 0 && (
           <div className="mt-3 flex items-center gap-3">
-            <h2 className="bg-linear-to-br from-brand-700 to-fuchsia-600 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent">{word.word}</h2>
+            <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">{word.word}</h2>
             <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{word.pos}</span>
-            <SpeakButton text={word.word} label="Nghe phát âm" />
+            <SpeakButton text={word.word} label="Nghe phát âm" autoPlay />
           </div>
         )}
         {stage === 1 && <h2 className="mt-3 text-3xl font-bold text-brand-700">{word.meaningVi}</h2>}

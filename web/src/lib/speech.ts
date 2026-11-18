@@ -1,0 +1,93 @@
+// Browser text-to-speech for listening practice: plays a script line by line with a
+// distinct voice per speaker where the device has several English voices.
+import type { Speaker } from "../data/listening";
+
+export const canSpeech = typeof window !== "undefined" && "speechSynthesis" in window;
+
+const FEMALE = /zira|aria|jenny|samantha|karen|susan|hazel|libby|sonia|female|woman|victoria|allison|ava|emma|michelle|natasha|clara/i;
+const MALE = /david|mark|guy|daniel|george|ryan|alex|fred|male|man\b|james|thomas|christopher|eric|roger|brian|andrew/i;
+
+function englishVoices(): SpeechSynthesisVoice[] {
+  if (!canSpeech) return [];
+  return window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en"));
+}
+
+/** Pick a voice (and a pitch fallback) for each speaker role. */
+function voiceFor(speaker: Speaker): { voice: SpeechSynthesisVoice | null; pitch: number } {
+  const all = englishVoices();
+  const us = all.filter((v) => v.lang.toLowerCase() === "en-us");
+  const pool = us.length > 0 ? [...us, ...all.filter((v) => !us.includes(v))] : all;
+  const women = pool.filter((v) => FEMALE.test(v.name));
+  const men = pool.filter((v) => MALE.test(v.name) && !FEMALE.test(v.name));
+  const female = speaker === "W" || speaker === "W2";
+  const second = speaker === "W2" || speaker === "M2";
+  const list = female ? women : men;
+  const voice = list[second ? 1 : 0] ?? list[0] ?? pool[0] ?? null;
+  // Without a matching voice, shift the pitch so speakers still sound different.
+  const pitch = list.length > 0 ? 1 : female ? 1.25 : 0.8;
+  return { voice, pitch: second && list.length < 2 ? pitch + 0.15 : pitch };
+}
+
+/** Voices load asynchronously in some browsers; resolve once they are available (or after a short wait). */
+export function voicesReady(): Promise<void> {
+  if (!canSpeech || window.speechSynthesis.getVoices().length > 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => {
+      window.speechSynthesis.removeEventListener("voiceschanged", done);
+      resolve();
+    };
+    window.speechSynthesis.addEventListener("voiceschanged", done);
+    setTimeout(done, 1500);
+  });
+}
+
+export type ScriptLine = { speaker: Speaker; text: string };
+
+/**
+ * Speak lines in order. Returns a function that stops playback.
+ * `onLine` reports the index being spoken; `onEnd` fires after the last line (not when stopped).
+ */
+export function playScript(
+  lines: ScriptLine[],
+  opts: { rate?: number; onLine?: (i: number) => void; onEnd?: () => void } = {},
+): () => void {
+  if (!canSpeech || lines.length === 0) {
+    opts.onEnd?.();
+    return () => {};
+  }
+  const synth = window.speechSynthesis;
+  synth.cancel();
+  let stopped = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  const say = (i: number) => {
+    if (stopped) return;
+    if (i >= lines.length) {
+      opts.onEnd?.();
+      return;
+    }
+    const line = lines[i]!;
+    const { voice, pitch } = voiceFor(line.speaker);
+    const u = new SpeechSynthesisUtterance(line.text);
+    u.lang = voice?.lang ?? "en-US";
+    if (voice) u.voice = voice;
+    u.pitch = pitch;
+    u.rate = opts.rate ?? 0.95;
+    u.onstart = () => opts.onLine?.(i);
+    // A short pause between lines, like a recorded test.
+    u.onend = () => {
+      timer = setTimeout(() => say(i + 1), 450);
+    };
+    u.onerror = () => {
+      timer = setTimeout(() => say(i + 1), 50);
+    };
+    synth.speak(u);
+  };
+  say(0);
+
+  return () => {
+    stopped = true;
+    if (timer) clearTimeout(timer);
+    synth.cancel();
+  };
+}
