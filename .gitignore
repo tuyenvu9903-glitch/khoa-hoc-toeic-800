@@ -5,5 +5,4 @@ dist
 *.log
 .DS_Store
 coverage
-api/drizzle/meta
-pgdata
+*.tsbuildinfo

@@ -14,6 +14,11 @@ The product is not a generic English course. Every screen answers:
 
 ---
 
+> **Deployment note (Phase 2):** the app is a static, client-only site hosted on GitHub Pages. There is no
+> backend, JWT or server database: progress lives in browser `localStorage` with JSON export/import, and the
+> tables below are the **data model** used as TypeScript/Zod types and for future storage. Sections that mention
+> PostgreSQL or the Express API describe the original design and are superseded by this note.
+
 ## 1. 8-week curriculum
 
 Daily load: **2–3 hours**. Mix: weeks 1–4 **30% learning / 70% practice**; weeks 5–8 **20% / 80%**.
@@ -80,7 +85,7 @@ Each question maps to **one primary skill** and optional secondary skills.
 
 ## 3. Database schema (summary)
 
-PostgreSQL. UUID PKs. See `api/src/db/schema.ts` for the source of truth.
+PostgreSQL-compatible (PGlite embedded for self-study; same SQL runs on a real Postgres). UUID PKs. See `api/src/db/schema.ts` for the source of truth.
 
 | Table | Role |
 |-------|------|
@@ -206,14 +211,14 @@ Layout: left nav + top score chip (`current / 800`, L, R) + primary CTA **Today�
 
 Design tokens: exam-like calm neutrals, large Part 1 image, timer visible in exam, explanation drawer only after submit in learning.
 
-Stack (later phases): React + Vite + Tailwind, React Query, Zod, React Hook Form. This phase ships **API + Postgres only**.
+Stack (later phases): React + Vite + Tailwind, React Query, Zod, React Hook Form. Phase 2 ships the `web/` app (onboarding, dashboard, backup/restore).
 
 ---
 
 ## Development order
 
-1. Architecture + database ← **current**
-2. Authentication + Dashboard
+1. Architecture + database ✅
+2. Dashboard + local progress storage (auth dropped: single-user, static hosting) ← **current**
 3. Placement Test
 4. Question Engine
 5. Listening + audio + image
