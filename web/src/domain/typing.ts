@@ -59,11 +59,12 @@ export function fallSpeed(index: number): number {
 }
 
 /** "s _ _ _ _ _ _ _" with spaces of multi-word answers kept as wider gaps. */
+/** Short, readable hint: the first letters of each word ("co…", "ch… o…"). */
 export function hintFor(answer: string): string {
   return answer
-    .split(" ")
-    .map((part, i) => part.split("").map((ch, j) => (i === 0 && j === 0 ? ch : "_")).join(" "))
-    .join("   ");
+    .split(/\s+/)
+    .map((part, i) => `${part.slice(0, i === 0 && part.length >= 6 ? 2 : 1)}…`)
+    .join(" ");
 }
 
 export function createTypingGame(targets: VocabWord[]): TypingGame {

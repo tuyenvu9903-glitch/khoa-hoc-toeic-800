@@ -70,7 +70,7 @@ describe("typing game", () => {
     const e = g.enemies[0]!;
     e.y = LAND_Y * 0.7;
     stepTyping(g, 0.02, rng);
-    expect(e.hint).toBe("r _ _ _ _ _ _");
+    expect(e.hint).toBe("re…");
     submitWord(g, "receipt");
     run(g, 0.5);
     expect(g.results[0]).toMatchObject({ outcome: "ok" });
@@ -110,6 +110,8 @@ describe("typing game", () => {
   });
 
   it("builds spelling hints for multi-word answers", () => {
-    expect(hintFor("check out")).toBe("c _ _ _ _   _ _ _");
+    expect(hintFor("check out")).toBe("c… o…");
+    expect(hintFor("collaborate")).toBe("co…");
+    expect(hintFor("task")).toBe("t…");
   });
 });

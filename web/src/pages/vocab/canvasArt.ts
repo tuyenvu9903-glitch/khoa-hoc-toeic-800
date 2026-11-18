@@ -92,7 +92,7 @@ export function drawChicken(ctx: CanvasRenderingContext2D, c: ChickenSprite, tim
   const bh = lines.length * lh + 12;
   const bx = c.x - CHICKEN_W / 2;
   const by = c.y + 6;
-  const subH = c.sub ? 20 : 0;
+  const subH = c.sub ? 24 : 0;
   roundRect(ctx, bx, by, CHICKEN_W, bh + subH, 12);
   ctx.fillStyle = c.state === "right" ? "#bbf7d0" : c.state === "wrong" ? "#fecaca" : "rgba(255,255,255,0.96)";
   ctx.shadowColor = "rgba(0,0,0,0.35)";
@@ -109,9 +109,9 @@ export function drawChicken(ctx: CanvasRenderingContext2D, c: ChickenSprite, tim
   lines.forEach((l, i) => ctx.fillText(l, c.x, by + 6 + lh * i + lh / 2));
   if (c.sub) {
     // Shrink the hint until it fits inside the board, so long words stay readable.
-    let hintSize = 15;
-    for (; hintSize > 8; hintSize -= 1) {
-      ctx.font = `700 ${hintSize}px ui-monospace, Consolas, monospace`;
+    let hintSize = 18;
+    for (; hintSize > 12; hintSize -= 1) {
+      ctx.font = `800 ${hintSize}px ${TEXT}`;
       if (ctx.measureText(c.sub).width <= CHICKEN_W - 16) break;
     }
     ctx.fillStyle = "#1d4ed8";
