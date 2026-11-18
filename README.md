@@ -17,7 +17,7 @@ Phase 1: kiến trúc. Phase 2: lộ trình 56 ngày + Dashboard "Hôm nay tôi 
 
 - **Học từ mới:** trắc nghiệm Anh→Việt, Việt→Anh, rồi gõ lại từ (cho phép thử lại một lần nếu sai một chữ). Từ sai sẽ quay lại sớm.
 - **Thẻ ghi nhớ:** thẻ lật 3D, chấm 4 mức (Chưa nhớ / Khó / Nhớ / Dễ). Phím tắt: Space lật thẻ, 1–4 chấm. Có nút nghe phát âm.
-- **Ghép thẻ:** ghép từ với nghĩa, tính giờ, ghép sai phạt 0,5 giây, lưu kỷ lục.
+- **Gõ từ bắn gà:** gà rơi xuống mang nghĩa tiếng Việt, gõ đúng từ tiếng Anh thì tàu bay bắn.
 - Mỗi từ học xong được xếp lịch ôn lại (SM-2 đơn giản), tối đa 15 từ mới mỗi ngày. Hoàn thành phiên sẽ tự đánh dấu nhiệm vụ "Từ vựng" trên Dashboard.
 - Thêm từ mới: sửa `web/src/data/vocabulary.ts`.
 
@@ -43,7 +43,10 @@ npm run build
 
 - `web/src/data/curriculum.ts`: giáo trình 8 tuần, 56 ngày, skill tree, mẫu nhiệm vụ.
 - `web/src/data/vocabulary.ts`: từ vựng theo chủ đề.
-- `web/src/domain/`: adaptive, nhiệm vụ hằng ngày, ngày/tuần, điểm, SRS, phiên luyện từ, chế độ Học, Ghép thẻ.
+- `web/src/data/listening.ts`, `reading.ts`: câu luyện Nghe (Part 2–4) và Đọc (Part 5, 7), tự soạn.
+- `web/src/data/dailyPlan.ts`: bài học từng ngày của lộ trình 56 ngày.
+- `CLAUDE.md` và `.claude/skills/`: hướng dẫn cho Claude Code (thêm từ vựng, thêm câu hỏi, push).
+- `web/src/domain/`: adaptive, nhiệm vụ hằng ngày, ngày/tuần, điểm, SRS, phiên luyện từ, chế độ Học, game Bắn gà và Gõ từ.
 - `web/src/lib/`: trạng thái + lưu trữ + tổng hợp dashboard.
 - `docs/ARCHITECTURE.md`: kiến trúc; `docs/MASTER_PROMPT.md`: spec gốc.
 
