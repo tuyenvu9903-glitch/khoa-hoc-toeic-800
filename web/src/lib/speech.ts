@@ -4,6 +4,7 @@ import type { Speaker } from "../data/listening";
 import { clipKey, letterText, loadClips, playClip, ROLE_VOICE, splitLetter } from "./tts";
 
 let clips: Set<string> = new Set();
+let activeStop: (() => void) | null = null;
 void loadClips().then((c) => (clips = c));
 
 /** Clip keys to play for a line in a recorded voice, or null to use speech synthesis. */
@@ -68,6 +69,8 @@ export function playScript(
   lines: ScriptLine[],
   opts: { rate?: number; onLine?: (i: number) => void; onEnd?: () => void } = {},
 ): () => void {
+  // Only one script plays at a time: starting one ends the previous (fast clicks, replay buttons).
+  activeStop?.();
   if (lines.length === 0) {
     opts.onEnd?.();
     return () => {};
@@ -81,6 +84,7 @@ export function playScript(
   const say = (i: number) => {
     if (stopped) return;
     if (i >= lines.length) {
+      if (activeStop === stop) activeStop = null;
       opts.onEnd?.();
       return;
     }
@@ -109,28 +113,43 @@ export function playScript(
     if (voice) u.voice = voice;
     u.pitch = pitch;
     u.rate = opts.rate ?? 0.95;
-    u.onstart = () => opts.onLine?.(i);
+    // A cancelled utterance still fires onend/onerror: ignore it once this script is stopped.
+    u.onstart = () => {
+      if (!stopped) opts.onLine?.(i);
+    };
     // A short pause between lines, like a recorded test.
     u.onend = () => {
-      timer = setTimeout(() => say(i + 1), 450);
+      if (!stopped) timer = setTimeout(() => say(i + 1), 450);
     };
     u.onerror = () => {
-      timer = setTimeout(() => say(i + 1), 50);
+      if (!stopped) timer = setTimeout(() => say(i + 1), 50);
     };
     synth.speak(u);
   };
   // Wait for the clip list (first play only) so recorded voices are used from the first line.
-  void loadClips().then((c) => {
-    clips = c;
-    say(0);
-  });
+  // Browser voices are only needed for lines without a recording.
+  void loadClips()
+    .then((c) => {
+      clips = c;
+      return lines.every((l) => clipsFor(l)) ? undefined : voicesReady();
+    })
+    .then(() => say(0));
 
-  return () => {
+  const stop = () => {
+    if (stopped) return;
     stopped = true;
     if (timer) clearTimeout(timer);
     stopClip?.();
     synth?.cancel();
+    if (activeStop === stop) activeStop = null;
   };
+  activeStop = stop;
+  return stop;
+}
+
+/** Stop whatever script is playing. */
+export function stopSpeech(): void {
+  activeStop?.();
 }
 
 /**

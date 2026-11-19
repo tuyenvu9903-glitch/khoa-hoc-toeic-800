@@ -14,7 +14,8 @@ import { firstListeningDay, listeningUnlocked } from "../domain/progress";
 import { localDateKey, markMissionDone, recordAnswer } from "../lib/state";
 import { CoachReaction, SessionResult, StartLine } from "../components/Voice";
 import { useCoach } from "../voice/useVoice";
-import { canSpeech, playScript, voicesReady, type ScriptLine } from "../lib/speech";
+import { stopMascot } from "../voice/mascotVoice";
+import { canSpeech, playScript, type ScriptLine } from "../lib/speech";
 import { update, useAppState } from "../lib/store";
 
 const PART2_COUNT = 10;
@@ -34,26 +35,43 @@ function usePlayer(rate: number) {
   const stopRef = useRef<() => void>(() => {});
   const [playing, setPlaying] = useState(false);
   const [line, setLine] = useState(-1);
+  // Each play/stop bumps the token, so a play still waiting for voices (or callbacks of an older
+  // play) can never start or update the screen after the learner has moved on.
+  const token = useRef(0);
   const play = (lines: ScriptLine[]) => {
     stopRef.current();
+    stopMascot();
+    const mine = ++token.current;
     setPlaying(true);
-    void voicesReady().then(() => {
+    setLine(-1);
+    {
       stopRef.current = playScript(lines, {
         rate,
-        onLine: setLine,
+        onLine: (i) => {
+          if (token.current === mine) setLine(i);
+        },
         onEnd: () => {
+          if (token.current !== mine) return;
           setPlaying(false);
           setLine(-1);
         },
       });
-    });
+    }
   };
   const stop = () => {
+    token.current++;
     stopRef.current();
+    stopRef.current = () => {};
     setPlaying(false);
     setLine(-1);
   };
-  useEffect(() => () => stopRef.current(), []);
+  useEffect(
+    () => () => {
+      token.current++;
+      stopRef.current();
+    },
+    [],
+  );
   return { play, stop, playing, line };
 }
 

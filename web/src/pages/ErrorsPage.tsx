@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { skillRows } from "../data/curriculum";
 import { PART5_SKILLS } from "../data/reading";
 import { explainWithOptionText, shuffle } from "../domain/learn";
 import { questionById, type IndexedQuestion } from "../lib/questionIndex";
-import { playScript } from "../lib/speech";
+import { playScript, stopSpeech } from "../lib/speech";
 import { errorsDue, recordAnswer, type AppState } from "../lib/state";
 import { update, useAppState } from "../lib/store";
 import { CoachBubble } from "../components/Mascot";
@@ -179,6 +179,8 @@ function ErrorCard({ entry, q }: { entry: ErrorEntry; q: IndexedQuestion }) {
 export function ErrorsPage() {
   const state = useAppState();
   const t = useCopy();
+  // Leaving the page stops any replay still playing.
+  useEffect(() => () => stopSpeech(), []);
   const [params] = useSearchParams();
   const [status, setStatus] = useState<Status>(params.get("due") ? "due" : "open");
   const [part, setPart] = useState("all");

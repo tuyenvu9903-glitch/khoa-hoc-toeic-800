@@ -63,8 +63,17 @@ export function hasClip(voice: string, text: string): string | null {
 
 export const clipUrl = (key: string) => `${import.meta.env.BASE_URL}tts/${key}.mp3`;
 
-/** Play one clip; resolves when it ends (or fails). The returned stop function cancels it. */
+/** The clip playing right now (listening line, word or Tám): only one plays at a time. */
+let currentStop: (() => void) | null = null;
+
+export function stopAllClips(): void {
+  currentStop?.();
+  currentStop = null;
+}
+
+/** Play one clip, cutting off any other clip; resolves when it ends (or fails/stops). */
 export function playClip(key: string, rate = 1): { done: Promise<boolean>; stop: () => void } {
+  stopAllClips();
   const audio = new Audio(clipUrl(key));
   audio.playbackRate = rate;
   let settle: (ok: boolean) => void = () => {};
@@ -72,11 +81,12 @@ export function playClip(key: string, rate = 1): { done: Promise<boolean>; stop:
   audio.onended = () => settle(true);
   audio.onerror = () => settle(false);
   audio.play().catch(() => settle(false));
-  return {
-    done,
-    stop: () => {
-      audio.pause();
-      settle(false);
-    },
+  const stop = () => {
+    audio.pause();
+    audio.removeAttribute("src");
+    settle(false);
+    if (currentStop === stop) currentStop = null;
   };
+  currentStop = stop;
+  return { done, stop };
 }
