@@ -14,6 +14,11 @@ import { update } from "../../lib/store";
 import { CoachReaction, VerdictLine } from "../../components/Voice";
 import { useCoach } from "../../voice/useVoice";
 import { isTypingTarget, SpeakButton } from "./shared";
+import { mascotDone } from "../../voice/mascotVoice";
+
+/** After a correct answer: stay at least this long, and at most this long while Tám talks. */
+const CORRECT_MIN_MS = 2200;
+const CORRECT_MAX_MS = 6000;
 
 type Feedback = { correct: boolean; picked?: number; typed?: string };
 
@@ -64,11 +69,18 @@ export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => voi
     [ls],
   );
 
-  // Correct answers continue by themselves, like Quizlet; wrong ones wait for the learner.
+  // Correct answers continue by themselves, like Quizlet, but only after a short look at the word
+  // and once Tám has finished her line (Enter skips ahead). Wrong ones wait for the learner.
   useEffect(() => {
     if (!feedback?.correct) return;
-    const t = setTimeout(() => advance(true), 900);
-    return () => clearTimeout(t);
+    let alive = true;
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    // Tám starts speaking right after this renders; check for her a moment later.
+    const tam = Promise.race([sleep(200).then(mascotDone), sleep(CORRECT_MAX_MS)]);
+    void Promise.all([sleep(CORRECT_MIN_MS), tam]).then(() => alive && advance(true));
+    return () => {
+      alive = false;
+    };
   }, [feedback, advance]);
 
   const pick = useCallback(
@@ -82,9 +94,9 @@ export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => voi
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTypingTarget(e.target) || !word) return;
-      if (feedback && !feedback.correct && (e.key === "Enter" || e.key === " ")) {
+      if (feedback && (e.key === "Enter" || e.key === " ")) {
         e.preventDefault();
-        advance(false);
+        advance(feedback.correct);
       } else if (!feedback && choice && /^[1-4]$/.test(e.key)) {
         pick(Number(e.key) - 1);
       }
@@ -238,8 +250,14 @@ export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => voi
           <div role="status" className={`mt-5 rounded-lg px-4 py-3 text-sm ${feedback.correct ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"}`}>
             {feedback.correct ? (
               <>
-                <span className="font-semibold">Chính xác!</span>
+                <p className="font-semibold">Chính xác!</p>
+                <p className="mt-1">
+                  <strong>{word.word}</strong> ({word.pos}): {word.meaningVi}
+                </p>
                 <CoachReaction line={coach.line} className="mt-2" />
+                <button onClick={() => advance(true)} className="btn-ghost mt-3 !py-1.5 text-emerald-800">
+                  Qua câu sau <span className="font-normal opacity-70">(Enter)</span>
+                </button>
               </>
             ) : (
               <>
