@@ -1,49 +1,61 @@
 [
  {
   "voice": "Trúc Ly",
-  "text": "Ủa, nay chăm chỉ dữ ta?",
+  "text": "Vào học đi chứ nằm đó lướt mãi thì yếu ai ôm, à nhầm, ốm ai yêu đâu.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Lại gặp nhau rồi. IELTS không học, TOEIC cũng đừng bỏ nha.",
+  "text": "TOEIC không tự lên điểm đâu, nó chỉ tự lên giá lệ phí thôi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Lướt TikTok đủ chưa? Giờ lướt qua vài câu Part 5 nha.",
+  "text": "Đậu xanh rau má, cuối cùng cũng chịu mở app rồi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Cà phê chưa? Chưa thì làm câu Part 2 cho tỉnh.",
+  "text": "Học hành kiểu này mà đòi 800, Tám nghe xong tiên đức luôn á. Nói lái nha.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Sáng ra đã mở app học, chắc hôm nay trời sập.",
+  "text": "Sáng sớm đã mở app, mặt trời mọc đằng tây à?",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Học đêm cũng được, nhưng nhớ đi ngủ đúng giờ nha.",
+  "text": "Mắt nhắm mắt mở vẫn vào học, thôi được, Tám tạm công nhận.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Giờ này còn học, chắc deadline dí hay crush nói thích người giỏi tiếng Anh?",
+  "text": "Sáng ra chưa đánh răng đã học, ý chí ghê, mùi thì chưa biết.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Cú đêm mode: ON. Học xong là đi ngủ, đừng lướt tiếp nha.",
+  "text": "Giờ này còn chưa ngủ, chắc ban ngày lướt hết quota rồi ha.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Cú đêm học bài à? Học thì học, đừng vừa học vừa ngủ gật nha.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Nửa đêm mới nhớ ra còn bài, đúng chuẩn nước đến chân mới nhảy.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -55,19 +67,19 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Ngày 1 của hành trình 800. Mọi cao thủ đều từng ở đây.",
+  "text": "Ngày đầu tiên, gà mờ chính hiệu, à không, gờ mà chính hiệu. Nói lái thôi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Ngày đầu đi học, chưa ai biết bạn sẽ thành trùm đâu. Trừ mình.",
+  "text": "Chào tân binh. Hôm nay còn gà, mai bớt gà, tháng sau hết gà. Hy vọng vậy.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Chào tân binh! Hôm nay bớt gà, mai bớt gà hơn nữa.",
+  "text": "Ngày 1 mà đã đòi 800? Ăn cơm còn phải ăn từng miếng nha.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -79,31 +91,25 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Vào việc thôi, đừng để tiếng Anh nó bắt nạt.",
+  "text": "Vào trận. Lần này đọc đề cho kỹ giùm Tám cái.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Hôm nay xử đẹp mấy câu TOEIC nào.",
+  "text": "Cất điện thoại, mở não. À quên, nhớ kiểm tra não còn pin không.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "15 phút thôi. Đừng viện lý do bận đi ngủ.",
+  "text": "Mười lăm phút thôi, ngắn hơn một tập phim mà cũng than à?",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Tắt thông báo, mở não, vào trận.",
-  "lang": "vi",
-  "group": "mascot"
- },
- {
-  "voice": "Trúc Ly",
-  "text": "Đề bài đã sẵn, đáp án sai đang đi trốn. Đi săn thôi.",
+  "text": "Bắt đầu nè. Sai nhiều quá là bị gọi là hốt dọc đó nha. Tự lái đi.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -121,43 +127,43 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Chuẩn! ETS cũng phải gật gù.",
+  "text": "Đúng rồi á? Khoanh bừa mà trúng cũng là một loại tài năng.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Đúng rồi! Câu này không làm khó được bạn.",
+  "text": "Đúng. Hôm nay ăn gì mà khôn đột xuất vậy?",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Ơ kìa, não hoạt động rồi!",
+  "text": "Đúng rồi, nhưng đừng vội ảo tưởng sức mạnh nha.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Slay! Câu này dễ như ăn bánh.",
+  "text": "Chuẩn. Não vừa chịu khởi động sau ba câu đầu.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Đúng rồi! Hôm nay không phải ngày của đáp án sai.",
+  "text": "Đúng câu này thì bớt gà được nửa giây. Cố lên.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Đúng luôn. Ai cho bạn giỏi vậy?",
+  "text": "Đúng luôn hả? Ai gõ đầu bạn mà tỉnh dữ vậy.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Chuẩn không cần chỉnh. Đề bài đang xem lại bản thân.",
+  "text": "Trúng rồi. Hết đá cầu chưa? Lái lại thử xem.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -169,19 +175,19 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Nhanh mà vẫn chuẩn, đúng tốc độ phòng thi.",
+  "text": "Nhanh dữ, chắc sợ hết giờ bị Tám mắng.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Tốc độ này là ăn điểm Part 5 ngon lành đó.",
+  "text": "Nhanh như người yêu cũ trả lời tin nhắn người mới.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Phản xạ nhanh hơn cả crush seen tin nhắn.",
+  "text": "Đúng mà còn nhanh, chắc đề này bạn gặp trong mơ rồi.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -193,19 +199,25 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Gỡ lại rồi! Sai trước đúng sau mới là học thật.",
+  "text": "Ồ, cuối cùng cũng đúng. Tám tưởng phải đợi tới mùa sau.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Comeback đỉnh! Mấy câu sai lúc nãy coi như học phí.",
+  "text": "Sai cả rổ rồi mới đúng một câu, thôi cũng mừng.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Từ đáy xã hội lên đỉnh cao chỉ mất một câu. Respect.",
+  "text": "Từ thuộc cua lật kèo thành thắng. Lái chữ đầu là biết nãy giờ thế nào.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Đúng nhận sai cãi là không được, nhưng sai rồi sửa đúng thì Tám khen.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -223,37 +235,67 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Sai một câu, tỉnh táo thêm một chút.",
+  "text": "Sai rồi. Đọc lại giải thích đi, đừng lướt.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Bẫy này hơi hiểm. Nhưng lần sau đừng mắc nhé.",
+  "text": "Bẫy cũ người mới, à không, bẫy cũ người cũ luôn.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Ơ, đáp án này hơi đi vào lòng đất.",
+  "text": "Sai kiểu này thì kiến thức hơi mịt tù rồi. Lái thử là hiểu.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Não vừa lag nhẹ. Đọc giải thích rồi làm tiếp nào.",
+  "text": "Đáp án này đi vào lòng đất, kéo cả điểm của bạn theo.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Câu này lừa bạn một vố. Ghi thù vào Sổ lỗi đi.",
+  "text": "Câu dễ vậy mà cũng sai, chắc dạo này chơi đá cầu nhiều. Lái lại đi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Sai rồi, nhưng sai bây giờ còn hơn sai trong phòng thi.",
+  "text": "Sai hoài vậy là yếu ai ôm, à nhầm, ốm ai yêu đó nha.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Đá mù, câu này mà cũng sai. Nói lái thôi chứ Tám không chửi.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Nhìn đáp án này mà Tám muốn đổ bình mực luôn. Lái chữ đi.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Sai kiểu này đúng là đối thần. Tự lái, Tám không nói thẳng.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Sai câu này thì trí thông minh hôm nay hơi giản zị rồi nha.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Đáp án này đúng kiểu tôm sông thủy tức sứa biển: nổi lềnh phềnh mà không có não.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -265,25 +307,43 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Bình tĩnh, chúng ta đang học chứ không phải đi thi Olympic.",
+  "text": "Sai liên tục rồi đó. Chậm lại, đọc kỹ đề giùm.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Đề bài không ghét bạn đâu. Chắc chắn đấy.",
+  "text": "Chuỗi sai dài hơn chuỗi tin nhắn không được trả lời.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Hít thở sâu. Đọc chậm lại một nhịp là khác liền.",
+  "text": "Tiếp tục thế này thì phòng thi gọi bạn là hốt dọc. Lái đi rồi biết.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Chuỗi sai này hơi dài, nhưng chuỗi đúng sắp tới sẽ dài hơn.",
+  "text": "Đậu xanh rau má, sai thêm câu nữa là Tám bỏ nhà đi bụi.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Sai liền mấy câu, Tám sắp tiên đức rồi đó. Lái lại nha.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Đầu óc bay cao quá rồi, không khí trên đó loãng hay sao mà sai liền mấy câu?",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Đoán bừa hoài là phong lan tầm gửi đó, sống nhờ may mắn chứ không nhờ kiến thức.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -295,19 +355,19 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Cày lâu rồi đó. Uống miếng nước rồi làm tiếp nhé.",
+  "text": "Sai nhiều mà vẫn cày, lì đòn thật.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Sai nhiều nhưng không bỏ cuộc, vậy là đang lên level thật đấy.",
+  "text": "Não bốc khói rồi kìa. Nghỉ năm phút rồi quay lại sai tiếp, à nhầm, đúng tiếp.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Não đang quá tải nhẹ. Nghỉ 5 phút, không ai trừ điểm đâu.",
+  "text": "Cày tới mức này mà điểm chưa lên, chắc não đang tải chậm. Nghỉ xíu đi.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -319,25 +379,19 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Thêm một bước gần TOEIC 800.",
+  "text": "Xong bài. Bớt gà được một chút xíu xiu.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Done! Một ngày bớt gà hơn hôm qua.",
+  "text": "Xong rồi. Thưởng năm phút lướt TikTok, không phải năm tiếng nha.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Nhiệm vụ hoàn thành. Có thể tự thưởng 5 phút lướt TikTok.",
-  "lang": "vi",
-  "group": "mascot"
- },
- {
-  "voice": "Trúc Ly",
-  "text": "Thêm một bước gần TOEIC 800. Không phải gần người yêu nhé.",
+  "text": "Xong! Hôm nay chưa thuộc cua là may rồi đó. Lái lại xem.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -349,19 +403,19 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Không sai câu nào. Bài này quá dễ với bạn rồi.",
+  "text": "Không sai câu nào. Đề dễ quá hay bạn giỏi thật?",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Full điểm! Xin phép gọi bạn là trùm.",
+  "text": "Full điểm. Thôi được rồi, hôm nay tạm cho làm trùm.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "100% đúng. Đề bài đang xin số liên lạc của bạn.",
+  "text": "Một trăm phần trăm. Tám không cà khịa được nữa, tức ghê.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -373,19 +427,25 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Bài này hơi khó nhằn. Câu sai đã vào Sổ lỗi, ôn lại là nhớ.",
+  "text": "Xong bài nhưng hơi thảm. Câu sai nằm hết trong Sổ lỗi rồi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Hơi trầy trật xíu, nhưng xong là xong. Sổ lỗi sẽ lo phần còn lại.",
+  "text": "Bài này bạn thuộc cua đậm. Lái lại rồi vào Sổ lỗi ôn đi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Trận này thua vài hiệp, nhưng trận chung kết còn ở phía trước.",
+  "text": "Kết quả này mà đem đi thi là tạch nha. Ôn Sổ lỗi ngay giùm.",
+  "lang": "vi",
+  "group": "mascot"
+ },
+ {
+  "voice": "Trúc Ly",
+  "text": "Bài này làm kiểu ăn nói xà lơ, đáp án chẳng theo logic nào. Ôn Sổ lỗi đi.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -397,13 +457,7 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Xong hết rồi. Hôm nay bạn được phép flex nhẹ.",
-  "lang": "vi",
-  "group": "mascot"
- },
- {
-  "voice": "Trúc Ly",
-  "text": "Task hôm nay sạch bong. Ngày mai đến lượt task mới chịu trận.",
+  "text": "Hết bài hôm nay. Được phép flex, nhưng flex nhỏ thôi.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -415,25 +469,19 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Quay lại thôi, kiến thức đang nhớ bạn.",
+  "text": "Mất tích mấy ngày, tưởng bạn đổi sang thi IELTS rồi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Mất tích hơi lâu rồi đấy. TOEIC không tự tăng điểm đâu.",
+  "text": "Bỏ học mấy ngày, từ vựng bay hết rồi kìa. Quay lại cày đi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Bạn và TOEIC đang trong giai đoạn yêu xa à?",
-  "lang": "vi",
-  "group": "mascot"
- },
- {
-  "voice": "Trúc Ly",
-  "text": "Biến mất mấy ngày làm từ vựng tưởng bị ghost. Quay lại học thôi.",
+  "text": "Đi đâu mấy hôm? Bỏ bê vậy là ốm ai yêu đó. Học lại mau.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -445,13 +493,13 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "3 ngày liên tiếp! Thói quen đang hình thành.",
+  "text": "Ba ngày liên tiếp. Mới ba ngày thôi, đừng vội tự hào.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "3 ngày liên tiếp. Có mùi chiến thần rồi đấy.",
+  "text": "Ba ngày rồi. Coi chừng ngày thứ tư lại lười.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -463,13 +511,13 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Tròn 1 tuần không nghỉ. Giỏi đấy!",
+  "text": "Bảy ngày không nghỉ. Thôi được, cũng ra gì đó.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "7 ngày rồi! Không phải dạng vừa đâu.",
+  "text": "Một tuần liền. Ai bắt cóc bạn rồi thay người chăm vậy?",
   "lang": "vi",
   "group": "mascot"
  },
@@ -481,13 +529,13 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "30 ngày chăm chỉ. Một tháng kỷ luật thật sự.",
+  "text": "Ba mươi ngày. Kỷ luật kiểu này Tám hết chỗ cà khịa.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "30 ngày chăm chỉ. Xin phép gọi bạn là con nhà người ta.",
+  "text": "Ba mươi ngày liên tiếp. Chính thức là con nhà người ta.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -499,19 +547,19 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Full nhiệm vụ hôm nay! Thưởng thêm XP cho bạn.",
+  "text": "Hết nhiệm vụ rồi. Hôm nay chăm bất thường.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Clear sạch quest. Hôm nay bạn là main character.",
+  "text": "Clear sạch quest. Hôm nay cho làm nhân vật chính.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "All quests cleared. Bạn chính thức được phép nằm lướt điện thoại không áy náy.",
+  "text": "Full quest. Giờ được nằm lướt điện thoại mà không bị Tám chửi, à nhầm, nhắc.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -523,13 +571,13 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Kỷ lục mới! Phá kỷ lục của chính mình mới là đỉnh.",
+  "text": "Kỷ lục mới. Bản thân hôm qua đang tức tưởi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "New record! Bản thân hôm qua đang ngồi khóc.",
+  "text": "Phá kỷ lục rồi. Giờ phá tiếp đi, đừng ngủ quên trên chiến thắng.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -541,13 +589,13 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Xong một nhiệm vụ, nhận XP nhé.",
+  "text": "Xong một nhiệm vụ. XP về túi, đừng tiêu hoang.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Quest done. XP về túi.",
+  "text": "Quest xong. Còn mấy cái nữa, đừng tưởng thế là đủ.",
   "lang": "vi",
   "group": "mascot"
  },
@@ -559,13 +607,13 @@
  },
  {
   "voice": "Trúc Ly",
-  "text": "Thử thách tuần: xong! Một tuần rất đáng tự hào.",
+  "text": "Xong thử thách tuần. Cũng không đến nỗi.",
   "lang": "vi",
   "group": "mascot"
  },
  {
   "voice": "Trúc Ly",
-  "text": "Thử thách tuần đã bị bạn xử gọn. Tuần sau khó hơn đó nha.",
+  "text": "Thử thách tuần bị xử gọn. Tuần sau Tám ra đề khó hơn cho chừa.",
   "lang": "vi",
   "group": "mascot"
  }

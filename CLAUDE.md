@@ -56,7 +56,8 @@ Before any commit: `npm run typecheck`, `npm test` and `npm run build` must all 
 
 - **Voice:** playful, Gen Z Vietnamese only in greetings, reactions, notifications, buttons, empty
   states and gamification. TOEIC content and `explainVi` stay accurate and plain. Errors about saving,
-  backups, imports and data loss stay clear and serious. Tease situations, never the learner.
+  backups, imports and data loss stay clear and serious. The owner wants hard cà khịa (roasting answers
+  and study habits); rude words only as nói lái or minced oaths; never looks, body, family, money, gender, origin.
 - **Content must be original.** Never copy questions, passages or explanations from ETS, Study4,
   dethitracnghiem.vn or any other test site or book, even if asked. The repo and site are public.
   Lists of common words and topics are fine to use as a reference; write meanings and examples yourself.
