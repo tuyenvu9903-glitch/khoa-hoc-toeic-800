@@ -5,6 +5,7 @@ import { PROGRAM_DAYS } from "../domain/progress";
 import { buildJourney, minutesLeft, nextStep } from "../lib/journey";
 import { useAppState } from "../lib/store";
 import { CoachBubble } from "../components/Mascot";
+import { StudyAheadButton } from "../components/StudyAhead";
 import { useCopy, useLine } from "../voice/useVoice";
 
 /** The guided session for the current day: steps in order, one-click resume, clear completion. */
@@ -16,6 +17,8 @@ export function TodayPage() {
   const steps = buildJourney(state);
   const next = nextStep(steps);
   const doneCount = steps.filter((s) => s.done).length;
+  // Required steps all done (optional ones like "Ôn câu sai" may remain): the next day can open now.
+  const requiredDone = steps.every((s) => s.done || s.optional);
   const t = useCopy();
   const line = useLine(next ? "start" : "day_done", { day });
 
@@ -49,15 +52,19 @@ export function TodayPage() {
           {next ? ` · còn khoảng ${minutesLeft(steps)} phút` : ""}
         </p>
         {next ? (
-          <Link to={next.to} className="btn-primary mt-4 w-full !py-3 text-base sm:w-auto">
-            ▶ {doneCount === 0 ? t("startToday") : t("continue")}: Bước {next.n} · {next.title}
-          </Link>
+          <>
+            <Link to={next.to} className="btn-primary mt-4 w-full !py-3 text-base sm:w-auto">
+              ▶ {doneCount === 0 ? t("startToday") : t("continue")}: Bước {next.n} · {next.title}
+            </Link>
+            {requiredDone && <StudyAheadButton day={day} className="mt-2 w-full sm:ml-2 sm:w-auto" />}
+          </>
         ) : (
           <div role="status" className="mt-4 rounded-xl bg-p-mint p-4 text-sm text-brand-800">
             <strong>Xong Ngày {day}!</strong>{" "}
-            {day < PROGRAM_DAYS ? `Ngày ${day + 1} sẽ mở vào ngày mai.` : "Bạn đã đi hết lộ trình 56 ngày."} Còn dư năng lượng thì ôn từ đến hạn,
+            {day < PROGRAM_DAYS ? `Ngày ${day + 1} tự mở vào ngày mai, hoặc học vượt luôn nếu còn sức.` : "Bạn đã đi hết lộ trình 56 ngày."} Còn dư năng lượng thì ôn từ,
             làm nốt nhiệm vụ ngày hoặc bắn vài con gà từ vựng.
             <div className="mt-3 flex flex-wrap gap-2">
+              <StudyAheadButton day={day} />
               <Link to="/vocab" className="btn-ghost !py-1.5">Ôn từ vựng</Link>
               <Link to="/progress" className="btn-ghost !py-1.5">Xem tiến độ</Link>
             </div>

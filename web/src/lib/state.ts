@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { errorClassSchema, toeicPartSchema } from "../domain/question";
-import { advanceProgress, DAY_TEST_PASS, initialProgress, markDayKindDone, markKindDone, VOCAB_TEST } from "../domain/progress";
+import { advanceProgress, studyAhead, DAY_TEST_PASS, initialProgress, markDayKindDone, markKindDone, VOCAB_TEST } from "../domain/progress";
 import { reviewCard, type Grade } from "../domain/srs";
 
 export const STORAGE_KEY = "toeic800.state";
@@ -313,6 +313,12 @@ export function markMissionDone(state: AppState, dateKey: string, kind: string):
 /** Open the next program day when the current one is finished and a new calendar day has begun. */
 export function advanceDay(state: AppState, now: Date = new Date()): AppState {
   const progress = advanceProgress(state.progress, state.srs, localDateKey(now));
+  return progress === state.progress ? state : { ...state, progress };
+}
+
+/** Open the next program day now ("Học vượt") when the current one is finished. */
+export function studyAheadDay(state: AppState, now: Date = new Date()): AppState {
+  const progress = studyAhead(state.progress, state.srs, localDateKey(now));
   return progress === state.progress ? state : { ...state, progress };
 }
 

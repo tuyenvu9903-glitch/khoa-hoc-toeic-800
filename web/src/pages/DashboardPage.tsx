@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { LevelCard, QuestCard } from "../components/GameCards";
 import { CoachBubble } from "../components/Mascot";
+import { StudyAheadButton } from "../components/StudyAhead";
 import { Ring } from "../components/ui";
 import { planForDay } from "../data/dailyPlan";
 import { packByDay } from "../data/dayPacks";
@@ -67,6 +68,8 @@ export function DashboardPage({ profile }: { profile: Profile }) {
   const steps = buildJourney(state);
   const next = nextStep(steps);
   const doneCount = steps.filter((s) => s.done).length;
+  // Required steps all done (optional ones like "Ôn câu sai" may remain): the next day can open now.
+  const requiredDone = steps.every((s) => s.done || s.optional);
   const streak = currentStreak(state.missionDone, now);
   const saveError = getSaveError();
   const pct = Math.round((doneCount / steps.length) * 100);
@@ -108,13 +111,17 @@ export function DashboardPage({ profile }: { profile: Profile }) {
 
           <div className="mt-6">
             {next ? (
-              <Link to={next.to} className="btn-primary w-full !py-3.5 text-base sm:w-auto sm:!px-6">
-                ▶ {doneCount === 0 ? t("startToday") : `${t("continue")}: Bước ${next.n} · ${next.title}`}
-              </Link>
+              <>
+                <Link to={next.to} className="btn-primary w-full !py-3.5 text-base sm:w-auto sm:!px-6">
+                  ▶ {doneCount === 0 ? t("startToday") : `${t("continue")}: Bước ${next.n} · ${next.title}`}
+                </Link>
+                {requiredDone && <StudyAheadButton day={day} className="mt-2 w-full sm:ml-2 sm:mt-0 sm:w-auto" />}
+              </>
             ) : (
-              <p role="status" className="rounded-xl bg-white/80 px-4 py-3 text-sm text-brand-800">
-                Xong Ngày {day}. {day < PROGRAM_DAYS ? `Ngày ${day + 1} mở vào ngày mai.` : ""} Còn sức thì ôn từ hoặc làm nốt nhiệm vụ ngày nhé.
-              </p>
+              <div role="status" className="rounded-xl bg-white/80 px-4 py-3 text-sm text-brand-800">
+                Xong Ngày {day}. {day < PROGRAM_DAYS ? `Ngày ${day + 1} tự mở vào ngày mai, hoặc học vượt luôn nếu còn sức.` : ""}
+                <StudyAheadButton day={day} className="mt-3 flex" />
+              </div>
             )}
             <div className="mt-4 max-w-md">
               <div className="flex justify-between text-xs text-slate-600">

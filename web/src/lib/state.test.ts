@@ -177,7 +177,7 @@ describe("recordAnswer", () => {
   });
 });
 
-import { advanceDay, markMissionDone as markDone, recordDayTest, type AppState } from "./state";
+import { advanceDay, markMissionDone as markDone, recordDayTest, studyAheadDay, type AppState } from "./state";
 import { wordsForDay } from "../domain/progress";
 import { reviewCard } from "../domain/srs";
 
@@ -238,6 +238,19 @@ describe("day-by-day progression", () => {
     const r = recordDayTest(s, 1, words.map((w, i) => ({ wordId: w.id, correct: i > 0 })), d1).state;
     expect(words.every((w) => r.srs[w.id])).toBe(true);
     expect(r.srs[words[0]!.id]!.intervalDays ?? 0).toBeLessThanOrEqual(r.srs[words[1]!.id]!.intervalDays ?? 0);
+  });
+
+  it("Học vượt opens the next day the same date, only once the current day is complete", () => {
+    let s = learnAll(advanceDay(withProfile(), d1), 1);
+    for (const k of ["grammar", "listening", "reading"]) s = markDone(s, "2026-03-02", k);
+    // Test not passed yet: no study-ahead.
+    expect(studyAheadDay(s, sameDayLater)).toBe(s);
+    s = takeTest(s, 1).state;
+    const ahead = studyAheadDay(s, sameDayLater);
+    expect(ahead.progress).toMatchObject({ day: 2, dayStartedOn: "2026-03-02" });
+    // Day 2 is not done: no further jump, and the normal rule still waits for its own completion.
+    expect(studyAheadDay(ahead, sameDayLater)).toBe(ahead);
+    expect(advanceDay(ahead, nextDay).progress.day).toBe(2);
   });
 
   it("requires the mini test on checkpoint days", () => {

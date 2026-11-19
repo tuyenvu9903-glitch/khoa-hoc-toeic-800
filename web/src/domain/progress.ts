@@ -149,6 +149,15 @@ export function advanceProgress(progress: Progress, srs: Record<string, SrsCard>
   return progress;
 }
 
+/**
+ * "Học vượt": open the next day right now, without waiting for a new calendar date. Only when the
+ * current day is complete; returns the same object otherwise.
+ */
+export function studyAhead(progress: Progress, srs: Record<string, SrsCard>, today: string): Progress {
+  if (progress.day >= PROGRAM_DAYS || !isDayComplete(progress, srs)) return progress;
+  return { ...progress, day: progress.day + 1, dayStartedOn: today };
+}
+
 export function programFinished(progress: Progress, srs: Record<string, SrsCard>): boolean {
   return progress.day >= PROGRAM_DAYS && isDayComplete(progress, srs);
 }
