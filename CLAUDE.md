@@ -47,8 +47,10 @@ Before any commit: `npm run typecheck`, `npm test` and `npm run build` must all 
   (`lib/speech.ts`: `voiceFor`, `wordVoice`). VieNeu mispronounced short English, so it is not used for it.
   Tám's Vietnamese lines are recorded with VieNeu-TTS in `web/public/tts/*.mp3`; after adding mascot lines
   run `npm run tts:export` then `python tools/tts/generate.py --prune` (see `tools/tts/README.md`).
-- `web/src/lib/music.ts`: background piano for the vocab games, synthesised with Web Audio (original
-  pieces, no audio files); `useGameMusic`/`MusicControls` in `pages/vocab/shared.tsx`, `prefs.music`.
+- `web/src/lib/music.ts`: background music for the vocab games, synthesised with Web Audio (original
+  pieces, no audio files): Vinahouse-style remixes (pentatonic hooks on sáo/đàn bầu/saw, build and drop)
+  and soft piano; `useGameMusic`/`MusicControls` in `pages/vocab/shared.tsx`, `prefs.music`/`musicStyle`.
+  Never add copyrighted songs or remixes (TikTok's licence covers TikTok only).
 
 ## Rules
 

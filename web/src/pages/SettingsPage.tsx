@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { emptyState, parseState, restartProgram } from "../lib/state";
 import { exportJson, replaceState, update, useAppState } from "../lib/store";
 import { CoachBubble } from "../components/Mascot";
+import { MyMusicSettings } from "../components/MyMusicSettings";
 import { HUMOR_OPTIONS, pickLine, type HumorLevel } from "../voice/engine";
 
 export function SettingsPage() {
@@ -110,8 +111,31 @@ export function SettingsPage() {
               update((s) => ({ ...s, prefs: { ...s.prefs, music } }));
             }}
           />
-          Nhạc nền piano không lời trong game từ vựng (tự đổi bài ngẫu nhiên, nhỏ lại khi đọc từ)
+          Nhạc nền không lời trong game từ vựng (tự đổi bài ngẫu nhiên, nhỏ lại khi đọc từ)
         </label>
+        {state.prefs.music && (
+          <div className="ml-7 flex flex-wrap gap-2 text-sm" role="radiogroup" aria-label="Kiểu nhạc nền">
+            {(
+              [
+                ["remix", "🎧 Remix sôi động"],
+                ["piano", "🎹 Piano nhẹ nhàng"],
+                ["mine", "📁 Nhạc của bạn"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={state.prefs.musicStyle === value}
+                onClick={() => update((s) => ({ ...s, prefs: { ...s.prefs, musicStyle: value } }))}
+                className={`rounded-lg px-3 py-1.5 ${state.prefs.musicStyle === value ? "bg-brand-100 font-semibold text-brand-800" : "text-slate-600 hover:bg-slate-100"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+        {state.prefs.music && <MyMusicSettings />}
       </section>
 
       <section className={`${card} mt-4 space-y-3`}>
