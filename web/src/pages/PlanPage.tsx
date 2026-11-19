@@ -42,7 +42,7 @@ export function PlanPage(_props: { profile: Profile }) {
     <div className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Lộ trình 8 tuần</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Mỗi ngày: học 3 ý chính rồi luyện đúng dạng bài của ngày. Làm xong hết nhiệm vụ của một ngày thì ngày sau mới mở (từ hôm sau). Bạn đang ở Ngày {today}.
+        Mỗi ngày: học 3 ý chính rồi luyện đúng dạng bài của ngày. Xong hết nhiệm vụ của một ngày thì ngày sau mới mở (từ hôm sau), không đi cửa sau được đâu. Bạn đang ở Ngày {today}.
       </p>
 
       <div className="mt-5 space-y-4">

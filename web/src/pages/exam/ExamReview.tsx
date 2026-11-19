@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { scorePaper, type ExamPaper, type ExamPart } from "../../domain/exam";
+import { VerdictLine } from "../../components/Voice";
+import { doneContext } from "../../voice/coach";
 
 const LETTERS = ["A", "B", "C", "D"] as const;
 const SPEAKER: Record<string, string> = { M: "Man", W: "Woman", M2: "Man 2", W2: "Woman 2" };
@@ -24,6 +26,10 @@ export function ExamReview({ paper, answers, actions }: { paper: ExamPaper; answ
     <div className="space-y-5">
       <section className="card p-6">
         <h2 className="text-xl font-bold">Kết quả: {paper.title}</h2>
+        <VerdictLine
+          context={doneContext((r.listening?.correct ?? 0) + (r.reading?.correct ?? 0), (r.listening?.total ?? 0) + (r.reading?.total ?? 0))}
+          className="mt-3 max-w-xl"
+        />
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {r.listening && (
             <div className="rounded-xl bg-emerald-50 p-4">

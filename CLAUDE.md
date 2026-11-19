@@ -33,9 +33,22 @@ Before any commit: `npm run typecheck`, `npm test` and `npm run build` must all 
 - `web/src/lib/`: app state (`state.ts`, zod schema + `recordAnswer`, `gradeVocab`…), store, speech.
 - `web/src/pages/`: one page per route; `pages/vocab/` holds the vocabulary modes and games.
 - Routes are in `web/src/App.tsx`, nav tabs in `web/src/components/Layout.tsx`.
+- `web/src/voice/`: the Gen Z voice. `lines.ts` is the line bank per situation (each line has a
+  spice level 0–3; 0 = neutral, used when humour is off), `engine.ts` picks lines without repeats,
+  `coach.ts` chooses what to say from the learner's behaviour (miss streaks, same-skill misses with a
+  study tip, combos, comebacks), `greeting.ts` the welcome line, `copy.ts` the playful microcopy.
+  Add lines by appending to `LINES`; every context needs at least one spice-0 and one playful line (tested).
+- `web/src/lib/gamify.ts`: XP, levels, daily quests, weekly challenge, badges (some secret). The store
+  derives rewards from real state changes (`applyGamification(prev, next)`), so reloads never pay twice;
+  one-off rewards are keyed by date. `replaceState` (backup import/reset) never awards anything.
+- `web/src/components/Mascot.tsx`: "Tám", the SVG mascot with moods; `Voice.tsx` has the coach bubble,
+  start line, session result and empty state; `Celebrations.tsx` shows level-ups, badges and quests.
 
 ## Rules
 
+- **Voice:** playful, Gen Z Vietnamese only in greetings, reactions, notifications, buttons, empty
+  states and gamification. TOEIC content and `explainVi` stay accurate and plain. Errors about saving,
+  backups, imports and data loss stay clear and serious. Tease situations, never the learner.
 - **Content must be original.** Never copy questions, passages or explanations from ETS, Study4,
   dethitracnghiem.vn or any other test site or book, even if asked. The repo and site are public.
   Lists of common words and topics are fine to use as a reference; write meanings and examples yourself.

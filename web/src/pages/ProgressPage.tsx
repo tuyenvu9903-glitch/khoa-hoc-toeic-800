@@ -7,6 +7,7 @@ import { currentStreak } from "../domain/streak";
 import { buildDashboard } from "../lib/dashboard";
 import { addOfficialScore, localDateKey, scoreSourceLabel, type Profile } from "../lib/state";
 import { update, useAppState } from "../lib/store";
+import { useCopy } from "../voice/useVoice";
 
 const PART_LABEL: Record<string, string> = {
   "1": "Part 1 · Tranh",
@@ -62,6 +63,7 @@ function OfficialScoreForm() {
 }
 
 export function ProgressPage({ profile }: { profile: Profile }) {
+  const t = useCopy();
   const state = useAppState();
   const now = new Date();
   const view = buildDashboard(state, profile, now);
@@ -105,7 +107,7 @@ export function ProgressPage({ profile }: { profile: Profile }) {
           <div>
             <h3 className="text-sm font-semibold text-slate-700">🎓 Điểm thi chính thức</h3>
             {official.length === 0 ? (
-              <p className="mt-1 text-sm text-slate-500">Chưa có. Nhập điểm nếu bạn đã thi TOEIC thật.</p>
+              <p className="mt-1 text-sm text-slate-500">Chưa có gì, trống như ví cuối tháng. Nhập điểm nếu bạn đã thi TOEIC thật.</p>
             ) : (
               <ul className="mt-2 divide-y divide-slate-100 text-sm">
                 {official.map((s) => (
@@ -146,7 +148,7 @@ export function ProgressPage({ profile }: { profile: Profile }) {
       <section className="card p-5">
         <h2 className="text-lg font-bold">Độ chính xác theo Part</h2>
         {byPart.size === 0 ? (
-          <p className="mt-2 text-sm text-slate-500">Chưa có bài làm nào. Hoàn thành bài Nghe hoặc Đọc đầu tiên để xem.</p>
+          <p className="mt-2 text-sm text-slate-500">{t("noAttempts")}</p>
         ) : (
           <ul className="mt-3 space-y-3">
             {[...byPart.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([part, p]) => {

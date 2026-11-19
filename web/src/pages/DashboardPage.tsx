@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { LevelCard, QuestCard } from "../components/GameCards";
+import { CoachBubble } from "../components/Mascot";
 import { Ring } from "../components/ui";
 import { planForDay } from "../data/dailyPlan";
 import { packByDay } from "../data/dayPacks";
@@ -9,6 +11,8 @@ import { buildDashboard, type DashboardView } from "../lib/dashboard";
 import { buildJourney, minutesLeft, nextStep } from "../lib/journey";
 import { scoreSourceLabel, type Profile } from "../lib/state";
 import { getSaveError, useAppState } from "../lib/store";
+import { greetingContext } from "../voice/greeting";
+import { useCopy, useLine } from "../voice/useVoice";
 
 function greeting(now: Date): string {
   const h = now.getHours();
@@ -16,12 +20,13 @@ function greeting(now: Date): string {
 }
 
 function ScoreCard({ score, target }: { score: DashboardView["score"]; target: number }) {
+  const t = useCopy();
   if (!score) {
     return (
       <section className="card p-5" aria-label="Điểm">
         <h2 className="text-sm font-semibold text-slate-500">Điểm TOEIC</h2>
         <p className="mt-3 text-sm text-slate-600">
-          Chưa có điểm. Điểm ước lượng sẽ xuất hiện sau Mini test cuối tuần đầu tiên (Ngày 7). Nếu đã từng thi TOEIC thật, bạn có thể nhập điểm ở
+          {t("noScore")} Nếu đã từng thi TOEIC thật, bạn có thể nhập điểm ở
           trang <Link to="/progress" className="font-medium text-brand-700 underline">Tiến độ</Link>.
         </p>
         <p className="mt-3 text-xs text-slate-500">Mục tiêu: {target}</p>
@@ -65,6 +70,11 @@ export function DashboardPage({ profile }: { profile: Profile }) {
   const streak = currentStreak(state.missionDone, now);
   const saveError = getSaveError();
   const pct = Math.round((doneCount / steps.length) * 100);
+  const t = useCopy();
+  const hello = useLine(
+    greetingContext({ now, day, streak, stepsDone: doneCount, stepsTotal: steps.length, missionDone: state.missionDone }),
+    { name: profile.displayName, day, n: streak },
+  );
 
   return (
     <div className="space-y-5">
@@ -79,7 +89,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
         <div className="bg-p-mint p-6 sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-brand-800">{greeting(now)}, {profile.displayName} 👋</p>
+              <p className="text-sm font-medium text-brand-800">{greeting(now)}, {profile.displayName}</p>
               <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
                 Ngày {day}<span className="text-slate-400">/{PROGRAM_DAYS}</span>
               </h1>
@@ -94,20 +104,22 @@ export function DashboardPage({ profile }: { profile: Profile }) {
             </div>
           </div>
 
+          <CoachBubble mood={hello.mood} text={hello.text} size={72} className="mt-5 max-w-xl" />
+
           <div className="mt-6">
             {next ? (
               <Link to={next.to} className="btn-primary w-full !py-3.5 text-base sm:w-auto sm:!px-6">
-                ▶ {doneCount === 0 ? "Bắt đầu học hôm nay" : `Tiếp tục: Bước ${next.n} · ${next.title}`}
+                ▶ {doneCount === 0 ? t("startToday") : `${t("continue")}: Bước ${next.n} · ${next.title}`}
               </Link>
             ) : (
               <p role="status" className="rounded-xl bg-white/80 px-4 py-3 text-sm text-brand-800">
-                🎉 Bạn đã xong Ngày {day}. {day < PROGRAM_DAYS ? `Ngày ${day + 1} mở vào ngày mai.` : ""}
+                Xong Ngày {day}. {day < PROGRAM_DAYS ? `Ngày ${day + 1} mở vào ngày mai.` : ""} Còn sức thì ôn từ hoặc làm nốt nhiệm vụ ngày nhé.
               </p>
             )}
             <div className="mt-4 max-w-md">
               <div className="flex justify-between text-xs text-slate-600">
                 <span>{doneCount}/{steps.length} bước hôm nay</span>
-                <span>{next ? `còn ~${minutesLeft(steps)} phút` : "hoàn thành"}</span>
+                <span>{next ? `còn ~${minutesLeft(steps)} phút` : "xong hết rồi"}</span>
               </div>
               <div className="mt-1 h-2 overflow-hidden rounded-full bg-white" role="progressbar" aria-label="Tiến độ hôm nay" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
                 <div className="h-full rounded-full bg-brand-600 transition-all duration-700" style={{ width: `${pct}%` }} />
@@ -118,7 +130,8 @@ export function DashboardPage({ profile }: { profile: Profile }) {
       </section>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <section className="card p-5 lg:col-span-2" aria-labelledby="plan-title">
+        <div className="space-y-5 lg:col-span-2">
+        <section className="card p-5" aria-labelledby="plan-title">
           <div className="flex items-baseline justify-between gap-2">
             <h2 id="plan-title" className="text-lg font-bold">Kế hoạch hôm nay</h2>
             <Link to="/today" className="text-sm font-medium text-brand-700 hover:underline">Xem chi tiết →</Link>
@@ -149,19 +162,22 @@ export function DashboardPage({ profile }: { profile: Profile }) {
             </ul>
           </details>
         </section>
+        <QuestCard state={state} />
+        </div>
 
         <aside className="space-y-5">
+          <LevelCard state={state} />
           <ScoreCard score={view.score} target={profile.targetScore} />
 
           <section className="card p-5">
             <h2 className="text-sm font-semibold text-slate-500">Ôn từ vựng</h2>
             {view.vocab.due > 0 ? (
               <>
-                <p className="mt-2 text-sm text-slate-700"><strong className="text-lg">{view.vocab.due}</strong> từ đến hạn ôn hôm nay.</p>
+                <p className="mt-2 text-sm text-slate-700">{t("dueWords", { n: view.vocab.due })}</p>
                 <Link to="/vocab" className="btn-ghost mt-3 !py-1.5">Ôn ngay</Link>
               </>
             ) : (
-              <p className="mt-2 text-sm text-slate-600">Không có từ nào đến hạn ôn. Đã học {view.vocab.learned} từ.</p>
+              <p className="mt-2 text-sm text-slate-600">{t("noDueWords", { n: view.vocab.learned })}</p>
             )}
           </section>
 
@@ -171,7 +187,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
               <Link to="/progress" className="text-xs font-medium text-brand-700 hover:underline">Tiến độ →</Link>
             </div>
             {view.weaknesses.length === 0 ? (
-              <p className="mt-2 text-sm text-slate-600">Chưa đủ dữ liệu. Sau vài bài luyện, các dạng bạn hay sai sẽ hiện ở đây.</p>
+              <p className="mt-2 text-sm text-slate-600">{t("noWeakness")}</p>
             ) : (
               <ol className="mt-3 space-y-2.5 text-sm">
                 {view.weaknesses.slice(0, 3).map((w) => (

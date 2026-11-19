@@ -12,6 +12,8 @@ import { packByDay } from "../data/dayPacks";
 import { shuffle, shuffleOptions } from "../domain/learn";
 import { firstListeningDay, listeningUnlocked } from "../domain/progress";
 import { localDateKey, markMissionDone, recordAnswer } from "../lib/state";
+import { CoachReaction, SessionResult, StartLine } from "../components/Voice";
+import { useCoach } from "../voice/useVoice";
 import { canSpeech, playScript, voicesReady, type ScriptLine } from "../lib/speech";
 import { update, useAppState } from "../lib/store";
 
@@ -79,6 +81,7 @@ export function Part2Session({ items: raw, rate, onDone, onExit }: { items: Part
   const [correct, setCorrect] = useState(0);
   const startedAt = useRef(Date.now());
   const player = usePlayer(rate);
+  const coach = useCoach();
   const item = items[index]!;
 
   const script = (it: Part2Item): ScriptLine[] => [
@@ -98,6 +101,7 @@ export function Part2Session({ items: raw, rate, onDone, onExit }: { items: Part
     setPicked(i);
     const ok = i === item.answer;
     if (ok) setCorrect((c) => c + 1);
+    coach.react({ correct: ok, skillCode: item.skill, responseMs: Date.now() - startedAt.current });
     update((s) =>
       recordAnswer(s, { questionId: item.id, skillCode: item.skill, part: "2", correct: ok, responseMs: Date.now() - startedAt.current, chosen: item.options[i] }),
     );
@@ -160,6 +164,7 @@ export function Part2Session({ items: raw, rate, onDone, onExit }: { items: Part
             <p className={`font-semibold ${picked === item.answer ? "text-emerald-700" : "text-rose-700"}`}>
               {picked === item.answer ? "✓ Chính xác" : `✗ Đáp án đúng là ${LETTERS[item.answer]}`}
             </p>
+            <CoachReaction line={coach.line} className="mt-3" />
             <div className="mt-3 space-y-1 text-sm">
               <p className="font-semibold text-slate-900">{item.prompt}</p>
               {item.options.map((o, i) => (
@@ -189,6 +194,7 @@ export function SetSession({ part, sets: raw, rate, onDone, onExit }: { part: "3
   const [correct, setCorrect] = useState(0);
   const startedAt = useRef(Date.now());
   const player = usePlayer(rate);
+  const coach = useCoach();
   const set = sets[index]!;
   const first = index * 3 + 1;
 
@@ -225,6 +231,7 @@ export function SetSession({ part, sets: raw, rate, onDone, onExit }: { part: "3
     });
     set.questions.forEach((qq, i) => {
       if (picks[i] === qq.answer) n += 1;
+      coach.react({ correct: picks[i] === qq.answer, skillCode: qq.skill, responseMs: ms / 3 });
     });
     setCorrect((c) => c + n);
   };
@@ -288,10 +295,11 @@ export function SetSession({ part, sets: raw, rate, onDone, onExit }: { part: "3
 
         {!submitted ? (
           <button onClick={submit} disabled={picks.some((p) => p === null)} className="btn-primary mt-6">
-            Nộp đáp án
+            Chốt đáp án
           </button>
         ) : (
           <>
+            <CoachReaction line={coach.line} className="mt-6" />
             <details className="mt-6 rounded-xl border border-slate-200 p-4" open>
               <summary className="cursor-pointer text-sm font-semibold text-slate-700">Lời thoại (transcript)</summary>
               <div className="mt-3 space-y-2 text-sm">
@@ -408,7 +416,7 @@ export function ListeningPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Luyện nghe</h1>
-      <p className="mt-1 text-sm text-slate-500">Bài nghe mỗi ngày dùng lại từ vựng của ngày đó. Câu sai được ghi vào nhật ký lỗi để ôn lại.</p>
+      <p className="mt-1 text-sm text-slate-500">Bài nghe mỗi ngày dùng lại từ vựng của ngày đó. Nghe sai cũng không sao, câu sai tự vào Sổ lỗi để phục thù sau.</p>
 
       {!canSpeech && (
         <p role="alert" className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -416,6 +424,7 @@ export function ListeningPage() {
         </p>
       )}
 
+      {mode !== null && <StartLine />}
       {mode?.kind === "today" && (
         <div className="mt-5"><TodaySession day={day} rate={rate} onDone={finish} onExit={leave} /></div>
       )}
@@ -429,12 +438,7 @@ export function ListeningPage() {
       {mode === null && (
         <>
           {result && (
-            <div role="status" className="card mt-5 p-5 text-center">
-              <p className="text-3xl font-extrabold">{result.correct}/{result.total}</p>
-              <p className="mt-1 text-sm text-slate-600">
-                câu đúng ({Math.round((result.correct / result.total) * 100)}%). Nhiệm vụ "Nghe" của Ngày {day} đã được đánh dấu.
-              </p>
-            </div>
+            <SessionResult correct={result.correct} total={result.total} note={`Nhiệm vụ "Nghe" của Ngày ${day} đã được đánh dấu. Câu sai đã vào Sổ lỗi.`} />
           )}
 
           {pack && (
@@ -451,7 +455,7 @@ export function ListeningPage() {
                 }}
                 className="btn-primary mt-4"
               >
-                Bắt đầu bài hôm nay
+                Vào nghe bài hôm nay
               </button>
             </section>
           )}

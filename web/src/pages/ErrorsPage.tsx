@@ -7,6 +7,11 @@ import { questionById, type IndexedQuestion } from "../lib/questionIndex";
 import { playScript } from "../lib/speech";
 import { errorsDue, recordAnswer, type AppState } from "../lib/state";
 import { update, useAppState } from "../lib/store";
+import { CoachBubble } from "../components/Mascot";
+import { EmptyState } from "../components/Voice";
+import { skillTip } from "../voice/coach";
+import { pickLine, type Line } from "../voice/engine";
+import { useCopy, useHumor } from "../voice/useVoice";
 
 type ErrorEntry = AppState["errors"][number];
 
@@ -41,6 +46,8 @@ function ErrorCard({ entry, q }: { entry: ErrorEntry; q: IndexedQuestion }) {
   const order = useMemo(() => shuffle(q.options.map((_, i) => i)), [q]);
   const [picked, setPicked] = useState<number | null>(null);
   const [retrying, setRetrying] = useState(false);
+  const [reaction, setReaction] = useState<Line | null>(null);
+  const humor = useHumor();
   const fixed = entry.resolvedAt !== null;
   const listening = q.part === "2" || q.part === "3" || q.part === "4";
   const reviewAt = entry.reviewAt ?? entry.createdAt;
@@ -48,6 +55,11 @@ function ErrorCard({ entry, q }: { entry: ErrorEntry; q: IndexedQuestion }) {
   const pick = (i: number) => {
     if (picked !== null) return;
     setPicked(i);
+    setReaction(
+      i === q.answer
+        ? pickLine("correct_comeback", { humor })
+        : pickLine((entry.retries ?? 0) >= 1 ? "wrong_skill" : "wrong", { humor, vars: { skill: skillName(q.skill) } }),
+    );
     update((s) =>
       recordAnswer(s, {
         questionId: q.id,
@@ -124,6 +136,16 @@ function ErrorCard({ entry, q }: { entry: ErrorEntry; q: IndexedQuestion }) {
           {picked === q.answer ? "✓ Đúng rồi! Câu này đã được đánh dấu là đã sửa." : "✗ Chưa đúng. Câu này sẽ quay lại để ôn sau."}
         </p>
       )}
+      {picked !== null && reaction && (
+        <CoachBubble
+          mood={reaction.mood}
+          text={reaction.text}
+          tip={picked !== q.answer ? skillTip(q.skill) : undefined}
+          size={48}
+          tone={picked === q.answer ? "mint" : "cream"}
+          className="pop-in mt-3"
+        />
+      )}
 
       {(q.passage || (q.script && q.part !== "2")) && (
         <details className="mt-3 text-sm">
@@ -143,7 +165,7 @@ function ErrorCard({ entry, q }: { entry: ErrorEntry; q: IndexedQuestion }) {
         </span>
         {!fixed && !retrying && (
           <button type="button" className="btn-primary !py-1.5" onClick={() => setRetrying(true)}>
-            Làm lại
+            Phục thù câu này
           </button>
         )}
       </div>
@@ -154,6 +176,7 @@ function ErrorCard({ entry, q }: { entry: ErrorEntry; q: IndexedQuestion }) {
 /** Error notebook: every mistake with its question, the chosen and correct answers, and a review schedule. */
 export function ErrorsPage() {
   const state = useAppState();
+  const t = useCopy();
   const [params] = useSearchParams();
   const [status, setStatus] = useState<Status>(params.get("due") ? "due" : "open");
   const [part, setPart] = useState("all");
@@ -175,7 +198,7 @@ export function ErrorsPage() {
       <header>
         <h1 className="text-2xl font-extrabold tracking-tight">Sổ lỗi</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Mỗi câu sai là một cơ hội học. Làm lại đúng thì câu được đánh dấu đã sửa; sai tiếp thì câu quay lại sau 1, 3 rồi 7 ngày.
+          Nơi lưu giữ những câu đã từng lừa bạn. Phục thù đúng thì câu được đánh dấu đã sửa; sai tiếp thì câu quay lại sau 1, 3 rồi 7 ngày.
         </p>
       </header>
 
@@ -216,16 +239,10 @@ export function ErrorsPage() {
       </section>
 
       {list.length === 0 ? (
-        <div className="card p-8 text-center text-slate-600">
-          <p className="text-3xl" aria-hidden>{state.errors.length === 0 ? "📒" : "🎉"}</p>
-          <p className="mt-2">
-            {state.errors.length === 0
-              ? "Chưa có câu sai nào. Khi làm bài Nghe, Đọc hoặc kiểm tra, câu sai sẽ tự lưu vào đây."
-              : status === "due"
-                ? "Không có câu nào đến hạn ôn. Tuyệt!"
-                : "Không có câu nào khớp bộ lọc."}
-          </p>
-        </div>
+        <EmptyState
+          mood={state.errors.length === 0 ? "confused" : status === "due" ? "sleepy" : "confused"}
+          text={state.errors.length === 0 ? t("noErrors") : status === "due" ? t("noErrorsDue") : t("noFilterMatch")}
+        />
       ) : (
         <div className="space-y-4">
           {list.map((e) => {

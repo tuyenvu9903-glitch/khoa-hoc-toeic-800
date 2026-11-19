@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { CoachBubble } from "../components/Mascot";
+import { useCopy } from "../voice/useVoice";
 import { useSearchParams } from "react-router-dom";
 import { Stat } from "../components/ui";
 import { TOPIC_LABEL, VOCAB_GROUPS, vocabulary, type VocabTopic, type VocabWord } from "../data/vocabulary";
@@ -88,6 +90,7 @@ export function VocabPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const exit = () => setMode(null);
+  const t = useCopy();
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -96,6 +99,14 @@ export function VocabPage() {
         Ngày {day}{pack ? ` · ${pack.theme}` : ""}: đã học <strong className="text-slate-800">{learnedToday}/{today.length}</strong> từ mới của hôm nay.
         Từ của các ngày sau sẽ mở khi bạn tới ngày đó.
       </p>
+      {mode === null && (
+        <CoachBubble
+          mood={counts.due > 0 ? "confused" : "happy"}
+          text={counts.due > 0 ? t("dueWords", { n: counts.due }) : t("noDueWords", { n: counts.learned })}
+          size={48}
+          className="mt-4"
+        />
+      )}
 
       {mode?.kind === "flash" && <div className="mt-5"><FlashSession initial={mode.ids} onExit={exit} /></div>}
       {mode?.kind === "learn" && <div className="mt-5"><LearnSession ids={mode.ids} onExit={exit} /></div>}

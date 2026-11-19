@@ -88,13 +88,56 @@ export const stateSchema = z.object({
       done: z.record(z.string(), z.array(z.string())),
     })
     .default(initialProgress),
+  /** Voice and celebration preferences. Absent in older saves. */
+  prefs: z
+    .object({
+      humor: z.enum(["off", "chill", "normal", "max"]).default("normal"),
+      celebrations: z.boolean().default(true),
+    })
+    .default(() => ({ humor: "normal" as const, celebrations: true })),
+  /** XP, badges and quest counters. Absent in older saves. */
+  game: z
+    .object({
+      xp: z.number().int().min(0).default(0),
+      /** Idempotency keys of one-off rewards (mission of a date, quest of a date, weekly challenge). */
+      awarded: z.record(z.string(), z.number()).default({}),
+      /** Badge id -> unlock time. */
+      badges: z.record(z.string(), isoDate).default({}),
+      daily: z
+        .object({
+          date: z.string(),
+          answered: z.number().int().min(0),
+          correct: z.number().int().min(0),
+          listening: z.number().int().min(0),
+          reading: z.number().int().min(0),
+          words: z.number().int().min(0),
+          fixed: z.number().int().min(0),
+          practiceXp: z.number().int().min(0),
+        })
+        .nullable()
+        .default(null),
+      weekly: z
+        .object({
+          week: z.string(),
+          answered: z.number().int().min(0),
+          correct: z.number().int().min(0),
+          words: z.number().int().min(0),
+        })
+        .nullable()
+        .default(null),
+    })
+    .default(() => emptyGame()),
 });
+
+export function emptyGame() {
+  return { xp: 0, awarded: {}, badges: {}, daily: null, weekly: null };
+}
 
 export type AppState = z.infer<typeof stateSchema>;
 export type Profile = NonNullable<AppState["profile"]>;
 
 export function emptyState(): AppState {
-  return { version: STATE_VERSION, profile: null, skillStats: {}, errors: [], scores: [], srs: {}, shooterBest: null, typingBest: null, missionDone: {}, progress: initialProgress() };
+  return { version: STATE_VERSION, profile: null, skillStats: {}, errors: [], scores: [], srs: {}, shooterBest: null, typingBest: null, missionDone: {}, progress: initialProgress(), prefs: { humor: "normal", celebrations: true }, game: emptyGame() };
 }
 
 /** Validate untrusted JSON (storage or an imported backup). Throws a readable error. */

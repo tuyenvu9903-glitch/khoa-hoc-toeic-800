@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { applyGamification, type GameEvent } from "./gamify";
 import { emptyState, parseState, STORAGE_KEY, type AppState } from "./state";
 
 function load(): AppState {
@@ -25,16 +26,35 @@ function persist(next: AppState): void {
   }
 }
 
-export function update(fn: (s: AppState) => AppState): void {
-  const next = fn(current);
-  if (next === current) return;
+const eventListeners = new Set<(events: GameEvent[]) => void>();
+
+function commit(next: AppState): void {
   current = next;
   persist(current);
   listeners.forEach((l) => l());
 }
 
+/** Apply a change. XP, quests and badges are derived from the change itself (see gamify.ts). */
+export function update(fn: (s: AppState) => AppState): void {
+  const raw = fn(current);
+  if (raw === current) return;
+  const { state, events } = applyGamification(current, raw, new Date());
+  commit(state);
+  if (events.length > 0) eventListeners.forEach((l) => l(events));
+}
+
+/** Replace the whole state (backup import, reset). Never awards anything. */
 export function replaceState(next: AppState): void {
-  update(() => next);
+  if (next === current) return;
+  commit(next);
+}
+
+/** Listen for level-ups, badges and quests to celebrate them. */
+export function onGameEvents(l: (events: GameEvent[]) => void): () => void {
+  eventListeners.add(l);
+  return () => {
+    eventListeners.delete(l);
+  };
 }
 
 function subscribe(l: () => void) {

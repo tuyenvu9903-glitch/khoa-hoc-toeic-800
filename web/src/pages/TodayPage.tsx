@@ -4,6 +4,8 @@ import { packByDay } from "../data/dayPacks";
 import { PROGRAM_DAYS } from "../domain/progress";
 import { buildJourney, minutesLeft, nextStep } from "../lib/journey";
 import { useAppState } from "../lib/store";
+import { CoachBubble } from "../components/Mascot";
+import { useCopy, useLine } from "../voice/useVoice";
 
 /** The guided session for the current day: steps in order, one-click resume, clear completion. */
 export function TodayPage() {
@@ -14,6 +16,8 @@ export function TodayPage() {
   const steps = buildJourney(state);
   const next = nextStep(steps);
   const doneCount = steps.filter((s) => s.done).length;
+  const t = useCopy();
+  const line = useLine(next ? "start" : "day_done", { day });
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
@@ -22,6 +26,8 @@ export function TodayPage() {
         <h1 className="mt-1 text-2xl font-extrabold tracking-tight">{pack?.theme ?? plan.title}</h1>
         <p className="mt-1 text-sm text-slate-600">{plan.title}</p>
       </header>
+
+      <CoachBubble mood={line.mood} text={next && doneCount === 0 ? `${line.text} ${t("taskPending")}` : line.text} />
 
       <section className="card p-5" aria-label="Tiến độ hôm nay">
         <div className="flex items-center gap-2" aria-hidden>
@@ -44,13 +50,13 @@ export function TodayPage() {
         </p>
         {next ? (
           <Link to={next.to} className="btn-primary mt-4 w-full !py-3 text-base sm:w-auto">
-            ▶ {doneCount === 0 ? "Bắt đầu" : "Tiếp tục"}: Bước {next.n} · {next.title}
+            ▶ {doneCount === 0 ? t("startToday") : t("continue")}: Bước {next.n} · {next.title}
           </Link>
         ) : (
           <div role="status" className="mt-4 rounded-xl bg-p-mint p-4 text-sm text-brand-800">
-            🎉 <strong>Xong Ngày {day}!</strong>{" "}
-            {day < PROGRAM_DAYS ? `Ngày ${day + 1} sẽ mở vào ngày mai.` : "Bạn đã đi hết lộ trình 56 ngày."} Nếu còn thời gian, hãy ôn các từ đến hạn
-            hoặc chơi một ván game từ vựng.
+            <strong>Xong Ngày {day}!</strong>{" "}
+            {day < PROGRAM_DAYS ? `Ngày ${day + 1} sẽ mở vào ngày mai.` : "Bạn đã đi hết lộ trình 56 ngày."} Còn dư năng lượng thì ôn từ đến hạn,
+            làm nốt nhiệm vụ ngày hoặc bắn vài con gà từ vựng.
             <div className="mt-3 flex flex-wrap gap-2">
               <Link to="/vocab" className="btn-ghost !py-1.5">Ôn từ vựng</Link>
               <Link to="/progress" className="btn-ghost !py-1.5">Xem tiến độ</Link>
@@ -74,7 +80,7 @@ export function TodayPage() {
               <p className="text-sm text-slate-500">{s.detail} · ~{s.minutes} phút</p>
             </div>
             <Link to={s.to} className={s.done ? "btn-ghost !py-2" : "btn-primary !py-2"}>
-              {s.done ? "Làm lại" : "Làm"}
+              {s.done ? t("retry") : t("doIt")}
             </Link>
           </li>
         ))}
@@ -93,7 +99,7 @@ export function TodayPage() {
       </details>
 
       <p className="text-xs text-slate-500">
-        Có thể dừng giữa chừng: các bước đã xong được lưu, lần sau bấm "Tiếp tục" để học tiếp. Xem cả lộ trình ở <Link to="/plan" className="underline">Lộ trình 56 ngày</Link>.
+        Bận thì cứ dừng giữa chừng: bước nào xong đã được lưu, lần sau bấm tiếp là học tiếp. Xem cả lộ trình ở <Link to="/plan" className="underline">Lộ trình 56 ngày</Link>.
       </p>
     </div>
   );

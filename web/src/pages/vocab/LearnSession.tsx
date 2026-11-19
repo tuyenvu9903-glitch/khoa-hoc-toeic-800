@@ -11,6 +11,8 @@ import {
 } from "../../domain/learn";
 import { gradeVocab, localDateKey, markMissionDone } from "../../lib/state";
 import { update } from "../../lib/store";
+import { CoachReaction, VerdictLine } from "../../components/Voice";
+import { useCoach } from "../../voice/useVoice";
 import { isTypingTarget, SpeakButton } from "./shared";
 
 type Feedback = { correct: boolean; picked?: number; typed?: string };
@@ -21,12 +23,17 @@ const STAGE_PROMPT = ["Chọn nghĩa đúng", "Chọn từ đúng", "Gõ lại t
 export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => void }) {
   const [ls, setLs] = useState(() => initLearn(ids));
   const [qNo, setQNo] = useState(0);
-  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [feedback, setFeedbackState] = useState<Feedback | null>(null);
+  const coach = useCoach();
   const [typed, setTyped] = useState("");
   const [closeHint, setCloseHint] = useState(false);
 
   const head = ls.queue[0];
   const word = head ? vocabById.get(head.id) : undefined;
+  const setFeedback = (f: Feedback | null) => {
+    setFeedbackState(f);
+    if (f && word) coach.react({ correct: f.correct, skillCode: `w:${word.word}` });
+  };
   const stage = head?.stage ?? 0;
 
   const choice = useMemo(
@@ -98,8 +105,8 @@ export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => voi
     const perfect = ls.done.filter((d) => d.mistakes === 0).length;
     return (
       <div className="card p-8">
-        <p className="text-center text-4xl">🎉</p>
-        <h2 className="mt-2 text-center text-xl font-bold">Đã học xong {ls.total} từ mới!</h2>
+        <VerdictLine context={perfect === ls.total ? "done_perfect" : "done"} className="mx-auto max-w-md" />
+        <h2 className="mt-4 text-center text-xl font-bold">Đã học xong {ls.total} từ mới!</h2>
         <p className="mt-1 text-center text-sm text-slate-600">
           {perfect} từ không sai lần nào. Các từ sẽ quay lại ôn đúng lúc theo lịch lặp lại ngắt quãng.
         </p>
@@ -230,7 +237,10 @@ export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => voi
         {feedback && (
           <div role="status" className={`mt-5 rounded-lg px-4 py-3 text-sm ${feedback.correct ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"}`}>
             {feedback.correct ? (
-              <span className="font-semibold">Chính xác!</span>
+              <>
+                <span className="font-semibold">Chính xác!</span>
+                <CoachReaction line={coach.line} className="mt-2" />
+              </>
             ) : (
               <>
                 <p className="font-semibold">Chưa đúng.</p>
@@ -238,6 +248,7 @@ export function LearnSession({ ids, onExit }: { ids: string[]; onExit: () => voi
                   <strong>{word.word}</strong> ({word.pos}): {word.meaningVi}
                 </p>
                 <p className="mt-1 italic text-rose-800/80">"{word.example}"</p>
+                <CoachReaction line={coach.line} className="mt-2" />
                 <button onClick={() => advance(false)} className="btn mt-3 bg-rose-600 text-white hover:bg-rose-700">
                   Tiếp tục <span className="font-normal opacity-70">(Enter)</span>
                 </button>

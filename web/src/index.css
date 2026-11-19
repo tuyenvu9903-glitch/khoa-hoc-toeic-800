@@ -168,9 +168,108 @@
   animation: fade-up 0.45s ease both;
 }
 
+
+/* ---------- Mascot & celebrations ---------- */
+@keyframes mascot-bounce {
+  0% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-6px) scale(0.97, 1.04); }
+  55% { transform: translateY(0) scale(1.04, 0.96); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+@keyframes mascot-droop {
+  0% { transform: translateY(-3px); }
+  100% { transform: translateY(2px); }
+}
+@keyframes mascot-tilt {
+  0%, 100% { transform: rotate(0); }
+  40% { transform: rotate(-8deg); }
+  70% { transform: rotate(4deg); }
+}
+@keyframes mascot-flap {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-10deg); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+@keyframes tear {
+  0% { opacity: 0; transform: translateY(-4px); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(8px); }
+}
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.85) translateY(10px); }
+  60% { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes confetti-fall {
+  0% { opacity: 1; transform: translate3d(0, -20px, 0) rotate(0); }
+  100% { opacity: 0; transform: translate3d(var(--dx, 0), 260px, 0) rotate(540deg); }
+}
+@keyframes xp-float {
+  0% { opacity: 0; transform: translateY(6px); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-22px); }
+}
+@keyframes fill-bar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.mascot-bounce { animation: mascot-bounce 0.6s ease; transform-origin: 50% 100%; }
+.mascot-droop { animation: mascot-droop 0.6s ease both; }
+.mascot-tilt { animation: mascot-tilt 0.7s ease; transform-origin: 50% 100%; }
+.mascot-flap > * { animation: mascot-flap 0.5s ease 2; transform-box: fill-box; transform-origin: 50% 0; }
+.mascot-twinkle { animation: twinkle 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.mascot-tear { animation: tear 1.8s ease-in infinite; }
+.pop-in { animation: pop-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.toast-in { animation: toast-in 0.3s ease both; }
+.xp-float { animation: xp-float 1.2s ease both; }
+.confetti-piece {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  animation: confetti-fall 1.6s ease-in both;
+}
+.bubble::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  bottom: 14px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border-left: inherit;
+  border-bottom: inherit;
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-in,
-  .animate-shake {
+  .animate-shake,
+  .mascot-bounce,
+  .mascot-droop,
+  .mascot-tilt,
+  .mascot-flap > *,
+  .mascot-twinkle,
+  .mascot-tear,
+  .pop-in,
+  .toast-in,
+  .xp-float,
+  .confetti-piece {
     animation: none;
   }
   .btn,

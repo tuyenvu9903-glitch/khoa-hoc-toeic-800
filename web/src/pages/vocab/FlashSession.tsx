@@ -3,6 +3,7 @@ import { TOPIC_LABEL, vocabById } from "../../data/vocabulary";
 import { intervalLabel, type Grade } from "../../domain/srs";
 import { gradeVocab, localDateKey, markMissionDone } from "../../lib/state";
 import { update, useAppState } from "../../lib/store";
+import { VerdictLine } from "../../components/Voice";
 import { isTypingTarget, SpeakButton } from "./shared";
 
 const GRADES: { grade: Grade; label: string; key: string; style: string }[] = [
@@ -61,8 +62,8 @@ export function FlashSession({ initial, onExit }: { initial: string[]; onExit: (
     const reviewed = summary.again + summary.hard + summary.good + summary.easy;
     return (
       <div className="card p-8 text-center">
-        <p className="text-4xl">🎉</p>
-        <h2 className="mt-2 text-xl font-bold">Xong phiên thẻ ghi nhớ!</h2>
+        <VerdictLine context={summary.again > summary.good + summary.easy ? "done_rough" : "done"} className="mx-auto max-w-md text-left" />
+        <h2 className="mt-4 text-xl font-bold">Xong phiên thẻ ghi nhớ!</h2>
         <p className="mt-1 text-sm text-slate-600">
           {total} từ · {reviewed} lượt chấm · Nhớ/Dễ: {summary.good + summary.easy} · Khó: {summary.hard} · Chưa nhớ:{" "}
           {summary.again}

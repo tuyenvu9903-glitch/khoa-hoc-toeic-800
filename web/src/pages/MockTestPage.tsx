@@ -70,12 +70,12 @@ export function MockTestPage() {
           <p className="mt-1 flex-1 text-sm text-slate-600">
             50 câu: Nghe 25 câu (Part 2–4, khoảng 20 phút), Đọc khoảng 25 câu (Part 5, 7, tính giờ theo nhịp thi thật). Mỗi lần làm là một đề trộn mới.
           </p>
-          <button onClick={start} disabled={!unlocked} className="btn-primary mt-4 self-start">Bắt đầu</button>
+          <button onClick={start} disabled={!unlocked} className="btn-primary mt-4 self-start">Vào phòng thi</button>
         </div>
         <div className="card flex flex-col p-5 opacity-60">
           <h2 className="font-bold">🏁 Full test 200 câu</h2>
           <p className="mt-1 flex-1 text-sm text-slate-600">Nghe 100 câu / 45 phút, Đọc 100 câu / 75 phút, đủ 7 Part. Đang soạn đề gốc.</p>
-          <button disabled className="btn-primary mt-4 self-start">Sắp có</button>
+          <button disabled className="btn-primary mt-4 self-start">Đang nấu, sắp có</button>
         </div>
       </section>
 

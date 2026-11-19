@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { advanceDay } from "./lib/state";
 import { update, useAppState } from "./lib/store";
+import { AchievementsPage } from "./pages/AchievementsPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ListeningPage } from "./pages/ListeningPage";
 import { MiniTestPage } from "./pages/MiniTestPage";
@@ -44,6 +45,7 @@ export function App() {
         <Route path="/mini-test" element={<MiniTestPage />} />
         <Route path="/exam" element={<MockTestPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/achievements" element={<AchievementsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -12,6 +12,7 @@ import {
 } from "../../domain/typing";
 import { gradeVocab, localDateKey, markMissionDone, recordTypingScore } from "../../lib/state";
 import { update, useAppState } from "../../lib/store";
+import { VerdictLine } from "../../components/Voice";
 import { unlockedWords } from "../../domain/progress";
 import { drawBackdrop, drawBullet, drawChicken, drawDangerLine, drawFx, drawShip, makeStars, type Star } from "./canvasArt";
 import { speak } from "./shared";
@@ -223,8 +224,8 @@ export function TypingGame({ onExit }: { onExit: () => void }) {
   if (status === "done" && summary) {
     return (
       <div className="card p-6 sm:p-8">
-        <p className="text-center text-5xl" aria-hidden>{summary.won ? "🏆" : "💥"}</p>
-        <h2 className="mt-2 text-center text-2xl font-extrabold">{summary.won ? "Đã bắn hết đàn gà!" : "Hết mạng rồi!"}</h2>
+        <VerdictLine context={summary.record ? "record" : summary.won ? "done" : "done_rough"} className="mx-auto max-w-md" />
+        <h2 className="mt-4 text-center text-2xl font-extrabold">{summary.won ? "Đàn gà đã bị xử đẹp!" : "Hết mạng rồi! Gà thắng ván này."}</h2>
         <p className="mt-1 text-center text-sm text-slate-600">
           {summary.score} điểm{summary.record ? " · Kỷ lục mới! 🎉" : state.typingBest !== null ? ` · Kỷ lục ${state.typingBest}` : ""}
         </p>
@@ -251,7 +252,7 @@ export function TypingGame({ onExit }: { onExit: () => void }) {
           </ul>
         )}
         <div className="mt-6 flex justify-center gap-2">
-          <button onClick={start} className="btn-primary">Chơi lại</button>
+          <button onClick={start} className="btn-primary">Phục thù ván nữa</button>
           <button onClick={onExit} className="btn-ghost">Xong</button>
         </div>
       </div>

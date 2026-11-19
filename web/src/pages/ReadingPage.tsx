@@ -5,6 +5,8 @@ import { packByDay } from "../data/dayPacks";
 import { shuffle, shuffleOptions } from "../domain/learn";
 import { firstGrammarDay, part7BankUnlocked, unlockedGrammar } from "../domain/progress";
 import { localDateKey, markMissionDone, recordAnswer } from "../lib/state";
+import { CoachReaction, SessionResult as ResultCard, StartLine } from "../components/Voice";
+import { useCoach } from "../voice/useVoice";
 import { update, useAppState } from "../lib/store";
 
 const LETTERS = ["A", "B", "C", "D"] as const;
@@ -43,6 +45,7 @@ export function Part5Session({
   const [picked, setPicked] = useState<number | null>(null);
   const [correct, setCorrect] = useState(0);
   const startedAt = useRef(Date.now());
+  const coach = useCoach();
   const item = items[index]!;
 
   const choose = (i: number) => {
@@ -50,6 +53,7 @@ export function Part5Session({
     setPicked(i);
     const ok = i === item.answer;
     if (ok) setCorrect((c) => c + 1);
+    coach.react({ correct: ok, skillCode: item.skill, responseMs: Date.now() - startedAt.current });
     update((s) =>
       recordAnswer(s, {
         questionId: item.id,
@@ -123,6 +127,7 @@ export function Part5Session({
             <p className={`font-semibold ${picked === item.answer ? "text-emerald-700" : "text-rose-700"}`}>
               {picked === item.answer ? "✓ Chính xác" : `✗ Đáp án đúng là (${LETTERS[item.answer]}) ${item.options[item.answer]}`}
             </p>
+            <CoachReaction line={coach.line} className="mt-3" />
             <Explain text={item.explainVi} />
             <button onClick={next} className="btn-primary mt-5">{index + 1 >= items.length ? "Xong" : "Câu tiếp →"}</button>
           </div>
@@ -152,6 +157,7 @@ export function Part7Session({
   const [submitted, setSubmitted] = useState(false);
   const [correct, setCorrect] = useState(0);
   const startedAt = useRef(Date.now());
+  const coach = useCoach();
 
   const submit = () => {
     setSubmitted(true);
@@ -172,6 +178,7 @@ export function Part7Session({
       ),
     );
     setCorrect((c) => c + set.questions.filter((qq, i) => picks[i] === qq.answer).length);
+    set.questions.forEach((qq, i) => coach.react({ correct: picks[i] === qq.answer, skillCode: qq.skill, responseMs: ms }));
   };
   const next = () => {
     if (index + 1 >= sets.length) {
@@ -219,9 +226,12 @@ export function Part7Session({
             ))}
           </ol>
           {!submitted ? (
-            <button onClick={submit} disabled={picks.some((p) => p === null)} className="btn-primary mt-6">Nộp đáp án</button>
+            <button onClick={submit} disabled={picks.some((p) => p === null)} className="btn-primary mt-6">Chốt đáp án</button>
           ) : (
-            <button onClick={next} className="btn-primary mt-6">{index + 1 >= sets.length ? "Xong" : "Bài tiếp →"}</button>
+            <>
+              <CoachReaction line={coach.line} className="mt-6" />
+              <button onClick={next} className="btn-primary mt-4">{index + 1 >= sets.length ? "Xem kết quả" : "Bài tiếp →"}</button>
+            </>
           )}
         </div>
       </div>
@@ -273,7 +283,8 @@ export function ReadingPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Luyện đọc &amp; ngữ pháp</h1>
-      <p className="mt-1 text-sm text-slate-500">Câu ngữ pháp và bài đọc mỗi ngày dùng từ vựng của ngày đó. Câu sai được ghi vào nhật ký lỗi.</p>
+      <p className="mt-1 text-sm text-slate-500">Câu ngữ pháp và bài đọc mỗi ngày dùng từ vựng của ngày đó. Sai câu nào, Sổ lỗi ghi thù câu đó.</p>
+      {mode !== null && <StartLine />}
 
       {mode?.kind === "p5" && <div className="mx-auto mt-5 max-w-3xl"><Part5Session items={mode.items} onDone={finish("p5")} onExit={exit} /></div>}
       {mode?.kind === "p7" && <div className="mt-5"><Part7Session sets={mode.sets} onDone={finish("p7")} onExit={exit} /></div>}
@@ -281,12 +292,11 @@ export function ReadingPage() {
       {mode === null && (
         <div className="mx-auto max-w-3xl">
           {result && (
-            <div role="status" className="card mt-5 p-5 text-center">
-              <p className="text-3xl font-extrabold">{result.correct}/{result.total}</p>
-              <p className="mt-1 text-sm text-slate-600">
-                câu đúng ({Math.round((result.correct / result.total) * 100)}%). Nhiệm vụ "{result.kind === "p5" ? "Ngữ pháp" : "Đọc"}" của Ngày {day} đã được đánh dấu.
-              </p>
-            </div>
+            <ResultCard
+              correct={result.correct}
+              total={result.total}
+              note={`Nhiệm vụ "${result.kind === "p5" ? "Ngữ pháp" : "Đọc"}" của Ngày ${day} đã được đánh dấu. Câu sai đã vào Sổ lỗi.`}
+            />
           )}
 
           {pack && (

@@ -4,6 +4,7 @@ import { scorePaper, type ExamPaper } from "../domain/exam";
 import { firstTestDay, miniTestUnlocked } from "../domain/progress";
 import { buildMiniPaper, recordExam } from "../lib/papers";
 import { localDateKey, markMissionDone } from "../lib/state";
+import { StartLine } from "../components/Voice";
 import { update, useAppState } from "../lib/store";
 import { ExamReview } from "./exam/ExamReview";
 import { ExamRunner } from "./exam/ExamRunner";
@@ -38,7 +39,7 @@ export function MiniTestPage() {
       {!unlocked && (
         <div className="card mx-auto mt-5 max-w-2xl p-6 text-center">
           <p className="text-4xl" aria-hidden>🔒</p>
-          <p className="mt-2 text-slate-700">Mini test đầu tiên mở vào <strong>Ngày {firstTestDay()}</strong>, cuối tuần 1. Bạn đang ở Ngày {day}.</p>
+          <p className="mt-2 text-slate-700">Từ từ đã, chưa tới lúc kiểm tra. Mini test đầu tiên mở vào <strong>Ngày {firstTestDay()}</strong>, cuối tuần 1. Bạn đang ở Ngày {day}.</p>
           <Link to="/" className="btn-ghost mt-4">Về Dashboard</Link>
         </div>
       )}
@@ -49,9 +50,10 @@ export function MiniTestPage() {
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
             <li>Phần Nghe tự chạy, mỗi đoạn chỉ phát một lần.</li>
             <li>Phần Đọc có đồng hồ đếm ngược, phiếu trả lời và đánh dấu câu. Hết giờ bài tự nộp.</li>
-            <li>Giải thích và điểm ước lượng hiện sau khi nộp. Câu sai được ghi vào nhật ký lỗi.</li>
+            <li>Giải thích và điểm ước lượng hiện sau khi nộp. Câu sai được ghi vào Sổ lỗi.</li>
           </ul>
-          <button onClick={start} className="btn-primary mt-5">Bắt đầu</button>
+          <StartLine className="mt-4" />
+          <button onClick={start} className="btn-primary mt-5">Vào phòng thi</button>
         </div>
       )}
 
@@ -68,7 +70,7 @@ export function MiniTestPage() {
             answers={answers}
             actions={
               <>
-                <button onClick={start} className="btn-primary">Làm đề khác</button>
+                <button onClick={start} className="btn-primary">Làm đề khác cho nóng</button>
                 <Link to="/" className="btn-ghost">Về Dashboard</Link>
               </>
             }
