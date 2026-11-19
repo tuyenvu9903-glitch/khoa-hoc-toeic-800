@@ -351,20 +351,20 @@ export function ShooterGame({ onExit }: { onExit: () => void }) {
         }}
         data-testid="stage"
       >
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-label="Màn chơi Bắn gà" role="img" />
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-label="Màn chơi Gà bay, não chạy" role="img" />
 
         {status === "ready" && (
           <div className="absolute inset-0 grid place-items-center bg-slate-950/60 p-4 backdrop-blur-sm">
             <div className="max-w-md text-center text-white">
               <p className="text-5xl" aria-hidden>🐔🚀</p>
-              <h2 className="mt-2 text-2xl font-extrabold">Bắn gà từ vựng</h2>
+              <h2 className="mt-2 text-2xl font-extrabold">Gà bay, não chạy</h2>
               <ul className="mt-3 space-y-1 text-left text-sm text-white/85">
                 <li>🎯 Bắn con gà mang <strong>nghĩa đúng</strong> của từ trên đầu màn hình.</li>
                 <li>🖱️ Rê chuột hoặc kéo ngón tay để di chuyển, <strong>click / chạm</strong> để bắn. Bàn phím: ← → và Space.</li>
                 <li>💔 Bắn nhầm, trúng trứng hoặc để gà đáp xuống đều mất 1 trong {START_LIVES} mạng.</li>
                 <li>⏸️ Esc hoặc P để tạm dừng. {ROUNDS} từ mỗi ván, càng về sau gà càng nhanh.</li>
               </ul>
-              <button onClick={start} className="btn-primary mt-5 !px-6 !py-3">Bắt đầu bắn</button>
+              <button onClick={start} className="btn-primary mt-5 !px-6 !py-3">Lên nòng, bắn!</button>
             </div>
           </div>
         )}

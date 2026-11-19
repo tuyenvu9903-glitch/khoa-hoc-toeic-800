@@ -289,20 +289,20 @@ export function TypingGame({ onExit }: { onExit: () => void }) {
         style={{ aspectRatio: `${W} / ${H}` }}
         onPointerDown={() => inputRef.current?.focus()}
       >
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-label="Màn chơi Gõ từ" role="img" />
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-label="Màn chơi Gõ phím diệt gà" role="img" />
 
         {status === "ready" && (
           <div className="absolute inset-0 grid place-items-center bg-slate-950/60 p-4">
             <div className="max-w-md text-center text-white">
               <p className="text-5xl" aria-hidden>⌨️🚀</p>
-              <h2 className="mt-2 text-2xl font-extrabold">Gõ từ bắn gà</h2>
+              <h2 className="mt-2 text-2xl font-extrabold">Gõ phím diệt gà</h2>
               <ul className="mt-3 space-y-1 text-left text-sm text-white/85">
                 <li>🐔 Gà rơi xuống mang <strong>nghĩa tiếng Việt</strong>.</li>
                 <li>⌨️ <strong>Gõ từ tiếng Anh</strong> tương ứng, gõ đúng là tàu tự bắn (hoặc nhấn Enter).</li>
                 <li>💡 Gà rơi quá nửa đường sẽ hiện chữ cái đầu, bắn lúc đó được ít điểm hơn.</li>
                 <li>💔 Để gà chạm vạch đỏ mất 1 trong {START_LIVES} mạng. Esc để tạm dừng. {ROUNDS} từ mỗi ván.</li>
               </ul>
-              <button onClick={start} className="btn-primary mt-5 !px-6 !py-3">Bắt đầu</button>
+              <button onClick={start} className="btn-primary mt-5 !px-6 !py-3">Vào gõ thôi</button>
             </div>
           </div>
         )}

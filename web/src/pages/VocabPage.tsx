@@ -179,17 +179,17 @@ export function VocabPage() {
             <ModeCard
               icon="⌨️"
               tone="bg-p-cream"
-              title="Gõ từ bắn gà"
-              desc={`Gà rơi xuống mang nghĩa tiếng Việt, gõ đúng từ tiếng Anh là tàu bay bắn.${state.typingBest !== null ? ` Kỷ lục ${state.typingBest} điểm.` : ""}`}
-              action="Chơi"
+              title="Gõ phím diệt gà"
+              desc={`Gà rơi từ trời xuống, trên lưng là nghĩa tiếng Việt. Gõ đúng từ tiếng Anh là tàu bắn rụng, gõ sai thì gà cười vào mặt.${state.typingBest !== null ? ` Kỷ lục ${state.typingBest} điểm.` : ""}`}
+              action="Gõ cho gà sợ"
               onClick={() => setMode({ kind: "typing" })}
             />
             <ModeCard
               icon="🐔"
               tone="bg-p-coral"
-              title="Bắn gà"
-              desc={`Điều khiển tàu bay, bắn con gà mang nghĩa đúng trước khi đàn gà đáp xuống. Né trứng!${state.shooterBest !== null ? ` Kỷ lục ${state.shooterBest} điểm.` : ""}`}
-              action="Bắn gà"
+              title="Gà bay, não chạy"
+              desc={`Lái tàu bắn đúng con gà mang nghĩa chuẩn trước khi cả đàn hạ cánh. Né trứng, trứng gà không phải đồ ăn sáng đâu!${state.shooterBest !== null ? ` Kỷ lục ${state.shooterBest} điểm.` : ""}`}
+              action="Lên nòng"
               onClick={() => setMode({ kind: "shooter" })}
             />
           </section>
