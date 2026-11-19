@@ -177,7 +177,7 @@ describe("recordAnswer", () => {
   });
 });
 
-import { advanceDay, markMissionDone as markDone, type AppState } from "./state";
+import { advanceDay, markMissionDone as markDone, recordDayTest, type AppState } from "./state";
 import { wordsForDay } from "../domain/progress";
 import { reviewCard } from "../domain/srs";
 
@@ -190,6 +190,12 @@ describe("day-by-day progression", () => {
     ...s,
     srs: Object.fromEntries(wordsForDay(day).map((w) => [w.id, reviewCard(undefined, "good", d1)])),
   });
+  /** Answer `share` of the day's test right. */
+  const takeTest = (s: AppState, day: number, share = 1) => {
+    const words = wordsForDay(day);
+    const right = Math.round(words.length * share);
+    return recordDayTest(s, day, words.map((w, i) => ({ wordId: w.id, correct: i < right })), d1);
+  };
 
   it("opens day 1 and stays there until every mission is done", () => {
     let s = advanceDay(withProfile(), d1);
@@ -201,15 +207,42 @@ describe("day-by-day progression", () => {
   it("opens the next day only on a later date once the day is complete", () => {
     let s = learnAll(advanceDay(withProfile(), d1), 1);
     for (const k of ["grammar", "listening", "reading"]) s = markDone(s, "2026-03-02", k);
+    // Words learned but the day's test not passed yet: the day stays open.
+    expect(advanceDay(s, nextDay).progress.day).toBe(1);
+    s = takeTest(s, 1).state;
     expect(advanceDay(s, sameDayLater).progress.day).toBe(1);
     const next = advanceDay(s, nextDay);
     expect(next.progress).toMatchObject({ day: 2, dayStartedOn: "2026-03-03" });
     expect(advanceDay(next, nextDay).progress.day).toBe(2);
   });
 
+  it("a day's vocabulary counts only with a test score of 80% or more", () => {
+    let s = learnAll(advanceDay(withProfile(), d1), 1);
+    for (const k of ["grammar", "listening", "reading"]) s = markDone(s, "2026-03-02", k);
+    const fail = takeTest(s, 1, 0.5);
+    expect(fail.passed).toBe(false);
+    expect(fail.state.dayTests["1"]).toBe(fail.percent);
+    expect(advanceDay(fail.state, nextDay).progress.day).toBe(1);
+    const pass = takeTest(fail.state, 1, 0.85);
+    expect(pass.passed).toBe(true);
+    expect(pass.percent).toBeGreaterThanOrEqual(80);
+    expect(advanceDay(pass.state, nextDay).progress.day).toBe(2);
+    // A worse retake keeps the best score and the pass.
+    const again = takeTest(pass.state, 1, 0);
+    expect(again.state.dayTests["1"]).toBe(pass.percent);
+  });
+
+  it("a test grades its words: right = learned, wrong = due again soon", () => {
+    const s = advanceDay(withProfile(), d1);
+    const words = wordsForDay(1);
+    const r = recordDayTest(s, 1, words.map((w, i) => ({ wordId: w.id, correct: i > 0 })), d1).state;
+    expect(words.every((w) => r.srs[w.id])).toBe(true);
+    expect(r.srs[words[0]!.id]!.intervalDays ?? 0).toBeLessThanOrEqual(r.srs[words[1]!.id]!.intervalDays ?? 0);
+  });
+
   it("requires the mini test on checkpoint days", () => {
     let s: AppState = { ...withProfile(), progress: { day: 7, dayStartedOn: "2026-03-02", done: {} } };
-    s = learnAll(s, 7);
+    s = takeTest(learnAll(s, 7), 7).state;
     for (const k of ["grammar", "listening", "reading"]) s = markDone(s, "2026-03-02", k);
     expect(advanceDay(s, nextDay).progress.day).toBe(7);
     s = markDone(s, "2026-03-02", "mini_test");

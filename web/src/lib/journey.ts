@@ -2,7 +2,7 @@
 import { missionLink, planForDay } from "../data/dailyPlan";
 import { packByDay } from "../data/dayPacks";
 import { PART5_SKILLS } from "../data/reading";
-import { isKindDone, requiredKinds, wordsForDay, type MissionKindTracked } from "../domain/progress";
+import { dayTestPassed, isKindDone, requiredKinds, wordsForDay, type MissionKindTracked } from "../domain/progress";
 import { isDue } from "../domain/srs";
 import { errorsDue, type AppState } from "./state";
 
@@ -39,7 +39,7 @@ export function buildJourney(state: AppState, day = state.progress.day): Journey
   const skill = PART5_SKILLS.find((s) => s.code === plan.grammar)?.label ?? "Ngữ pháp";
 
   const detail: Record<MissionKindTracked, string> = {
-    vocab: `${learned}/${words.length} từ mới${due > 0 ? ` · ${due} từ cần ôn` : ""}`,
+    vocab: `${learned}/${words.length} từ mới · Test: ${dayTestPassed(state.progress, day) ? "đạt" : state.dayTests[String(day)] !== undefined ? `chưa đạt (${state.dayTests[String(day)]}%)` : "chưa làm"}${due > 0 ? ` · ${due} từ cần ôn` : ""}`,
     grammar: pack ? `${pack.part5.length} câu Part 5 · ${skill}` : `Part 5 · ${skill}`,
     listening: pack
       ? `${pack.part2.length} câu Part 2${pack.talk ? ` + 1 ${pack.talk.part === "3" ? "hội thoại" : "bài nói"}` : ""}`

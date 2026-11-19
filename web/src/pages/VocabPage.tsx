@@ -6,10 +6,10 @@ import { Stat } from "../components/ui";
 import { TOPIC_LABEL, VOCAB_GROUPS, vocabulary, type VocabTopic, type VocabWord } from "../data/vocabulary";
 import { isDue, isMature } from "../domain/srs";
 import { packByDay } from "../data/dayPacks";
-import { unlockedWords, wordsForDay } from "../domain/progress";
-import { buildVocabSession, vocabCounts } from "../domain/vocabSession";
+import { DAY_TEST_PASS, dayTestPassed, unlockedWords, VOCAB_TEST, wordsForDay } from "../domain/progress";
+import { vocabCounts } from "../domain/vocabSession";
 import { useAppState } from "../lib/store";
-import { FlashSession } from "./vocab/FlashSession";
+import { DayTestSession } from "./vocab/DayTestSession";
 import { LearnSession } from "./vocab/LearnSession";
 import { TypingGame } from "./vocab/TypingGame";
 import { ShooterGame } from "./vocab/ShooterGame";
@@ -17,7 +17,7 @@ import { ShooterGame } from "./vocab/ShooterGame";
 const LEARN_BATCH = 8;
 
 type Mode =
-  | { kind: "flash"; ids: string[] }
+  | { kind: "test"; day: number }
   | { kind: "learn"; ids: string[] }
   | { kind: "typing" }
   | { kind: "shooter" }
@@ -54,6 +54,52 @@ function ModeCard(props: {
   );
 }
 
+/** Replaces the flashcards: one test per day reached; a pass is what makes the day's vocabulary count. */
+function DayTestCard({ onStart }: { onStart: (day: number) => void }) {
+  const state = useAppState();
+  const days = Array.from({ length: state.progress.day }, (_, i) => state.progress.day - i);
+  return (
+    <div className="card flex flex-col p-5">
+      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-p-blue text-2xl shadow-sm" aria-hidden>📝</span>
+      <h3 className="mt-3 text-lg font-bold">Bài test theo ngày</h3>
+      <p className="mt-1 text-sm text-slate-500">
+        Kiểm tra toàn bộ từ của từng ngày. Đúng từ {DAY_TEST_PASS}% trở lên mới tính là xong phần từ vựng của ngày đó.
+      </p>
+      <ul className="mt-3 max-h-56 flex-1 space-y-2 overflow-y-auto pr-1">
+        {days.map((d) => {
+          const words = wordsForDay(d);
+          const learned = words.filter((w) => state.srs[w.id]).length;
+          const best = state.dayTests[String(d)];
+          const passed = (state.progress.done[String(d)] ?? []).includes(VOCAB_TEST);
+          const legacy = !passed && best === undefined && dayTestPassed(state.progress, d);
+          const chip = passed
+            ? { text: `Đạt ${best ?? ""}${best !== undefined ? "%" : ""}`.trim(), style: "bg-emerald-100 text-emerald-800" }
+            : best !== undefined
+              ? { text: `Chưa đạt · ${best}%`, style: "bg-rose-100 text-rose-800" }
+              : legacy
+                ? { text: "Chưa làm", style: "bg-slate-100 text-slate-500" }
+                : { text: "Chưa làm", style: "bg-amber-100 text-amber-800" };
+          return (
+            <li key={d} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm">
+              <span className="font-semibold">Ngày {d}</span>
+              <span className="text-xs text-slate-500">{learned}/{words.length} từ</span>
+              <span className={`ml-auto rounded-full px-2 py-0.5 text-xs font-medium ${chip.style}`}>{chip.text}</span>
+              <button
+                type="button"
+                onClick={() => onStart(d)}
+                disabled={words.length === 0}
+                className={passed ? "btn-ghost !px-3 !py-1 text-xs" : "btn-primary !px-3 !py-1 text-xs"}
+              >
+                {passed ? "Làm lại" : "Làm bài"}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export function VocabPage() {
   const state = useAppState();
   const [mode, setMode] = useState<Mode>(null);
@@ -67,7 +113,6 @@ export function VocabPage() {
   const learnedToday = today.filter((w) => state.srs[w.id]).length;
   const pack = packByDay.get(day);
   const counts = vocabCounts(state.srs, open, now, Infinity);
-  const flashIds = useMemo(() => buildVocabSession(state.srs, open, new Date(), { newPerDay: Infinity }), [state.srs, open]);
   const learnIds = useMemo(
     () => open.filter((w) => !state.srs[w.id]).slice(0, LEARN_BATCH).map((w) => w.id),
     [state.srs, open],
@@ -80,11 +125,11 @@ export function VocabPage() {
       (q === "" || w.word.toLowerCase().includes(q) || w.meaningVi.toLowerCase().includes(q)),
   );
   const [params, setParams] = useSearchParams();
-  // /vocab?start=learn (from the daily journey): go straight into today's new words, or reviews.
+  // /vocab?start=learn (from the daily journey): go straight into today's new words, then today's test.
   useEffect(() => {
     if (params.get("start") !== "learn") return;
     if (learnIds.length > 0) setMode({ kind: "learn", ids: learnIds });
-    else if (flashIds.length > 0) setMode({ kind: "flash", ids: flashIds });
+    else if (!dayTestPassed(state.progress, day)) setMode({ kind: "test", day });
     setParams({}, { replace: true });
     // Run once on arrival.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,7 +153,7 @@ export function VocabPage() {
         />
       )}
 
-      {mode?.kind === "flash" && <div className="mt-5"><FlashSession initial={mode.ids} onExit={exit} /></div>}
+      {mode?.kind === "test" && <div className="mt-5"><DayTestSession key={mode.day} day={mode.day} onExit={exit} /></div>}
       {mode?.kind === "learn" && <div className="mt-5"><LearnSession ids={mode.ids} onExit={exit} /></div>}
       {mode?.kind === "typing" && <div className="mt-5"><TypingGame onExit={exit} /></div>}
       {mode?.kind === "shooter" && <div className="mt-5"><ShooterGame onExit={exit} /></div>}
@@ -167,15 +212,7 @@ export function VocabPage() {
               disabled={learnIds.length === 0}
               onClick={() => setMode({ kind: "learn", ids: learnIds })}
             />
-            <ModeCard
-              icon="🃏"
-              tone="bg-p-blue"
-              title="Thẻ ghi nhớ"
-              desc="Lật thẻ, tự chấm 4 mức. Từ đến hạn được ôn trước theo lịch lặp lại ngắt quãng."
-              action={flashIds.length > 0 ? `Ôn ${flashIds.length} thẻ` : "Hôm nay đã xong"}
-              disabled={flashIds.length === 0}
-              onClick={() => setMode({ kind: "flash", ids: flashIds })}
-            />
+            <DayTestCard onStart={(d) => setMode({ kind: "test", day: d })} />
             <ModeCard
               icon="⌨️"
               tone="bg-p-cream"
@@ -194,7 +231,7 @@ export function VocabPage() {
             />
           </section>
           <p className="mt-3 text-xs text-slate-500">
-            Mỗi ngày có một nhóm từ mới theo chủ đề của ngày (khoảng 36 từ khi kho đủ 2.000 từ). Học hết từ của hôm nay thì nhiệm vụ "Từ vựng" được đánh dấu. Từ đã học được xếp lịch ôn lại tự động.
+            Mỗi ngày có một nhóm từ mới theo chủ đề của ngày (khoảng 36 từ khi kho đủ 2.000 từ). Học hết từ của hôm nay rồi làm bài test của ngày: đúng từ {DAY_TEST_PASS}% trở lên thì nhiệm vụ "Từ vựng" mới được tính. Từ đã học được xếp lịch ôn lại tự động.
           </p>
 
           <section className="mt-6">

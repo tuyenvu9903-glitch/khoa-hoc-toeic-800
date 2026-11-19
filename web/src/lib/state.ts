@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { errorClassSchema, toeicPartSchema } from "../domain/question";
-import { advanceProgress, initialProgress, markKindDone } from "../domain/progress";
+import { advanceProgress, DAY_TEST_PASS, initialProgress, markDayKindDone, markKindDone, VOCAB_TEST } from "../domain/progress";
 import { reviewCard, type Grade } from "../domain/srs";
 
 export const STORAGE_KEY = "toeic800.state";
@@ -88,6 +88,8 @@ export const stateSchema = z.object({
       done: z.record(z.string(), z.array(z.string())),
     })
     .default(initialProgress),
+  /** Best score (%) of each day's vocabulary test, keyed by program day. Absent in older saves. */
+  dayTests: z.record(z.string(), z.number().min(0).max(100)).default({}),
   /** Voice and celebration preferences. Absent in older saves. */
   prefs: z
     .object({
@@ -142,7 +144,7 @@ export type AppState = z.infer<typeof stateSchema>;
 export type Profile = NonNullable<AppState["profile"]>;
 
 export function emptyState(): AppState {
-  return { version: STATE_VERSION, profile: null, skillStats: {}, errors: [], scores: [], srs: {}, shooterBest: null, typingBest: null, missionDone: {}, progress: initialProgress(), prefs: { humor: "normal", celebrations: true, mascotVoice: true, music: true, musicStyle: "remix" }, game: emptyGame() };
+  return { version: STATE_VERSION, profile: null, skillStats: {}, errors: [], scores: [], srs: {}, shooterBest: null, typingBest: null, missionDone: {}, progress: initialProgress(), dayTests: {}, prefs: { humor: "normal", celebrations: true, mascotVoice: true, music: true, musicStyle: "remix" }, game: emptyGame() };
 }
 
 /** Validate untrusted JSON (storage or an imported backup). Throws a readable error. */
@@ -277,6 +279,30 @@ export function recordAnswer(state: AppState, a: AnswerRecord, now: Date = new D
  * Tick a mission item on (never off), e.g. when a practice session is completed. It counts for
  * today's date (streak) and for the current program day (progression).
  */
+/**
+ * Record a day's vocabulary test: each answer grades its word (right = Good, wrong = Again), the
+ * best score is kept, and a pass (DAY_TEST_PASS % or more) marks that day's vocabulary as tested.
+ */
+export function recordDayTest(
+  state: AppState,
+  day: number,
+  results: readonly { wordId: string; correct: boolean }[],
+  now: Date = new Date(),
+): { state: AppState; percent: number; passed: boolean } {
+  const right = results.filter((r) => r.correct).length;
+  const percent = results.length === 0 ? 0 : Math.round((right * 100) / results.length);
+  const passed = results.length > 0 && percent >= DAY_TEST_PASS;
+  let s = state;
+  for (const r of results) s = gradeVocab(s, r.wordId, r.correct ? "good" : "again", now);
+  const key = String(day);
+  s = { ...s, dayTests: { ...s.dayTests, [key]: Math.max(s.dayTests[key] ?? 0, percent) } };
+  if (passed) {
+    s = { ...s, progress: markDayKindDone(s.progress, day, VOCAB_TEST) };
+    if (day === s.progress.day) s = markMissionDone(s, localDateKey(now), "vocab");
+  }
+  return { state: s, percent, passed };
+}
+
 export function markMissionDone(state: AppState, dateKey: string, kind: string): AppState {
   const current = state.missionDone[dateKey] ?? [];
   const missionDone = current.includes(kind) ? state.missionDone : { ...state.missionDone, [dateKey]: [...current, kind] };

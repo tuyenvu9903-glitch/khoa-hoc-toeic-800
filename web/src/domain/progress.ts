@@ -88,6 +88,26 @@ export function dayVocabDone(srs: Record<string, SrsCard>, day: number): boolean
   return wordsForDay(day).every((w) => srs[w.id]);
 }
 
+/** Marker in `progress.done[day]` once that day's vocabulary test is passed. */
+export const VOCAB_TEST = "vocab_test";
+/** Share of correct answers (in %) needed to pass a day's vocabulary test. */
+export const DAY_TEST_PASS = 80;
+
+/**
+ * A day's vocabulary test is passed. Days before the current one count as passed: they were
+ * finished before the test existed, or the learner could not have moved past them without it.
+ */
+export function dayTestPassed(progress: Progress, day: number): boolean {
+  return day < progress.day || (progress.done[String(day)] ?? []).includes(VOCAB_TEST);
+}
+
+/** Mark a kind done on a given day (not only the current one). */
+export function markDayKindDone(progress: Progress, day: number, kind: string): Progress {
+  const key = String(day);
+  const current = progress.done[key] ?? [];
+  return current.includes(kind) ? progress : { ...progress, done: { ...progress.done, [key]: [...current, kind] } };
+}
+
 // ---------------------------------------------------------------- completion
 
 export function requiredKinds(plan: DayPlan): MissionKindTracked[] {
@@ -97,7 +117,8 @@ export function requiredKinds(plan: DayPlan): MissionKindTracked[] {
 }
 
 export function isKindDone(progress: Progress, srs: Record<string, SrsCard>, day: number, kind: string): boolean {
-  if (kind === "vocab") return dayVocabDone(srs, day);
+  // Vocabulary counts only when the day's words are learned and its test is passed.
+  if (kind === "vocab") return dayVocabDone(srs, day) && dayTestPassed(progress, day);
   return (progress.done[String(day)] ?? []).includes(kind);
 }
 
