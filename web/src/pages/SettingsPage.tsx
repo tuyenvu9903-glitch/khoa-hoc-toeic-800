@@ -3,6 +3,7 @@ import { emptyState, parseState, restartProgram } from "../lib/state";
 import { exportJson, replaceState, update, useAppState } from "../lib/store";
 import { CoachBubble } from "../components/Mascot";
 import { MyMusicSettings } from "../components/MyMusicSettings";
+import { TransferCard } from "../components/TransferCard";
 import { HUMOR_OPTIONS, pickLine, type HumorLevel } from "../voice/engine";
 
 export function SettingsPage() {
@@ -46,7 +47,7 @@ export function SettingsPage() {
     <div className="mx-auto max-w-2xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Cài đặt & dữ liệu</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Tiến độ chỉ nằm trong trình duyệt này. Xóa dữ liệu trình duyệt hoặc đổi máy sẽ mất, nên hãy tải file sao lưu thường xuyên.
+        Tiến độ chỉ nằm trong trình duyệt này. Xóa dữ liệu trình duyệt hoặc đổi máy sẽ mất, nên hãy tải file sao lưu thường xuyên. Muốn học cả trên điện thoại thì dùng “Chuyển sang máy khác”.
       </p>
 
       {message && (
@@ -155,6 +156,7 @@ export function SettingsPage() {
             }}
           />
         </div>
+        <TransferCard />
       </section>
 
       <section className={`${card} mt-4 space-y-3`}>

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { advanceDay } from "./lib/state";
 import { update, useAppState } from "./lib/store";
@@ -16,9 +16,11 @@ import { ReadingPage } from "./pages/ReadingPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { VocabPage } from "./pages/VocabPage";
+import { ImportPage } from "./pages/ImportPage";
 
 export function App() {
   const { profile } = useAppState();
+  const { pathname } = useLocation();
   // Open the next day when its time has come: on start, and whenever the tab gets focus again.
   useEffect(() => {
     const check = () => update((s) => advanceDay(s, new Date()));
@@ -30,6 +32,8 @@ export function App() {
       clearInterval(t);
     };
   }, [profile]);
+  // A transfer link works even on a device that has never been set up.
+  if (pathname === "/import") return <ImportPage />;
   if (!profile) return <OnboardingPage />;
   return (
     <Routes>
