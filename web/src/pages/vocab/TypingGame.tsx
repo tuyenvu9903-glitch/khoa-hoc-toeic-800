@@ -15,7 +15,7 @@ import { update, useAppState } from "../../lib/store";
 import { VerdictLine } from "../../components/Voice";
 import { unlockedWords } from "../../domain/progress";
 import { drawBackdrop, drawBullet, drawChicken, drawDangerLine, drawFx, drawShip, makeStars, type Star } from "./canvasArt";
-import { speak } from "./shared";
+import { MusicControls, speak, useGameMusic } from "./shared";
 
 type Status = "ready" | "playing" | "paused" | "done";
 type Hud = { done: number; total: number; lives: number; score: number; combo: number };
@@ -71,6 +71,7 @@ export function TypingGame({ onExit }: { onExit: () => void }) {
   const [status, setStatus] = useState<Status>("ready");
   const [hud, setHud] = useState<Hud | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const track = useGameMusic(status);
   const [typed, setTyped] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [shake, setShake] = useState(0);
@@ -263,7 +264,10 @@ export function TypingGame({ onExit }: { onExit: () => void }) {
     <div>
       <div className="mb-3 flex items-center justify-between text-sm text-slate-500">
         <button onClick={onExit} className="hover:text-slate-800">← Thoát</button>
-        {state.typingBest !== null && <span>Kỷ lục {state.typingBest} điểm</span>}
+        <span className="flex items-center gap-3">
+          <MusicControls track={track} />
+          {state.typingBest !== null && <span>Kỷ lục {state.typingBest} điểm</span>}
+        </span>
       </div>
 
       {hud && (

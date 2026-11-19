@@ -43,10 +43,12 @@ Before any commit: `npm run typecheck`, `npm test` and `npm run build` must all 
   one-off rewards are keyed by date. `replaceState` (backup import/reset) never awards anything.
 - `web/src/components/Mascot.tsx`: "Tám", the SVG mascot with moods; `Voice.tsx` has the coach bubble,
   start line, session result and empty state; `Celebrations.tsx` shows level-ups, badges and quests.
-- Recorded voices: `web/public/tts/*.mp3` (VieNeu-TTS) for listening lines, vocabulary words and Tám's
-  lines; `lib/tts.ts` maps roles to voices and keys, `lib/speech.ts` plays a clip when one exists and
-  falls back to browser speech. After adding listening items, words or mascot lines, run
-  `npm run tts:export` then `python tools/tts/generate.py` (see `tools/tts/README.md`).
+- Voices: English (listening lines, words) is read by the browser, preferring Google's voices
+  (`lib/speech.ts`: `voiceFor`, `wordVoice`). VieNeu mispronounced short English, so it is not used for it.
+  Tám's Vietnamese lines are recorded with VieNeu-TTS in `web/public/tts/*.mp3`; after adding mascot lines
+  run `npm run tts:export` then `python tools/tts/generate.py --prune` (see `tools/tts/README.md`).
+- `web/src/lib/music.ts`: background piano for the vocab games, synthesised with Web Audio (original
+  pieces, no audio files); `useGameMusic`/`MusicControls` in `pages/vocab/shared.tsx`, `prefs.music`.
 
 ## Rules
 

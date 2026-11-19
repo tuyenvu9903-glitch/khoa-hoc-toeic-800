@@ -21,7 +21,7 @@ import { gradeVocab, localDateKey, markMissionDone, recordShooterScore } from ".
 import { update, useAppState } from "../../lib/store";
 import { VerdictLine } from "../../components/Voice";
 import { unlockedWords } from "../../domain/progress";
-import { isTypingTarget, SpeakButton } from "./shared";
+import { isTypingTarget, MusicControls, SpeakButton, useGameMusic } from "./shared";
 import { drawBackdrop, drawBullet, drawChicken, drawDangerLine, drawFx, drawShip, EMOJI, makeStars, type Star } from "./canvasArt";
 
 type Status = "ready" | "playing" | "paused" | "done";
@@ -101,6 +101,7 @@ export function ShooterGame({ onExit }: { onExit: () => void }) {
   const [status, setStatus] = useState<Status>("ready");
   const [hud, setHud] = useState<Hud | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const track = useGameMusic(status);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
   const inputRef = useRef<Input>({ ...NO_INPUT });
@@ -301,7 +302,10 @@ export function ShooterGame({ onExit }: { onExit: () => void }) {
     <div>
       <div className="mb-3 flex items-center justify-between text-sm text-slate-500">
         <button onClick={onExit} className="hover:text-slate-800">← Thoát</button>
-        {state.shooterBest !== null && <span>Kỷ lục {state.shooterBest} điểm</span>}
+        <span className="flex items-center gap-3">
+          <MusicControls track={track} />
+          {state.shooterBest !== null && <span>Kỷ lục {state.shooterBest} điểm</span>}
+        </span>
       </div>
 
       {hud && (

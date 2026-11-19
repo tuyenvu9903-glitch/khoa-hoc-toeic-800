@@ -100,6 +100,18 @@ export function SettingsPage() {
           />
           Tám tự đọc lời nhận xét sau mỗi câu trả lời (giọng thu sẵn; vẫn có nút 🔊 để nghe lại)
         </label>
+        <label className="flex items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            className="check"
+            checked={state.prefs.music}
+            onChange={(e) => {
+              const music = e.target.checked;
+              update((s) => ({ ...s, prefs: { ...s.prefs, music } }));
+            }}
+          />
+          Nhạc nền piano không lời trong game từ vựng (tự đổi bài ngẫu nhiên, nhỏ lại khi đọc từ)
+        </label>
       </section>
 
       <section className={`${card} mt-4 space-y-3`}>

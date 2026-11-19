@@ -1,6 +1,8 @@
-// Browser text-to-speech for listening practice: plays a script line by line with a
-// distinct voice per speaker where the device has several English voices.
+// English speech for listening practice: plays a script line by line with the browser's voices,
+// preferring Google's (the Google Translate voice in Chrome and on Android), one voice per speaker
+// where the device has several. Recorded clips are used only if a line has one (none in English now).
 import type { Speaker } from "../data/listening";
+import { duckForVoice } from "./music";
 import { clipKey, letterText, loadClips, playClip, ROLE_VOICE, splitLetter } from "./tts";
 
 let clips: Set<string> = new Set();
@@ -30,20 +32,34 @@ function englishVoices(): SpeechSynthesisVoice[] {
   return window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en"));
 }
 
+/** Google's voices (Chrome, Android) sound like Google Translate: clearest, so they come first. */
+const isGoogle = (v: SpeechSynthesisVoice) => /google/i.test(v.name) || /google/i.test(v.voiceURI);
+
+/** English voices, best first: Google, then US English, then the rest. */
+function rankedVoices(): SpeechSynthesisVoice[] {
+  const score = (v: SpeechSynthesisVoice) => (isGoogle(v) ? 0 : 2) + (v.lang.toLowerCase().replace("_", "-") === "en-us" ? 0 : 1);
+  return englishVoices().sort((a, b) => score(a) - score(b));
+}
+
+/** The voice for single words and example sentences (Google US English when available). */
+export function wordVoice(): SpeechSynthesisVoice | null {
+  return rankedVoices()[0] ?? null;
+}
+
 /** Pick a voice (and a pitch fallback) for each speaker role. */
 function voiceFor(speaker: Speaker): { voice: SpeechSynthesisVoice | null; pitch: number } {
-  const all = englishVoices();
-  const us = all.filter((v) => v.lang.toLowerCase() === "en-us");
-  const pool = us.length > 0 ? [...us, ...all.filter((v) => !us.includes(v))] : all;
-  const women = pool.filter((v) => FEMALE.test(v.name));
-  const men = pool.filter((v) => MALE.test(v.name) && !FEMALE.test(v.name));
+  const pool = rankedVoices();
   const female = speaker === "W" || speaker === "W2";
   const second = speaker === "W2" || speaker === "M2";
+  // Chrome's Google voices: "Google US English" is a woman, "Google UK English Male/Female".
+  const isFemale = (v: SpeechSynthesisVoice) => FEMALE.test(v.name) || /google us english/i.test(v.name);
+  const women = pool.filter(isFemale);
+  const men = pool.filter((v) => MALE.test(v.name) && !isFemale(v));
   const list = female ? women : men;
   const voice = list[second ? 1 : 0] ?? list[0] ?? pool[0] ?? null;
   // Without a matching voice, shift the pitch so speakers still sound different.
   const pitch = list.length > 0 ? 1 : female ? 1.25 : 0.8;
-  return { voice, pitch: second && list.length < 2 ? pitch + 0.15 : pitch };
+  return { voice, pitch: second && list.length < 2 ? pitch + 0.1 : pitch };
 }
 
 /** Voices load asynchronously in some browsers; resolve once they are available (or after a short wait). */
@@ -114,14 +130,17 @@ export function playScript(
     u.pitch = pitch;
     u.rate = opts.rate ?? 0.95;
     // A cancelled utterance still fires onend/onerror: ignore it once this script is stopped.
+    const release = duckForVoice();
     u.onstart = () => {
       if (!stopped) opts.onLine?.(i);
     };
     // A short pause between lines, like a recorded test.
     u.onend = () => {
+      release();
       if (!stopped) timer = setTimeout(() => say(i + 1), 450);
     };
     u.onerror = () => {
+      release();
       if (!stopped) timer = setTimeout(() => say(i + 1), 50);
     };
     synth.speak(u);

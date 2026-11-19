@@ -92,3 +92,35 @@ describe("playScript", () => {
     expect(onEnd).not.toHaveBeenCalled();
   });
 });
+
+describe("English voice choice", () => {
+  const v = (name: string, lang: string) => ({ name, lang, voiceURI: name }) as SpeechSynthesisVoice;
+  const chrome = [
+    v("Microsoft David - English (United States)", "en-US"),
+    v("Microsoft Zira - English (United States)", "en-US"),
+    v("Google Deutsch", "de-DE"),
+    v("Google UK English Female", "en-GB"),
+    v("Google UK English Male", "en-GB"),
+    v("Google US English", "en-US"),
+  ];
+
+  it("uses Google US English for words and Google voices for speakers", async () => {
+    synth.getVoices = () => chrome as never;
+    const { wordVoice, playScript } = await import("./speech");
+    expect(wordVoice()?.name).toBe("Google US English");
+    const voices: string[] = [];
+    const speak = synth.speak.bind(synth);
+    synth.speak = (u) => {
+      voices.push((u.voice as SpeechSynthesisVoice | null)?.name ?? "");
+      speak(u);
+    };
+    playScript([
+      { speaker: "W", text: "Hi." },
+      { speaker: "M", text: "Hello." },
+    ]);
+    await vi.runAllTimersAsync();
+    synth.finish();
+    await vi.runAllTimersAsync();
+    expect(voices).toEqual(["Google US English", "Google UK English Male"]);
+  });
+});

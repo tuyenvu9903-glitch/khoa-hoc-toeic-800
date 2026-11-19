@@ -1,9 +1,11 @@
 // Pre-recorded voices (VieNeu-TTS, generated offline by tools/tts). Each clip is stored as
 // public/tts/<key>.mp3 where key = clipKey(voice, text); manifest.json lists the keys that exist.
-// Anything without a clip falls back to the browser's speech synthesis.
+// Only Tám's Vietnamese lines are recorded: English is read by the browser's Google voice, which
+// pronounces it far better than VieNeu. Anything without a clip falls back to browser speech.
 import type { Speaker } from "../data/listening";
+import { duckForVoice } from "./music";
 
-/** Preset VieNeu voice used for each listening role. Changing one means regenerating its clips. */
+/** VieNeu voice per listening role, used only if English lines are recorded again (none are now). */
 export const ROLE_VOICE: Record<Speaker, string> = {
   W: "Trúc Ly",
   M: "Adam",
@@ -13,9 +15,6 @@ export const ROLE_VOICE: Record<Speaker, string> = {
 
 /** Voice of Tám, the mascot. */
 export const MASCOT_VOICE = "Trúc Ly";
-
-/** Voice for single vocabulary words and example sentences. */
-export const WORD_VOICE = "Adam";
 
 /** Two FNV-1a passes with different seeds → 16 hex chars. Mirrored in tools/tts/generate.py. */
 export function clipKey(voice: string, text: string): string {
@@ -76,8 +75,13 @@ export function playClip(key: string, rate = 1): { done: Promise<boolean>; stop:
   stopAllClips();
   const audio = new Audio(clipUrl(key));
   audio.playbackRate = rate;
-  let settle: (ok: boolean) => void = () => {};
-  const done = new Promise<boolean>((r) => (settle = r));
+  const release = duckForVoice();
+  let resolve: (ok: boolean) => void = () => {};
+  const done = new Promise<boolean>((r) => (resolve = r));
+  const settle = (ok: boolean) => {
+    release();
+    resolve(ok);
+  };
   audio.onended = () => settle(true);
   audio.onerror = () => settle(false);
   audio.play().catch(() => settle(false));

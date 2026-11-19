@@ -14,10 +14,10 @@ describe("tts", () => {
     expect(splitLetter("When is the meeting?")).toEqual([null, "When is the meeting?"]);
   });
 
-  it("lists English listening lines and Vietnamese mascot lines without placeholders", () => {
+  it("records only Tám's Vietnamese lines (English uses the browser's voice), without placeholders", () => {
     const clips = ttsCatalog();
-    expect(clips.some((c) => c.group === "part2" && c.lang === "en")).toBe(true);
-    expect(clips.some((c) => c.group === "mascot" && c.lang === "vi")).toBe(true);
+    expect(clips.length).toBeGreaterThan(0);
+    expect(clips.every((c) => c.group === "mascot" && c.lang === "vi")).toBe(true);
     expect(clips.every((c) => !/\{\w+\}/.test(c.text))).toBe(true);
   });
 });
