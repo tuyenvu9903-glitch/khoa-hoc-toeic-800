@@ -88,6 +88,18 @@ export function SettingsPage() {
           />
           Hiệu ứng ăn mừng khi lên level hoặc mở khóa huy hiệu (tắt thì chỉ hiện thông báo nhỏ)
         </label>
+        <label className="flex items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            className="check"
+            checked={state.prefs.mascotVoice}
+            onChange={(e) => {
+              const mascotVoice = e.target.checked;
+              update((s) => ({ ...s, prefs: { ...s.prefs, mascotVoice } }));
+            }}
+          />
+          Tám tự đọc lời nhận xét sau mỗi câu trả lời (giọng thu sẵn; vẫn có nút 🔊 để nghe lại)
+        </label>
       </section>
 
       <section className={`${card} mt-4 space-y-3`}>

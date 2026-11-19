@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "tts:export": "rolldown scripts/tts-export.ts --format esm --platform node -o node_modules/.tmp/tts-export.mjs && node node_modules/.tmp/tts-export.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.7",

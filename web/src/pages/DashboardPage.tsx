@@ -104,7 +104,7 @@ export function DashboardPage({ profile }: { profile: Profile }) {
             </div>
           </div>
 
-          <CoachBubble mood={hello.mood} text={hello.text} size={72} className="mt-5 max-w-xl" />
+          <CoachBubble mood={hello.mood} text={hello.text} voice={hello.text} size={72} className="mt-5 max-w-xl" />
 
           <div className="mt-6">
             {next ? (

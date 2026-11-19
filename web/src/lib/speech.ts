@@ -1,6 +1,23 @@
 // Browser text-to-speech for listening practice: plays a script line by line with a
 // distinct voice per speaker where the device has several English voices.
 import type { Speaker } from "../data/listening";
+import { clipKey, letterText, loadClips, playClip, ROLE_VOICE, splitLetter } from "./tts";
+
+let clips: Set<string> = new Set();
+void loadClips().then((c) => (clips = c));
+
+/** Clip keys to play for a line in a recorded voice, or null to use speech synthesis. */
+function clipsFor(line: ScriptLine): string[] | null {
+  const own = ROLE_VOICE[line.speaker];
+  const [letter, rest] = splitLetter(line.text);
+  // Prefer the speaker's own voice; any recorded voice beats synthesis.
+  const voices = [own, ...Object.values(ROLE_VOICE).filter((v) => v !== own)];
+  const restVoice = voices.find((v) => clips.has(clipKey(v, rest)));
+  if (!restVoice) return null;
+  if (!letter) return [clipKey(restVoice, rest)];
+  const lk = clipKey(restVoice, letterText(letter));
+  return clips.has(lk) ? [lk, clipKey(restVoice, rest)] : null;
+}
 
 export const canSpeech = typeof window !== "undefined" && "speechSynthesis" in window;
 
@@ -51,14 +68,15 @@ export function playScript(
   lines: ScriptLine[],
   opts: { rate?: number; onLine?: (i: number) => void; onEnd?: () => void } = {},
 ): () => void {
-  if (!canSpeech || lines.length === 0) {
+  if (lines.length === 0) {
     opts.onEnd?.();
     return () => {};
   }
-  const synth = window.speechSynthesis;
-  synth.cancel();
+  const synth = canSpeech ? window.speechSynthesis : null;
+  synth?.cancel();
   let stopped = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let stopClip: (() => void) | null = null;
 
   const say = (i: number) => {
     if (stopped) return;
@@ -67,6 +85,24 @@ export function playScript(
       return;
     }
     const line = lines[i]!;
+    const keys = typeof Audio !== "undefined" ? clipsFor(line) : null;
+    if (keys) {
+      opts.onLine?.(i);
+      void (async () => {
+        for (const k of keys) {
+          if (stopped) return;
+          const c = playClip(k, opts.rate ?? 1);
+          stopClip = c.stop;
+          await c.done;
+        }
+        if (!stopped) timer = setTimeout(() => say(i + 1), 450);
+      })();
+      return;
+    }
+    if (!synth) {
+      timer = setTimeout(() => say(i + 1), 50);
+      return;
+    }
     const { voice, pitch } = voiceFor(line.speaker);
     const u = new SpeechSynthesisUtterance(line.text);
     u.lang = voice?.lang ?? "en-US";
@@ -83,12 +119,17 @@ export function playScript(
     };
     synth.speak(u);
   };
-  say(0);
+  // Wait for the clip list (first play only) so recorded voices are used from the first line.
+  void loadClips().then((c) => {
+    clips = c;
+    say(0);
+  });
 
   return () => {
     stopped = true;
     if (timer) clearTimeout(timer);
-    synth.cancel();
+    stopClip?.();
+    synth?.cancel();
   };
 }
 

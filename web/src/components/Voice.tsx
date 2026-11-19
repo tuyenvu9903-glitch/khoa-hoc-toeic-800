@@ -10,13 +10,13 @@ import { CoachBubble } from "./Mascot";
 export function CoachReaction({ line, className = "mt-4" }: { line: CoachLine | null; className?: string }) {
   if (!line) return null;
   const good = line.context.startsWith("correct") || line.context === "combo";
-  return <CoachBubble key={line.seq} mood={line.mood} text={line.text} tip={line.tip} size={52} tone={good ? "mint" : "cream"} className={`pop-in ${className}`} />;
+  return <CoachBubble key={line.seq} mood={line.mood} text={line.text} voice={line.text} autoSpeak tip={line.tip} size={52} tone={good ? "mint" : "cream"} className={`pop-in ${className}`} />;
 }
 
 /** "Let's go" line shown when a session starts. */
 export function StartLine({ className = "mt-4" }: { className?: string }) {
   const line = useLine("start");
-  return <CoachBubble mood={line.mood} text={line.text} size={44} className={className} />;
+  return <CoachBubble mood={line.mood} text={line.text} voice={line.text} size={44} className={className} />;
 }
 
 /** End-of-session card: score, the mascot's verdict and any follow-up actions. */
@@ -42,7 +42,7 @@ export function SessionResult({
           <p className="text-3xl font-extrabold">{correct}/{total}</p>
           <p className="text-xs text-slate-500">câu đúng · {pct}%</p>
         </div>
-        <CoachBubble mood={line.mood} text={line.text} size={64} className="min-w-[14rem] flex-1" />
+        <CoachBubble mood={line.mood} text={line.text} voice={line.text} autoSpeak size={64} className="min-w-[14rem] flex-1" />
       </div>
       {note && <p className="mt-3 text-sm text-slate-600">{note}</p>}
       {children && <div className="mt-4 flex flex-wrap gap-2">{children}</div>}
@@ -53,7 +53,7 @@ export function SessionResult({
 /** A single mascot line for a fixed situation (end screens, game results). */
 export function VerdictLine({ context, vars, className = "" }: { context: VoiceContext; vars?: Vars; className?: string }) {
   const line = useLine(context, vars);
-  return <CoachBubble mood={line.mood} text={line.text} size={60} className={className} />;
+  return <CoachBubble mood={line.mood} text={line.text} voice={line.text} autoSpeak size={60} className={className} />;
 }
 
 /** Playful empty state with the mascot. */

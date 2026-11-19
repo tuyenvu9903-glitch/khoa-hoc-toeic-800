@@ -1,4 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { loadClips } from "../lib/tts";
+import { useAppState } from "../lib/store";
+import { mascotClip, sayMascot } from "../voice/mascotVoice";
 import type { Mood } from "../voice/lines";
 
 /**
@@ -142,20 +145,54 @@ export function CoachBubble({
   size = 64,
   className = "",
   tone = "white",
+  voice,
+  autoSpeak = false,
 }: {
   mood: Mood;
   text: ReactNode;
+  /** Plain text Tám can say aloud (shows a replay button when a recording exists). */
+  voice?: string;
+  /** Say it as soon as it appears (only after a click, e.g. an answer). */
+  autoSpeak?: boolean;
   tip?: string;
   size?: number;
   className?: string;
   tone?: "white" | "mint" | "cream" | "coral";
 }) {
+  const { prefs } = useAppState();
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void loadClips().then(() => alive && setReady(true));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const canSay = ready && voice !== undefined && mascotClip(voice) !== null;
+  useEffect(() => {
+    if (autoSpeak && canSay && prefs.mascotVoice) sayMascot(voice!);
+    // Speak once per line.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voice, canSay]);
   const bg = { white: "bg-white border-slate-200", mint: "bg-p-mint border-brand-200", cream: "bg-p-cream border-amber-200", coral: "bg-p-coral border-rose-200" }[tone];
   return (
     <div className={`flex items-end gap-3 ${className}`} role="status" aria-live="polite">
       <Mascot mood={mood} size={size} />
       <div className={`bubble relative min-w-0 flex-1 rounded-2xl border px-4 py-2.5 text-sm ${bg}`}>
-        <p className="font-semibold text-slate-800">{text}</p>
+        <p className="font-semibold text-slate-800">
+          {text}
+          {canSay && (
+            <button
+              type="button"
+              onClick={() => sayMascot(voice!)}
+              aria-label="Nghe Tám nói"
+              title="Nghe Tám nói"
+              className="ml-2 inline-grid h-6 w-6 place-items-center rounded-full bg-white/70 align-middle text-xs hover:bg-white"
+            >
+              🔊
+            </button>
+          )}
+        </p>
         {tip && (
           <p className="mt-1 text-[13px] text-slate-600">
             <span className="font-semibold text-brand-800">Mẹo: </span>

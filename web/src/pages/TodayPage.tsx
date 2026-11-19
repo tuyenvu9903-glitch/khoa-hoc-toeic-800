@@ -27,7 +27,7 @@ export function TodayPage() {
         <p className="mt-1 text-sm text-slate-600">{plan.title}</p>
       </header>
 
-      <CoachBubble mood={line.mood} text={next && doneCount === 0 ? `${line.text} ${t("taskPending")}` : line.text} />
+      <CoachBubble mood={line.mood} voice={line.text} text={next && doneCount === 0 ? `${line.text} ${t("taskPending")}` : line.text} />
 
       <section className="card p-5" aria-label="Tiến độ hôm nay">
         <div className="flex items-center gap-2" aria-hidden>

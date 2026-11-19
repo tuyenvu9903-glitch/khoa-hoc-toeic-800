@@ -140,6 +140,8 @@ function ErrorCard({ entry, q }: { entry: ErrorEntry; q: IndexedQuestion }) {
         <CoachBubble
           mood={reaction.mood}
           text={reaction.text}
+          voice={reaction.text}
+          autoSpeak
           tip={picked !== q.answer ? skillTip(q.skill) : undefined}
           size={48}
           tone={picked === q.answer ? "mint" : "cream"}
